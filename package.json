@@ -1,0 +1,19 @@
+{
+  "name": "zd-swag-sdk",
+  "version": "1.0.0",
+  "description": "SDK for ZD-SWAG",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZDAutomotive/ZD-SWAG-SDK.git"
+  },
+  "author": "ZD Automotive GmbH",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZDAutomotive/ZD-SWAG-SDK/issues"
+  },
+  "homepage": "https://github.com/ZDAutomotive/ZD-SWAG-SDK#readme"
+}
