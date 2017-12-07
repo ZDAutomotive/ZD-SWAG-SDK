@@ -11,7 +11,7 @@ The preferred way to install the ZD-SWAG SDK for Node.js is to use the
 into a terminal window:
 
 ```sh
-npm install zd-swag-sdk
+npm install zd-swag-sdk --save
 ```
 
 ## Usage and Getting Started

@@ -1,6 +1,6 @@
 {
   "name": "zd-swag-sdk",
-  "version": "1.0.0",
+  "version": "1.0.01",
   "description": "SDK for ZD-SWAG",
   "main": "index.js",
   "scripts": {
