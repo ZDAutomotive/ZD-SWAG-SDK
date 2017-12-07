@@ -1,3 +1,3 @@
-exports.printMsg = function() {
-    console.log("This is a message from the ZD-SWAG-SDK package");
-  }
+// Load all service classes
+var SWAG = require('./services/all');
+module.exports = SWAG;
