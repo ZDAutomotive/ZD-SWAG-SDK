@@ -1,10 +1,10 @@
 {
   "name": "zd-swag-sdk",
-  "version": "1.0.2",
+  "version": "0.0.1",
   "description": "SDK for ZD-SWAG",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha \"test/**/*.spec.js\" --exit"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/ZDAutomotive/ZD-SWAG-SDK#readme",
   "dependencies": {
+    "axios": "^0.17.1",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
     "socket.io-client": "^2.0.4"
   }
 }
