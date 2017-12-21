@@ -1,4 +1,4 @@
 module.exports = {
-    AndroidProberProxy: require('./android-prober-proxy'),
-    TraceServer: require('./trace-server'),
+  AndroidProberProxy: require('./android-prober-proxy'),
+  TraceServer: require('./trace-server'),
 };

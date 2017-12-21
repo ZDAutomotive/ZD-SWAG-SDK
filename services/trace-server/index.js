@@ -69,18 +69,18 @@ class TraceServer {
       const hookName = `assert-can-${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5)}`
       // set timeout event
       const timer = setTimeout(() => {
-        reject(2)
+        if (!option.onFailed) reject(2)
+        else resolve(1)
         this.socket.removeAllListeners(hookName)
         this.removeHook(hookName)
       }, option.timeout || 5000)
 
       // set a hook
       await this.hook(hookName, 'canid != 0')
-      this.socket.on(hookName, (name, trace) => {
+      this.socket.once(hookName, (name, trace) => {
         if (canDPI.verify(trace.data, option.signature)) {
           if (!option.onFailed) resolve(trace)
           else reject(2)
-          this.socket.removeAllListeners(hookName)
           clearTimeout(timer)
           this.removeHook(hookName)
         }
