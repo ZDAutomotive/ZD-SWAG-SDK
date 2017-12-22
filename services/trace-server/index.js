@@ -90,7 +90,7 @@ class TraceServer {
       const checkBeginTime = now - 5000 // check from 5000ms before now
 
       const beforeCANs = await this.pull(checkBeginTime, now, ['can'])
-      const foundBeforeCAN = beforeCANs.find(can => canDPI.verify(can.data, option.signature))
+      const foundBeforeCAN = beforeCANs.find(can => canDPI.verify(can.data.canmsg, option.signature))
       if(foundBeforeCAN) {
         // found a matching CAN msg
         if (!option.onFailed) resolve(foundBeforeCAN)
