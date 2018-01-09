@@ -77,7 +77,7 @@ class TraceServer {
 
       // set a hook
       await this.hook(hookName, 'canid != 0')
-      this.socket.once(hookName, (name, trace) => {
+      this.socket.once(hookName, (trace) => {
         if (canDPI.verify(trace.data, option.signature)) {
           if (!option.onFailed) resolve(trace)
           else reject(2)
