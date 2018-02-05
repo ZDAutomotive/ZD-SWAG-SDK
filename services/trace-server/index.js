@@ -6,6 +6,7 @@ class TraceServer {
   constructor(option) {
     this.port = option.port || 6001;
     this.host = option.host || 'localhost'
+    this.subscribeMap = {}
   }
 
   connect() {
@@ -37,6 +38,7 @@ class TraceServer {
   }
 
   async hook(eventName, filterString) {
+    if (!this.socket) throw new Error('Service not ready')
     return await axios.post(`http://${this.host}:${this.port}/hook`, {
       data: {
         eventName,
@@ -46,6 +48,7 @@ class TraceServer {
   }
 
   async removeHook(eventName) {
+    if (!this.socket) throw new Error('Service not ready')
     return await axios.delete(`http://${this.host}:${this.port}/hook`, {
       params: {
         eventName
@@ -76,7 +79,7 @@ class TraceServer {
       }, option.timeout || 5000)
 
       // set a hook
-      await this.hook(hookName, 'canid != 0')
+      await this.hook(hookName, '{"protocol" = "CAN"}')
       this.socket.once(hookName, (trace) => {
         if (canDPI.verify(trace.data, option.signature)) {
           if (!option.onFailed) resolve(trace)
@@ -101,6 +104,75 @@ class TraceServer {
         return
       }
     })
+  }
+
+  /**
+   * Subscribe a type of trace server message with custom event name
+   * @param {String} name 
+   * @param {String} type 
+   * @returns {boolean} tell whether operation succeed or not, if succeed, listen the event name on this.socket
+   */
+  async subscribe(name, type) {
+    if (!this.socket) throw new Error('Service not ready')
+
+    switch(type) {
+      case 'CAN': {
+        await this.hook(name, '{"protocol" = "CAN"}')
+        break;
+      }
+      case 'BAP': {
+        await this.hook(name, '{"protocol" = "BAP"}')
+        break;
+      }
+      case 'ESO': {
+        await this.hook(name, '{"protocol" = "ESO"}')
+        break;
+      }
+      default:
+        throw new Error('unsupported subscribe type')
+    }
+    this.subscribeMap[name] = type
+
+    return true
+  }
+
+  /**
+   * Unsubscribe a event
+   * @param {string} name 
+   */
+  async unsubscribe(name) {
+    if (!this.socket) throw new Error('Service not ready')
+    if (!this.subscribeMap[name]) throw new Error('name not exists')
+
+    await this.removeHook(name)
+    return true
+  }
+
+  async unsubscribeType(type) {
+    if (!this.socket) throw new Error('Service not ready')
+
+    const foundNames = Object.keys(this.subscribeMap)
+      .filter(key => this.subscribeMap[key] === type)
+    if (foundNames.length) {
+      for(let name of foundNames) {
+        await this.removeHook(name)
+      }
+    }
+    return true
+  }
+
+  async setFilter(filters) {
+    if (!this.socket) throw new Error('Service not ready')
+    return await axios.post(`http://${this.host}:${this.port}/filter`, {
+      data: {
+        filters
+      }
+    })
+  }
+
+  async getFilter() {
+    if (!this.socket) throw new Error('Service not ready')
+    return (await axios.get(`http://${this.host}:${this.port}/trace`)).data
   }
 }
 
