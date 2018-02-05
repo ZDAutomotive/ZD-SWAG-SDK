@@ -40,10 +40,8 @@ class TraceServer {
   async hook(eventName, filterString) {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.post(`http://${this.host}:${this.port}/hook`, {
-      data: {
-        eventName,
-        filterString
-      }
+      eventName,
+      filterString
     })
   }
 
@@ -164,9 +162,7 @@ class TraceServer {
   async setFilter(filters) {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.post(`http://${this.host}:${this.port}/filter`, {
-      data: {
-        filters
-      }
+      filters
     })
   }
 
