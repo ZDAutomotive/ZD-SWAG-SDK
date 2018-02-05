@@ -172,7 +172,7 @@ class TraceServer {
 
   async getFilter() {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.get(`http://${this.host}:${this.port}/trace`)).data
+    return (await axios.get(`http://${this.host}:${this.port}/filter`)).data
   }
 }
 
