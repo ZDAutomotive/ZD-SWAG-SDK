@@ -161,9 +161,7 @@ class TraceServer {
 
   async setFilter(filters) {
     if (!this.socket) throw new Error('Service not ready')
-    return await axios.post(`http://${this.host}:${this.port}/filter`, {
-      filters
-    })
+    return await axios.post(`http://${this.host}:${this.port}/filter`, filters)
   }
 
   async getFilter() {
