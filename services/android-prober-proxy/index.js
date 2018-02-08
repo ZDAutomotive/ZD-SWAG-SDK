@@ -18,7 +18,7 @@ function addEventHandlers(socket, emitter) {
   });
 }
 
-class AdroidProberProxy {
+export default class AdroidProberProxy {
   constructor(option) {
     this.emitter = new Event();
     this.option = option;
@@ -58,5 +58,3 @@ class AdroidProberProxy {
         
   }
 }
-
-module.exports = AdroidProberProxy

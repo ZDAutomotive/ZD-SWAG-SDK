@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
    * Verify if a can msg match the signature
    * @param {Object} canmsg

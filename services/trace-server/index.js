@@ -1,8 +1,8 @@
-const ioClient = require('socket.io-client');
-const axios = require('axios');
-const canDPI = require('../../utils/can/dpi');
+import ioClient from 'socket.io-client';
+import axios from 'axios';
+import canDPI from '../../utils/can/dpi';
 
-class TraceServer {
+export default class TraceServer {
   constructor(option) {
     this.port = option.port || 6001;
     this.host = option.host || 'localhost'
@@ -106,8 +106,8 @@ class TraceServer {
 
   /**
    * Subscribe a type of trace server message with custom event name
-   * @param {String} name 
-   * @param {String} type 
+   * @param {String} name subscribed event name on which socket listens
+   * @param {String} type subscribed event type, could be one of [CAN, BAP, ESO]
    * @returns {boolean} tell whether operation succeed or not, if succeed, listen the event name on this.socket
    */
   async subscribe(name, type) {
@@ -136,7 +136,7 @@ class TraceServer {
 
   /**
    * Unsubscribe a event
-   * @param {string} name 
+   * @param {string} name event name to unsubscribe
    */
   async unsubscribe(name) {
     if (!this.socket) throw new Error('Service not ready')
@@ -169,5 +169,3 @@ class TraceServer {
     return (await axios.get(`http://${this.host}:${this.port}/filter`)).data
   }
 }
-
-module.exports = TraceServer;
