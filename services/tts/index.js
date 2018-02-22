@@ -2,20 +2,18 @@ const axios = require("axios");
 
 module.exports = class TTS {
   constructor(option) {
-    console.log(option);
     this.option = option;
   }
 
   // data = {text, voice}
   new(data, cb) {
-    console.log("data", data);
     axios
       .post(
-        `http://${this.option.host}:${this.option.port}/tts/model/new`,
+        `http://${this.option.host}:${this.option.port}/tts/model`,
         data
       )
       .then(response => {
-        cb(false, response.data.result);
+        cb(false, response.data);
       })
       .catch(err => {
         cb(true, err);
@@ -30,7 +28,7 @@ module.exports = class TTS {
         data
       )
       .then(response => {
-        cb(false, response.data.result);
+        cb(false, response.data);
       })
       .catch(err => {
         cb(true, err);
@@ -41,7 +39,7 @@ module.exports = class TTS {
     axios
       .delete(`http://${this.option.host}:${this.option.port}/tts/model/${id}`)
       .then(response => {
-        cb(false, response.data.result);
+        cb(false, response.data);
       })
       .catch(err => {
         cb(true, err);
@@ -52,10 +50,7 @@ module.exports = class TTS {
     axios
       .get(`http://${this.option.host}:${this.option.port}/tts/model/${text}`)
       .then(response => {
-        // response.data.forEach(element => {
-        //   element.voice = element.voice.data.toString("base64");
-        // });
-        cb(false, response.data.result);
+        cb(false, response.data);
       })
       .catch(err => {
         cb(true, err);
