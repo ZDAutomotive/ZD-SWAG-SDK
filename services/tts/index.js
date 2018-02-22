@@ -8,10 +8,10 @@ module.exports = class TTS {
   // data = {text, voice}
   new(data, cb) {
     axios
-      .post(
-        `http://${this.option.host}:${this.option.port}/tts/model`,
-        data
-      )
+      .post(`http://${this.option.host}:${this.option.port}/tts/model`, {
+        text: data.text,
+        voice: data.voice.toString("base64")
+      })
       .then(response => {
         cb(false, response.data);
       })
@@ -23,10 +23,10 @@ module.exports = class TTS {
   // data = {text, voice}
   update(id, data, cb) {
     axios
-      .put(
-        `http://${this.option.host}:${this.option.port}/tts/model/${id}`,
-        data
-      )
+      .put(`http://${this.option.host}:${this.option.port}/tts/model/${id}`, {
+        text: data.text,
+        voice: data.voice.toString("base64")
+      })
       .then(response => {
         cb(false, response.data);
       })
