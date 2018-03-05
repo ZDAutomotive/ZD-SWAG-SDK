@@ -115,15 +115,15 @@ export default class TraceServer {
 
     switch(type) {
       case 'CAN': {
-        await this.hook(name, '{"protocol" = "CAN"}')
+        await this.hook(name, '{"protocol" == "CAN"}')
         break;
       }
       case 'BAP': {
-        await this.hook(name, '{"protocol" = "BAP"}')
+        await this.hook(name, '{"protocol" == "BAP"}')
         break;
       }
       case 'ESO': {
-        await this.hook(name, '{"protocol" = "ESO"}')
+        await this.hook(name, '{"protocol" == "ESO"}')
         break;
       }
       default:
