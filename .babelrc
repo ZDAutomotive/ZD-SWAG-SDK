@@ -4,10 +4,21 @@
       "targets": {
         "browsers": ["last 2 versions", "safari >= 7", "firefox >= 44"]
       },
-	  "modules": false
+	    "modules": false
     }]
   ],
   "plugins": [
     "external-helpers"
-  ]
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        ["env", {
+          "targets": {
+            "node": "current"
+          },
+        }]
+      ]
+    }
+  }
 }

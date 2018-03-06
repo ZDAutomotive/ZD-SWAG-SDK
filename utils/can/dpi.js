@@ -33,7 +33,8 @@ export default {
    */
   parse(canmsg, signature, params) {
     if(!this.verify(canmsg, signature)) return []
-    
+
+    const DATA = Array.from(canmsg.DATA).reverse()
     const ret = []
     params.forEach(param => {
       const { pos, len, name } = param
@@ -42,18 +43,17 @@ export default {
       let bitInByte = pos % 8
       let restLen = len
       let val = 0
+      let valLen = 0
       while (restLen > 0) {
         const currLen = 8 - bitInByte
         if (currLen >= restLen) {
-          const mask = (Math.pow(2, restLen) - 1) << (currLen - restLen)
-          val <<= restLen
-          val += (canmsg.DATA[bytePos] & mask) >> (currLen - restLen)
+          const mask = Math.pow(2, restLen) - 1
+          val += (DATA[bytePos] & mask) << valLen
           break
         } else {
-          const mask = (Math.pow(2, currLen) - 1)
-          val <<= currLen
-          val += canmsg.DATA[bytePos] & mask
+          val += (DATA[bytePos] >> bitInByte) << valLen
           restLen -= currLen
+          valLen += currLen
           bytePos += 1
           bitInByte = 0
         }
