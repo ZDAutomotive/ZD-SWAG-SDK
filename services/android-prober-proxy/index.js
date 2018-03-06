@@ -1,4 +1,4 @@
-const Event = require('event');
+const Event = require('events');
 const ioClient = require('socket.io-client');
 
 function addEventHandlers(socket, emitter) {
