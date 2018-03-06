@@ -26939,6 +26939,7 @@ var canDPI = {
   parse: function parse(canmsg, signature, params) {
     if (!this.verify(canmsg, signature)) return [];
 
+    var DATA = Array.from(canmsg.DATA).reverse();
     var ret = [];
     params.forEach(function (param) {
       var pos = param.pos,
@@ -26950,18 +26951,17 @@ var canDPI = {
       var bitInByte = pos % 8;
       var restLen = len;
       var val = 0;
+      var valLen = 0;
       while (restLen > 0) {
         var currLen = 8 - bitInByte;
         if (currLen >= restLen) {
-          var mask = Math.pow(2, restLen) - 1 << currLen - restLen;
-          val <<= restLen;
-          val += (canmsg.DATA[bytePos] & mask) >> currLen - restLen;
+          var mask = Math.pow(2, restLen) - 1;
+          val += (DATA[bytePos] & mask) << valLen;
           break;
         } else {
-          var _mask = Math.pow(2, currLen) - 1;
-          val <<= currLen;
-          val += canmsg.DATA[bytePos] & _mask;
+          val += DATA[bytePos] >> bitInByte << valLen;
           restLen -= currLen;
+          valLen += currLen;
           bytePos += 1;
           bitInByte = 0;
         }
@@ -27246,21 +27246,21 @@ var TraceServer = function () {
 
               case 5:
                 _context5.next = 7;
-                return this.hook(name, '{"protocol" = "CAN"}');
+                return this.hook(name, '{"protocol" == "CAN"}');
 
               case 7:
                 return _context5.abrupt('break', 15);
 
               case 8:
                 _context5.next = 10;
-                return this.hook(name, '{"protocol" = "BAP"}');
+                return this.hook(name, '{"protocol" == "BAP"}');
 
               case 10:
                 return _context5.abrupt('break', 15);
 
               case 11:
                 _context5.next = 13;
-                return this.hook(name, '{"protocol" = "ESO"}');
+                return this.hook(name, '{"protocol" == "ESO"}');
 
               case 13:
                 return _context5.abrupt('break', 15);
@@ -27514,9 +27514,69 @@ var TraceServer = function () {
   return TraceServer;
 }();
 
+var tts = function () {
+  function TTS(option) {
+    classCallCheck(this, TTS);
+
+    this.option = option;
+  }
+
+  // data = {text, voice}
+
+
+  createClass(TTS, [{
+    key: 'new',
+    value: function _new(data, cb) {
+      axios$1.post('http://' + this.option.host + ':' + this.option.port + '/tts/model', {
+        text: data.text,
+        voice: data.voice.toString("base64")
+      }).then(function (response) {
+        cb(false, response.data);
+      }).catch(function (err) {
+        cb(true, err);
+      });
+    }
+
+    // data = {text, voice}
+
+  }, {
+    key: 'update',
+    value: function update(id, data, cb) {
+      axios$1.put('http://' + this.option.host + ':' + this.option.port + '/tts/model/' + id, {
+        text: data.text,
+        voice: data.voice.toString("base64")
+      }).then(function (response) {
+        cb(false, response.data);
+      }).catch(function (err) {
+        cb(true, err);
+      });
+    }
+  }, {
+    key: 'delete',
+    value: function _delete(id, cb) {
+      axios$1.delete('http://' + this.option.host + ':' + this.option.port + '/tts/model/' + id).then(function (response) {
+        cb(false, response.data);
+      }).catch(function (err) {
+        cb(true, err);
+      });
+    }
+  }, {
+    key: 'get',
+    value: function get$$1(text, cb) {
+      axios$1.get('http://' + this.option.host + ':' + this.option.port + '/tts/model/' + text).then(function (response) {
+        cb(false, response.data);
+      }).catch(function (err) {
+        cb(true, err);
+      });
+    }
+  }]);
+  return TTS;
+}();
+
 var SWAG = {
   AndroidProberProxy: AdroidProberProxy,
-  TraceServer: TraceServer
+  TraceServer: TraceServer,
+  TTS: tts
 };
 
 // Load all service classes

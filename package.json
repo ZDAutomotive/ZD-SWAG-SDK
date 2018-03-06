@@ -6,6 +6,7 @@
   "module": "dist/bundle.esm.js",
   "browser": "dist/bundle.umd.js",
   "scripts": {
+    "build": "rollup -c",
     "test": "cross-env BABEL_ENV=test mocha --require babel-core/register \"test/**/*.spec.js\" --exit"
   },
   "repository": {
