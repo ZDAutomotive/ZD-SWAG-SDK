@@ -16,13 +16,23 @@ npm install zd-swag-sdk --save
 
 ## Usage and Getting Started
 
-In a JavaScript file:
+In a JavaScript(Node.js) file:
 
 ```javascript
 // import the entire SDK
 var swag = require('zd-swag-sdk');
 // initialize an individual service
 var androidTA = new swag.AndroidProberProxy();
+```
+
+In a browser with webpack and babel:
+
+```javascript
+import AndroidProberProxy from 'zd-swag-sdk/services/android-prober-proxy'
+const androidTA = new AndroidProberProxy({
+  host: 'example.com',
+  port: 1234
+});
 ```
 
 ## Opening Issues

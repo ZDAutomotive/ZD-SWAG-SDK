@@ -13969,23 +13969,25 @@ Object.keys(nativeProtocols).forEach(function (protocol) {
 
 var followRedirects_1 = followRedirects.maxRedirects;
 
-var _args = [["axios@0.17.1","/home/chao/project/ZD-SWAG-SDK"]];
-var _from = "axios@0.17.1";
+var _from = "axios";
 var _id = "axios@0.17.1";
 var _inBundle = false;
 var _integrity = "sha1-LY4+XQvb1zJ/kbyBT1xXZg+Bgk0=";
 var _location = "/axios";
 var _phantomChildren = {};
-var _requested = {"type":"version","registry":true,"raw":"axios@0.17.1","name":"axios","escapedName":"axios","rawSpec":"0.17.1","saveSpec":null,"fetchSpec":"0.17.1"};
-var _requiredBy = ["/"];
+var _requested = {"type":"tag","registry":true,"raw":"axios","name":"axios","escapedName":"axios","rawSpec":"","saveSpec":null,"fetchSpec":"latest"};
+var _requiredBy = ["#USER","/"];
 var _resolved = "https://registry.npmjs.org/axios/-/axios-0.17.1.tgz";
-var _spec = "0.17.1";
-var _where = "/home/chao/project/ZD-SWAG-SDK";
+var _shasum = "2d8e3e5d0bdbd7327f91bc814f5c57660f81824d";
+var _spec = "axios";
+var _where = "/home/tang/projects/ZD-SWAG-SDK";
 var author = {"name":"Matt Zabriskie"};
 var browser$4 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
 var bugs = {"url":"https://github.com/axios/axios/issues"};
+var bundleDependencies = false;
 var bundlesize = [{"path":"./dist/axios.min.js","threshold":"5kB"}];
 var dependencies = {"follow-redirects":"^1.2.5","is-buffer":"^1.1.5"};
+var deprecated = false;
 var description = "Promise based HTTP client for the browser and node.js";
 var devDependencies = {"bundlesize":"^0.5.7","coveralls":"^2.11.9","es6-promise":"^4.0.5","grunt":"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-phantomjs-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","phantomjs-prebuilt":"^2.1.7","sinon":"^1.17.4","typescript":"^2.0.3","url-search-params":"^0.6.1","webpack":"^1.13.1","webpack-dev-server":"^1.14.1"};
 var homepage = "https://github.com/axios/axios";
@@ -13998,7 +14000,6 @@ var scripts = {"build":"NODE_ENV=production grunt build","coveralls":"cat covera
 var typings = "./index.d.ts";
 var version = "0.17.1";
 var _package = {
-	_args: _args,
 	_from: _from,
 	_id: _id,
 	_inBundle: _inBundle,
@@ -14008,13 +14009,16 @@ var _package = {
 	_requested: _requested,
 	_requiredBy: _requiredBy,
 	_resolved: _resolved,
+	_shasum: _shasum,
 	_spec: _spec,
 	_where: _where,
 	author: author,
 	browser: browser$4,
 	bugs: bugs,
+	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
 	dependencies: dependencies,
+	deprecated: deprecated,
 	description: description,
 	devDependencies: devDependencies,
 	homepage: homepage,
@@ -14029,7 +14033,6 @@ var _package = {
 };
 
 var _package$1 = Object.freeze({
-	_args: _args,
 	_from: _from,
 	_id: _id,
 	_inBundle: _inBundle,
@@ -14039,13 +14042,16 @@ var _package$1 = Object.freeze({
 	_requested: _requested,
 	_requiredBy: _requiredBy,
 	_resolved: _resolved,
+	_shasum: _shasum,
 	_spec: _spec,
 	_where: _where,
 	author: author,
 	browser: browser$4,
 	bugs: bugs,
+	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
 	dependencies: dependencies,
+	deprecated: deprecated,
 	description: description,
 	devDependencies: devDependencies,
 	homepage: homepage,
@@ -15712,11 +15718,93 @@ var MainUnit = function () {
   return MainUnit;
 }();
 
+var CANTrace = function () {
+  function CANTrace(option) {
+    _classCallCheck(this, CANTrace);
+
+    this.port = option.port || 6002;
+    this.host = option.host || 'localhost';
+    this.subscribeMap = {};
+  }
+
+  _createClass(CANTrace, [{
+    key: 'connect',
+    value: function connect(type) {
+      var _this = this;
+
+      return new _Promise(function (resolve, reject) {
+        _this.socket = lib$4.connect('http://' + _this.host + ':' + _this.port + '/');
+        _this.socket.on('connect', function () {
+          resolve(1);
+          _this.socket.emit('identity', type);
+          _this.socket.removeAllListeners('connect');
+          _this.socket.removeAllListeners('connect_error');
+        });
+        _this.socket.on('connect_error', function () {
+          reject(1);
+          _this.socket.removeAllListeners('connect');
+          _this.socket.removeAllListeners('connect_error');
+          delete _this.socket;
+        });
+      });
+    }
+
+    /**
+     * send canmsg
+     */
+
+  }, {
+    key: 'sendCANMsg',
+    value: function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(name, canmsg) {
+        var res;
+        return regenerator.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (this.socket) {
+                  _context.next = 2;
+                  break;
+                }
+
+                throw new Error('CAN Trace service not ready');
+
+              case 2:
+                _context.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/send', {
+                  name: name,
+                  canmsg: canmsg
+                });
+
+              case 4:
+                res = _context.sent;
+                return _context.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function sendCANMsg(_x, _x2) {
+        return _ref.apply(this, arguments);
+      }
+
+      return sendCANMsg;
+    }()
+  }]);
+
+  return CANTrace;
+}();
+
 var SWAG = {
   AndroidProberProxy: AdroidProberProxy,
   TraceServer: TraceServer,
   TTS: tts,
-  AudiMainUnit: MainUnit
+  AudiMainUnit: MainUnit,
+  CANTrace: CANTrace
 };
 
 // Load all service classes
