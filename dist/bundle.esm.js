@@ -29920,7 +29920,7 @@ var CANTrace = function () {
     }
 
     /**
-     * send canmsg
+     * send a single canmsg
      */
 
   }, {
@@ -29963,6 +29963,56 @@ var CANTrace = function () {
       }
 
       return sendCANMsg;
+    }()
+
+    /**
+     * send a group of canmsg in a time sequence
+     * @param {String} name CAN bus name
+     * @param {Object[]} canmsgs a group of canmsg
+     */
+
+  }, {
+    key: 'sendMultiCANMsgs',
+    value: function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(name, canmsgs) {
+        var _this2 = this;
+
+        return regenerator.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (this.socket) {
+                  _context2.next = 2;
+                  break;
+                }
+
+                throw new Error('CAN Trace service not ready');
+
+              case 2:
+                canmsgs.forEach(function (elem) {
+                  setTimeout(function () {
+                    axios$1.post('http://' + _this2.host + ':' + _this2.port + '/send', {
+                      name: name,
+                      canmsg: elem.canmsg
+                    });
+                  }, elem.time);
+                });
+
+                return _context2.abrupt('return', true);
+
+              case 4:
+              case 'end':
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function sendMultiCANMsgs(_x3, _x4) {
+        return _ref2.apply(this, arguments);
+      }
+
+      return sendMultiCANMsgs;
     }()
   }]);
 
