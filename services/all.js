@@ -2,10 +2,12 @@ import AndroidProberProxy from './android-prober-proxy/index'
 import TraceServer from './trace-server/index'
 import TTS from './tts/index'
 import MainUnit from './audi-mainunit/index'
+import Simulation from './simulation/index'
 
 export default {
   AndroidProberProxy,
   TraceServer,
   TTS,
-  AudiMainUnit: MainUnit
+  AudiMainUnit: MainUnit,
+  Simulation
 };
