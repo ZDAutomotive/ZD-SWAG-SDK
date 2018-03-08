@@ -1,7 +1,7 @@
-import ioClient from 'socket.io-client';
-import axios from 'axios';
+const ioClient = require ('socket.io-client')
+const axios = require('axios')
 
-export default class Simulation {
+module.exports = class RemotepanelClient {
     constructor(option) {
         this.port = option.port || 6006;
         this.host = option.host || 'localhost'
@@ -17,7 +17,7 @@ export default class Simulation {
             this.socket.removeAllListeners('connect_error')
           })
           this.socket.on('connect_error', () => {
-            reject(1)
+            reject(0)
             this.socket.removeAllListeners('connect')
             this.socket.removeAllListeners('connect_error')
             delete this.socket
