@@ -1,6 +1,7 @@
-const RemotepanelClient = require("./index.js");
+const SDK = require('../../dist/bundle.cjs')
 
-let remotepanel = new RemotepanelClient({port:6006, host:'192.168.178.71'})
+let remotepanel = new SDK.Simulation({port:6006, host:'192.168.178.71'})
+let cantrace = new SDK.CANTrace({port:6002, host:'192.168.178.71'})
 
 // SDS KEY
 // remotepanel.keyReq(
@@ -33,13 +34,8 @@ let remotepanel = new RemotepanelClient({port:6006, host:'192.168.178.71'})
 //     }
 // )
 async function test() {
-    console.log(await remotepanel.connect())
-    await remotepanel.touchReq(
-        {
-            screentype: 1,
-            x: 500, 
-            y: 300
-        }
-    )
+    await remotepanel.connect()
+    await cantrace.connect()
+    await cantrace.sendMultiCANMsgs('can2', await remotepanel.tapReq('ret','top',200,200))
 }
 test()

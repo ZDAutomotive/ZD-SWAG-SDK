@@ -28139,35 +28139,23 @@ Object.keys(nativeProtocols).forEach(function (protocol) {
 
 var followRedirects_1 = followRedirects.maxRedirects;
 
-<<<<<<< HEAD
-var _from = "axios";
-=======
 var _args = [["axios@0.17.1","/home/mu/Dokumente/ZD-SWAG-SDK"]];
 var _from = "axios@0.17.1";
->>>>>>> feature_remotepanel
 var _id = "axios@0.17.1";
 var _inBundle = false;
 var _integrity = "sha1-LY4+XQvb1zJ/kbyBT1xXZg+Bgk0=";
 var _location = "/axios";
 var _phantomChildren = {};
-var _requested = {"type":"tag","registry":true,"raw":"axios","name":"axios","escapedName":"axios","rawSpec":"","saveSpec":null,"fetchSpec":"latest"};
-var _requiredBy = ["#USER","/"];
+var _requested = {"type":"version","registry":true,"raw":"axios@0.17.1","name":"axios","escapedName":"axios","rawSpec":"0.17.1","saveSpec":null,"fetchSpec":"0.17.1"};
+var _requiredBy = ["/"];
 var _resolved = "https://registry.npmjs.org/axios/-/axios-0.17.1.tgz";
-<<<<<<< HEAD
-var _shasum = "2d8e3e5d0bdbd7327f91bc814f5c57660f81824d";
-var _spec = "axios";
-var _where = "/home/tang/projects/ZD-SWAG-SDK";
-=======
 var _spec = "0.17.1";
 var _where = "/home/mu/Dokumente/ZD-SWAG-SDK";
->>>>>>> feature_remotepanel
 var author = {"name":"Matt Zabriskie"};
 var browser$5 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
 var bugs = {"url":"https://github.com/axios/axios/issues"};
-var bundleDependencies = false;
 var bundlesize = [{"path":"./dist/axios.min.js","threshold":"5kB"}];
 var dependencies = {"follow-redirects":"^1.2.5","is-buffer":"^1.1.5"};
-var deprecated = false;
 var description = "Promise based HTTP client for the browser and node.js";
 var devDependencies = {"bundlesize":"^0.5.7","coveralls":"^2.11.9","es6-promise":"^4.0.5","grunt":"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-phantomjs-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","phantomjs-prebuilt":"^2.1.7","sinon":"^1.17.4","typescript":"^2.0.3","url-search-params":"^0.6.1","webpack":"^1.13.1","webpack-dev-server":"^1.14.1"};
 var homepage = "https://github.com/axios/axios";
@@ -28180,6 +28168,7 @@ var scripts = {"build":"NODE_ENV=production grunt build","coveralls":"cat covera
 var typings = "./index.d.ts";
 var version$2 = "0.17.1";
 var _package = {
+	_args: _args,
 	_from: _from,
 	_id: _id,
 	_inBundle: _inBundle,
@@ -28189,16 +28178,13 @@ var _package = {
 	_requested: _requested,
 	_requiredBy: _requiredBy,
 	_resolved: _resolved,
-	_shasum: _shasum,
 	_spec: _spec,
 	_where: _where,
 	author: author,
 	browser: browser$5,
 	bugs: bugs,
-	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
 	dependencies: dependencies,
-	deprecated: deprecated,
 	description: description,
 	devDependencies: devDependencies,
 	homepage: homepage,
@@ -28213,6 +28199,7 @@ var _package = {
 };
 
 var _package$1 = Object.freeze({
+	_args: _args,
 	_from: _from,
 	_id: _id,
 	_inBundle: _inBundle,
@@ -28222,16 +28209,13 @@ var _package$1 = Object.freeze({
 	_requested: _requested,
 	_requiredBy: _requiredBy,
 	_resolved: _resolved,
-	_shasum: _shasum,
 	_spec: _spec,
 	_where: _where,
 	author: author,
 	browser: browser$5,
 	bugs: bugs,
-	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
 	dependencies: dependencies,
-	deprecated: deprecated,
 	description: description,
 	devDependencies: devDependencies,
 	homepage: homepage,
@@ -29898,7 +29882,6 @@ var MainUnit = function () {
   return MainUnit;
 }();
 
-<<<<<<< HEAD
 var CANTrace = function () {
   function CANTrace(option) {
     _classCallCheck(this, CANTrace);
@@ -30028,17 +30011,18 @@ var CANTrace = function () {
   }]);
 
   return CANTrace;
-=======
-var Simulation = function () {
-    function Simulation(option) {
-        _classCallCheck(this, Simulation);
+}();
+
+var RemotepanelClient = function () {
+    function RemotepanelClient(option) {
+        _classCallCheck(this, RemotepanelClient);
 
         this.port = option.port || 6006;
         this.host = option.host || 'localhost';
         this.subscribeMap = {};
     }
 
-    _createClass(Simulation, [{
+    _createClass(RemotepanelClient, [{
         key: 'connect',
         value: function connect() {
             var _this = this;
@@ -30052,7 +30036,7 @@ var Simulation = function () {
                     _this.socket.removeAllListeners('connect_error');
                 });
                 _this.socket.on('connect_error', function () {
-                    reject(1);
+                    reject(0);
                     _this.socket.removeAllListeners('connect');
                     _this.socket.removeAllListeners('connect_error');
                     delete _this.socket;
@@ -30062,33 +30046,79 @@ var Simulation = function () {
         /**
         * call remotePanel
         */
-        //keyevent {keyid:'ZD_SDS', keyboardid:1}
+        // keyevent 
+        // action:'exe'/'ret'(execute remotepanel / return canmsg)
+        // keyid:'ZD_SDS'
+        // keyboardid: 'MIB1' / 'MIB2'
 
     }, {
-        key: 'keyReq',
+        key: 'hardkeyReq',
         value: function () {
-            var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(keyevent) {
-                var res;
+            var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(_action, _keyid, _keyboardid) {
+                var keyevent, res;
                 return regenerator.wrap(function _callee$(_context) {
                     while (1) {
                         switch (_context.prev = _context.next) {
                             case 0:
+                                keyevent = void 0;
+
+                                if (!(_action === 'exe' || _action === 'ret')) {
+                                    _context.next = 10;
+                                    break;
+                                }
+
+                                _context.t0 = _keyboardid;
+                                _context.next = _context.t0 === 'MIB1' ? 5 : _context.t0 === 'MIB2' ? 7 : 9;
+                                break;
+
+                            case 5:
+                                keyevent = {
+                                    action: _action,
+                                    event: {
+                                        keyid: _keyid,
+                                        keyboardid: 2
+                                    }
+                                };
+                                return _context.abrupt('break', 10);
+
+                            case 7:
+                                keyevent = {
+                                    action: _action,
+                                    event: {
+                                        keyid: _keyid,
+                                        keyboardid: 1
+                                    }
+                                };
+                                return _context.abrupt('break', 10);
+
+                            case 9:
+                                return _context.abrupt('break', 10);
+
+                            case 10:
+                                if (keyevent) {
+                                    _context.next = 12;
+                                    break;
+                                }
+
+                                throw new Error('Unexpected parameters');
+
+                            case 12:
                                 if (this.socket) {
-                                    _context.next = 2;
+                                    _context.next = 14;
                                     break;
                                 }
 
                                 throw new Error('Service not ready');
 
-                            case 2:
-                                _context.next = 4;
+                            case 14:
+                                _context.next = 16;
                                 return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/key', keyevent);
 
-                            case 4:
+                            case 16:
                                 res = _context.sent;
                                 return _context.abrupt('return', res.data);
 
-                            case 6:
+                            case 18:
                             case 'end':
                                 return _context.stop();
                         }
@@ -30096,39 +30126,88 @@ var Simulation = function () {
                 }, _callee, this);
             }));
 
-            function keyReq(_x) {
+            function hardkeyReq(_x2, _x3, _x4) {
                 return _ref.apply(this, arguments);
             }
 
-            return keyReq;
+            return hardkeyReq;
         }()
-        //touchevent {screentype: 1(top) / 2(bottom), x:, y:}
+        //touchevent 
+        // action:'exe'/'ret'(execute remotepanel / return canmsg)
+        // screentype:'top' / 'bottom'
+        // x: 200
+        // y: 200
 
     }, {
-        key: 'touchReq',
+        key: 'tapReq',
         value: function () {
-            var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(touchevent) {
-                var res;
+            var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(_action, _screentype, _x, _y) {
+                var touchevent, res;
                 return regenerator.wrap(function _callee2$(_context2) {
                     while (1) {
                         switch (_context2.prev = _context2.next) {
                             case 0:
+                                touchevent = void 0;
+
+                                if (!(_action === 'exe' || _action === 'ret')) {
+                                    _context2.next = 10;
+                                    break;
+                                }
+
+                                _context2.t0 = _screentype;
+                                _context2.next = _context2.t0 === 'top' ? 5 : _context2.t0 === 'bottom' ? 7 : 9;
+                                break;
+
+                            case 5:
+                                touchevent = {
+                                    action: _action,
+                                    event: {
+                                        screentype: 1,
+                                        x: _x,
+                                        y: _y
+                                    }
+                                };
+                                return _context2.abrupt('break', 10);
+
+                            case 7:
+                                touchevent = {
+                                    action: _action,
+                                    event: {
+                                        screentype: 2,
+                                        x: _x,
+                                        y: _y
+                                    }
+                                };
+                                return _context2.abrupt('break', 10);
+
+                            case 9:
+                                return _context2.abrupt('break', 10);
+
+                            case 10:
+                                if (touchevent) {
+                                    _context2.next = 12;
+                                    break;
+                                }
+
+                                throw new Error('Unexpected parameters');
+
+                            case 12:
                                 if (this.socket) {
-                                    _context2.next = 2;
+                                    _context2.next = 14;
                                     break;
                                 }
 
                                 throw new Error('Service not ready');
 
-                            case 2:
-                                _context2.next = 4;
+                            case 14:
+                                _context2.next = 16;
                                 return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touch', touchevent);
 
-                            case 4:
+                            case 16:
                                 res = _context2.sent;
                                 return _context2.abrupt('return', res.data);
 
-                            case 6:
+                            case 18:
                             case 'end':
                                 return _context2.stop();
                         }
@@ -30136,39 +30215,94 @@ var Simulation = function () {
                 }, _callee2, this);
             }));
 
-            function touchReq(_x2) {
+            function tapReq(_x5, _x6, _x7, _x8) {
                 return _ref2.apply(this, arguments);
             }
 
-            return touchReq;
+            return tapReq;
         }()
-        //dragevent {screentype: 1(top) / 2(bottom), x:, y:, dx:, dy:}
+        //dragevent
+        // action:'exe'/'ret'(execute remotepanel / return canmsg)
+        // screentype:'top' / 'bottom'
+        // x: 200
+        // y: 200
+        // dx: 200
+        // dy: 0
 
     }, {
         key: 'dragReq',
         value: function () {
-            var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(dragevent) {
-                var res;
+            var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(_action, _screentype, _x, _y, _dx, _dy) {
+                var dragevent, res;
                 return regenerator.wrap(function _callee3$(_context3) {
                     while (1) {
                         switch (_context3.prev = _context3.next) {
                             case 0:
+                                dragevent = void 0;
+
+                                if (!(_action === 'exe' || _action === 'ret')) {
+                                    _context3.next = 10;
+                                    break;
+                                }
+
+                                _context3.t0 = _screentype;
+                                _context3.next = _context3.t0 === 'top' ? 5 : _context3.t0 === 'bottom' ? 7 : 9;
+                                break;
+
+                            case 5:
+                                dragevent = {
+                                    action: _action,
+                                    event: {
+                                        screentype: 1,
+                                        x: _x,
+                                        y: _y,
+                                        dx: _dx,
+                                        dy: _dy
+                                    }
+                                };
+                                return _context3.abrupt('break', 10);
+
+                            case 7:
+                                dragevent = {
+                                    action: _action,
+                                    event: {
+                                        screentype: 2,
+                                        x: _x,
+                                        y: _y,
+                                        dx: _dx,
+                                        dy: _dy
+                                    }
+                                };
+                                return _context3.abrupt('break', 10);
+
+                            case 9:
+                                return _context3.abrupt('break', 10);
+
+                            case 10:
+                                if (dragevent) {
+                                    _context3.next = 12;
+                                    break;
+                                }
+
+                                throw new Error('Unexpected parameters');
+
+                            case 12:
                                 if (this.socket) {
-                                    _context3.next = 2;
+                                    _context3.next = 14;
                                     break;
                                 }
 
                                 throw new Error('Service not ready');
 
-                            case 2:
-                                _context3.next = 4;
+                            case 14:
+                                _context3.next = 16;
                                 return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/drag', dragevent);
 
-                            case 4:
+                            case 16:
                                 res = _context3.sent;
                                 return _context3.abrupt('return', res.data);
 
-                            case 6:
+                            case 18:
                             case 'end':
                                 return _context3.stop();
                         }
@@ -30176,39 +30310,60 @@ var Simulation = function () {
                 }, _callee3, this);
             }));
 
-            function dragReq(_x3) {
+            function dragReq(_x9, _x10, _x11, _x12, _x13, _x14) {
                 return _ref3.apply(this, arguments);
             }
 
             return dragReq;
         }()
-        //touchscreenshot {x:0, y:0}
+        //touchscreenshot {action:'exe'/'ret', event: {x:0, y:0}}
+        // action:'exe'/'ret'(execute remotepanel / return canmsg)
 
     }, {
         key: 'touchscreenshotReq',
         value: function () {
-            var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(ssevent) {
-                var res;
+            var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(_action) {
+                var ssevent, res;
                 return regenerator.wrap(function _callee4$(_context4) {
                     while (1) {
                         switch (_context4.prev = _context4.next) {
                             case 0:
+                                ssevent = void 0;
+
+                                if (_action === 'exe' || _action === 'ret') {
+                                    ssevent = {
+                                        action: _action,
+                                        event: {
+                                            x: 0,
+                                            y: 0
+                                        }
+                                    };
+                                }
+
+                                if (ssevent) {
+                                    _context4.next = 4;
+                                    break;
+                                }
+
+                                throw new Error('Unexpected parameters');
+
+                            case 4:
                                 if (this.socket) {
-                                    _context4.next = 2;
+                                    _context4.next = 6;
                                     break;
                                 }
 
                                 throw new Error('Service not ready');
 
-                            case 2:
-                                _context4.next = 4;
+                            case 6:
+                                _context4.next = 8;
                                 return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touchscreenshot', ssevent);
 
-                            case 4:
+                            case 8:
                                 res = _context4.sent;
                                 return _context4.abrupt('return', res.data);
 
-                            case 6:
+                            case 10:
                             case 'end':
                                 return _context4.stop();
                         }
@@ -30216,7 +30371,7 @@ var Simulation = function () {
                 }, _callee4, this);
             }));
 
-            function touchscreenshotReq(_x4) {
+            function touchscreenshotReq(_x15) {
                 return _ref4.apply(this, arguments);
             }
 
@@ -30224,8 +30379,7 @@ var Simulation = function () {
         }()
     }]);
 
-    return Simulation;
->>>>>>> feature_remotepanel
+    return RemotepanelClient;
 }();
 
 var SWAG = {
@@ -30233,11 +30387,8 @@ var SWAG = {
   TraceServer: TraceServer,
   TTS: tts,
   AudiMainUnit: MainUnit,
-<<<<<<< HEAD
-  CANTrace: CANTrace
-=======
-  Simulation: Simulation
->>>>>>> feature_remotepanel
+  CANTrace: CANTrace,
+  Simulation: RemotepanelClient
 };
 
 // Load all service classes
