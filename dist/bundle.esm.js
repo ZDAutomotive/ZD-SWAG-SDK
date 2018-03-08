@@ -28139,7 +28139,12 @@ Object.keys(nativeProtocols).forEach(function (protocol) {
 
 var followRedirects_1 = followRedirects.maxRedirects;
 
+<<<<<<< HEAD
 var _from = "axios";
+=======
+var _args = [["axios@0.17.1","/home/mu/Dokumente/ZD-SWAG-SDK"]];
+var _from = "axios@0.17.1";
+>>>>>>> feature_remotepanel
 var _id = "axios@0.17.1";
 var _inBundle = false;
 var _integrity = "sha1-LY4+XQvb1zJ/kbyBT1xXZg+Bgk0=";
@@ -28148,9 +28153,14 @@ var _phantomChildren = {};
 var _requested = {"type":"tag","registry":true,"raw":"axios","name":"axios","escapedName":"axios","rawSpec":"","saveSpec":null,"fetchSpec":"latest"};
 var _requiredBy = ["#USER","/"];
 var _resolved = "https://registry.npmjs.org/axios/-/axios-0.17.1.tgz";
+<<<<<<< HEAD
 var _shasum = "2d8e3e5d0bdbd7327f91bc814f5c57660f81824d";
 var _spec = "axios";
 var _where = "/home/tang/projects/ZD-SWAG-SDK";
+=======
+var _spec = "0.17.1";
+var _where = "/home/mu/Dokumente/ZD-SWAG-SDK";
+>>>>>>> feature_remotepanel
 var author = {"name":"Matt Zabriskie"};
 var browser$5 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
 var bugs = {"url":"https://github.com/axios/axios/issues"};
@@ -29888,6 +29898,7 @@ var MainUnit = function () {
   return MainUnit;
 }();
 
+<<<<<<< HEAD
 var CANTrace = function () {
   function CANTrace(option) {
     _classCallCheck(this, CANTrace);
@@ -30017,6 +30028,204 @@ var CANTrace = function () {
   }]);
 
   return CANTrace;
+=======
+var Simulation = function () {
+    function Simulation(option) {
+        _classCallCheck(this, Simulation);
+
+        this.port = option.port || 6006;
+        this.host = option.host || 'localhost';
+        this.subscribeMap = {};
+    }
+
+    _createClass(Simulation, [{
+        key: 'connect',
+        value: function connect() {
+            var _this = this;
+
+            return new _Promise(function (resolve, reject) {
+                _this.socket = lib$4.connect('http://' + _this.host + ':' + _this.port + '/');
+                _this.socket.on('connect', function () {
+                    resolve(1);
+                    _this.socket.emit('identity', 'remote');
+                    _this.socket.removeAllListeners('connect');
+                    _this.socket.removeAllListeners('connect_error');
+                });
+                _this.socket.on('connect_error', function () {
+                    reject(1);
+                    _this.socket.removeAllListeners('connect');
+                    _this.socket.removeAllListeners('connect_error');
+                    delete _this.socket;
+                });
+            });
+        }
+        /**
+        * call remotePanel
+        */
+        //keyevent {keyid:'ZD_SDS', keyboardid:1}
+
+    }, {
+        key: 'keyReq',
+        value: function () {
+            var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(keyevent) {
+                var res;
+                return regenerator.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                if (this.socket) {
+                                    _context.next = 2;
+                                    break;
+                                }
+
+                                throw new Error('Service not ready');
+
+                            case 2:
+                                _context.next = 4;
+                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/key', keyevent);
+
+                            case 4:
+                                res = _context.sent;
+                                return _context.abrupt('return', res.data);
+
+                            case 6:
+                            case 'end':
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, this);
+            }));
+
+            function keyReq(_x) {
+                return _ref.apply(this, arguments);
+            }
+
+            return keyReq;
+        }()
+        //touchevent {screentype: 1(top) / 2(bottom), x:, y:}
+
+    }, {
+        key: 'touchReq',
+        value: function () {
+            var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(touchevent) {
+                var res;
+                return regenerator.wrap(function _callee2$(_context2) {
+                    while (1) {
+                        switch (_context2.prev = _context2.next) {
+                            case 0:
+                                if (this.socket) {
+                                    _context2.next = 2;
+                                    break;
+                                }
+
+                                throw new Error('Service not ready');
+
+                            case 2:
+                                _context2.next = 4;
+                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touch', touchevent);
+
+                            case 4:
+                                res = _context2.sent;
+                                return _context2.abrupt('return', res.data);
+
+                            case 6:
+                            case 'end':
+                                return _context2.stop();
+                        }
+                    }
+                }, _callee2, this);
+            }));
+
+            function touchReq(_x2) {
+                return _ref2.apply(this, arguments);
+            }
+
+            return touchReq;
+        }()
+        //dragevent {screentype: 1(top) / 2(bottom), x:, y:, dx:, dy:}
+
+    }, {
+        key: 'dragReq',
+        value: function () {
+            var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(dragevent) {
+                var res;
+                return regenerator.wrap(function _callee3$(_context3) {
+                    while (1) {
+                        switch (_context3.prev = _context3.next) {
+                            case 0:
+                                if (this.socket) {
+                                    _context3.next = 2;
+                                    break;
+                                }
+
+                                throw new Error('Service not ready');
+
+                            case 2:
+                                _context3.next = 4;
+                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/drag', dragevent);
+
+                            case 4:
+                                res = _context3.sent;
+                                return _context3.abrupt('return', res.data);
+
+                            case 6:
+                            case 'end':
+                                return _context3.stop();
+                        }
+                    }
+                }, _callee3, this);
+            }));
+
+            function dragReq(_x3) {
+                return _ref3.apply(this, arguments);
+            }
+
+            return dragReq;
+        }()
+        //touchscreenshot {x:0, y:0}
+
+    }, {
+        key: 'touchscreenshotReq',
+        value: function () {
+            var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(ssevent) {
+                var res;
+                return regenerator.wrap(function _callee4$(_context4) {
+                    while (1) {
+                        switch (_context4.prev = _context4.next) {
+                            case 0:
+                                if (this.socket) {
+                                    _context4.next = 2;
+                                    break;
+                                }
+
+                                throw new Error('Service not ready');
+
+                            case 2:
+                                _context4.next = 4;
+                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touchscreenshot', ssevent);
+
+                            case 4:
+                                res = _context4.sent;
+                                return _context4.abrupt('return', res.data);
+
+                            case 6:
+                            case 'end':
+                                return _context4.stop();
+                        }
+                    }
+                }, _callee4, this);
+            }));
+
+            function touchscreenshotReq(_x4) {
+                return _ref4.apply(this, arguments);
+            }
+
+            return touchscreenshotReq;
+        }()
+    }]);
+
+    return Simulation;
+>>>>>>> feature_remotepanel
 }();
 
 var SWAG = {
@@ -30024,7 +30233,11 @@ var SWAG = {
   TraceServer: TraceServer,
   TTS: tts,
   AudiMainUnit: MainUnit,
+<<<<<<< HEAD
   CANTrace: CANTrace
+=======
+  Simulation: Simulation
+>>>>>>> feature_remotepanel
 };
 
 // Load all service classes
