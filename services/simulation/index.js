@@ -27,19 +27,19 @@ export default class Simulation {
     /**
     * call remotePanel
     */
-    //keyevent {keyid:, keyboardid:}
+    //keyevent {keyid:'ZD_SDS', keyboardid:1}
     async keyReq(keyevent) {
         if (!this.socket) throw new Error('Service not ready')
             let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, keyevent)
         return res.data;
     }
-    //touchevent {x:, y:}
+    //touchevent {screentype: 1(top) / 2(bottom), x:, y:}
     async touchReq(touchevent) {
         if (!this.socket) throw new Error('Service not ready')
             let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touch`, touchevent)
         return res.data;
     }
-    //dragevent {x:, y:, dx:, dy:}
+    //dragevent {screentype: 1(top) / 2(bottom), x:, y:, dx:, dy:}
     async dragReq(dragevent) {
         if (!this.socket) throw new Error('Service not ready')
             let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/drag`, dragevent)
