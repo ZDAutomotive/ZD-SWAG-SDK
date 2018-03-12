@@ -1,6 +1,10 @@
 {
   "name": "zd-swag-sdk",
+<<<<<<< HEAD
   "version": "0.1.9",
+=======
+  "version": "0.1.11",
+>>>>>>> 4d14d6f2638cbda5c1afd99ee056aaea4b0af2ba
   "description": "SDK for ZD-SWAG",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
@@ -32,12 +36,13 @@
     "babel-preset-env": "^1.6.1",
     "chai": "^4.1.2",
     "cross-env": "^5.1.3",
-    "mocha": "^4.0.1",
-    "rollup": "^0.55.3",
+    "mocha": "^4.1.0",
+    "rollup": "^0.55.5",
     "rollup-plugin-babel": "^3.0.3",
-    "rollup-plugin-commonjs": "^8.3.0",
+    "rollup-plugin-commonjs": "^8.4.1",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^3.0.2"
-  }
+    "rollup-plugin-node-resolve": "^3.2.0"
+  },
+  "typings": "./index.d.ts"
 }
