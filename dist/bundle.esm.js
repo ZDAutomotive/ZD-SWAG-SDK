@@ -30382,13 +30382,17 @@ var RemotepanelClient = function () {
     return RemotepanelClient;
 }();
 
+var Simulation = {
+  Remotepanel: RemotepanelClient
+};
+
 var SWAG = {
   AndroidProberProxy: AdroidProberProxy,
   TraceServer: TraceServer,
   TTS: tts,
   AudiMainUnit: MainUnit,
   CANTrace: CANTrace,
-  Simulation: RemotepanelClient
+  Simulation: Simulation
 };
 
 // Load all service classes

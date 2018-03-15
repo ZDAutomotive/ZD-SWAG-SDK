@@ -1,6 +1,5 @@
-const SDK = require('../../dist/bundle.cjs')
-
-let remotepanel = new SDK.Simulation({port:6006, host:'192.168.178.71'})
+const SDK = require('../../../dist/bundle.cjs')
+let remotepanel = new SDK.Simulation.Remotepanel({port:6006, host:'192.168.178.71'})
 let cantrace = new SDK.CANTrace({port:6002, host:'192.168.178.71'})
 
 // SDS KEY
