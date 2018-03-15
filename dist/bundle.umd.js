@@ -28145,23 +28145,25 @@ Object.keys(nativeProtocols).forEach(function (protocol) {
 
 var followRedirects_1 = followRedirects.maxRedirects;
 
-var _args = [["axios@0.17.1","/home/mu/Dokumente/ZD-SWAG-SDK"]];
-var _from = "axios@0.17.1";
+var _from = "axios";
 var _id = "axios@0.17.1";
 var _inBundle = false;
 var _integrity = "sha1-LY4+XQvb1zJ/kbyBT1xXZg+Bgk0=";
 var _location = "/axios";
 var _phantomChildren = {};
-var _requested = {"type":"version","registry":true,"raw":"axios@0.17.1","name":"axios","escapedName":"axios","rawSpec":"0.17.1","saveSpec":null,"fetchSpec":"0.17.1"};
-var _requiredBy = ["/"];
+var _requested = {"type":"tag","registry":true,"raw":"axios","name":"axios","escapedName":"axios","rawSpec":"","saveSpec":null,"fetchSpec":"latest"};
+var _requiredBy = ["#USER","/"];
 var _resolved = "https://registry.npmjs.org/axios/-/axios-0.17.1.tgz";
-var _spec = "0.17.1";
-var _where = "/home/mu/Dokumente/ZD-SWAG-SDK";
+var _shasum = "2d8e3e5d0bdbd7327f91bc814f5c57660f81824d";
+var _spec = "axios";
+var _where = "/home/tang/projects/ZD-SWAG-SDK";
 var author = {"name":"Matt Zabriskie"};
 var browser$5 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
 var bugs = {"url":"https://github.com/axios/axios/issues"};
+var bundleDependencies = false;
 var bundlesize = [{"path":"./dist/axios.min.js","threshold":"5kB"}];
 var dependencies = {"follow-redirects":"^1.2.5","is-buffer":"^1.1.5"};
+var deprecated = false;
 var description = "Promise based HTTP client for the browser and node.js";
 var devDependencies = {"bundlesize":"^0.5.7","coveralls":"^2.11.9","es6-promise":"^4.0.5","grunt":"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-phantomjs-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","phantomjs-prebuilt":"^2.1.7","sinon":"^1.17.4","typescript":"^2.0.3","url-search-params":"^0.6.1","webpack":"^1.13.1","webpack-dev-server":"^1.14.1"};
 var homepage = "https://github.com/axios/axios";
@@ -28174,7 +28176,6 @@ var scripts = {"build":"NODE_ENV=production grunt build","coveralls":"cat covera
 var typings = "./index.d.ts";
 var version$2 = "0.17.1";
 var _package = {
-	_args: _args,
 	_from: _from,
 	_id: _id,
 	_inBundle: _inBundle,
@@ -28184,13 +28185,16 @@ var _package = {
 	_requested: _requested,
 	_requiredBy: _requiredBy,
 	_resolved: _resolved,
+	_shasum: _shasum,
 	_spec: _spec,
 	_where: _where,
 	author: author,
 	browser: browser$5,
 	bugs: bugs,
+	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
 	dependencies: dependencies,
+	deprecated: deprecated,
 	description: description,
 	devDependencies: devDependencies,
 	homepage: homepage,
@@ -28205,7 +28209,6 @@ var _package = {
 };
 
 var _package$1 = Object.freeze({
-	_args: _args,
 	_from: _from,
 	_id: _id,
 	_inBundle: _inBundle,
@@ -28215,13 +28218,16 @@ var _package$1 = Object.freeze({
 	_requested: _requested,
 	_requiredBy: _requiredBy,
 	_resolved: _resolved,
+	_shasum: _shasum,
 	_spec: _spec,
 	_where: _where,
 	author: author,
 	browser: browser$5,
 	bugs: bugs,
+	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
 	dependencies: dependencies,
+	deprecated: deprecated,
 	description: description,
 	devDependencies: devDependencies,
 	homepage: homepage,
@@ -29327,13 +29333,16 @@ var TraceServer = function () {
      * Subscribe a type of trace server message with custom event name
      * @param {String} name subscribed event name on which socket listens
      * @param {String} type subscribed event type, could be one of [CAN, BAP, ESO]
+     * @param {String} [filterStr] subscribe additional filter string
      * @returns {boolean} tell whether operation succeed or not, if succeed, listen the event name on this.socket
      */
 
   }, {
     key: 'subscribe',
     value: function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(name, type) {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(name, type, filterStr) {
+        var str, _str, _str2;
+
         return regenerator.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
@@ -29347,39 +29356,54 @@ var TraceServer = function () {
 
               case 2:
                 _context5.t0 = type;
-                _context5.next = _context5.t0 === 'CAN' ? 5 : _context5.t0 === 'BAP' ? 8 : _context5.t0 === 'ESO' ? 11 : 14;
+                _context5.next = _context5.t0 === 'CAN' ? 5 : _context5.t0 === 'BAP' ? 10 : _context5.t0 === 'ESO' ? 15 : 20;
                 break;
 
               case 5:
-                _context5.next = 7;
-                return this.hook(name, '{"protocol" == "CAN"}');
+                str = '{"protocol" == "CAN"}';
 
-              case 7:
-                return _context5.abrupt('break', 15);
+                if (filterStr) {
+                  str += ' && (' + filterStr + ')';
+                }
+                _context5.next = 9;
+                return this.hook(name, str);
 
-              case 8:
-                _context5.next = 10;
-                return this.hook(name, '{"protocol" == "BAP"}');
+              case 9:
+                return _context5.abrupt('break', 21);
 
               case 10:
-                return _context5.abrupt('break', 15);
+                _str = '{"protocol" == "BAP"}';
 
-              case 11:
-                _context5.next = 13;
-                return this.hook(name, '{"protocol" == "ESO"}');
-
-              case 13:
-                return _context5.abrupt('break', 15);
+                if (filterStr) {
+                  _str += ' && (' + filterStr + ')';
+                }
+                _context5.next = 14;
+                return this.hook(name, _str);
 
               case 14:
-                throw new Error('unsupported subscribe type');
+                return _context5.abrupt('break', 21);
 
               case 15:
+                _str2 = '{"protocol" == "ESO"}';
+
+                if (filterStr) {
+                  _str2 += ' && (' + filterStr + ')';
+                }
+                _context5.next = 19;
+                return this.hook(name, _str2);
+
+              case 19:
+                return _context5.abrupt('break', 21);
+
+              case 20:
+                throw new Error('unsupported subscribe type');
+
+              case 21:
                 this.subscribeMap[name] = type;
 
                 return _context5.abrupt('return', true);
 
-              case 17:
+              case 23:
               case 'end':
                 return _context5.stop();
             }
@@ -29387,7 +29411,7 @@ var TraceServer = function () {
         }, _callee5, this);
       }));
 
-      function subscribe(_x9, _x10) {
+      function subscribe(_x9, _x10, _x11) {
         return _ref5.apply(this, arguments);
       }
 
@@ -29437,7 +29461,7 @@ var TraceServer = function () {
         }, _callee6, this);
       }));
 
-      function unsubscribe(_x11) {
+      function unsubscribe(_x12) {
         return _ref6.apply(this, arguments);
       }
 
@@ -29538,7 +29562,7 @@ var TraceServer = function () {
         }, _callee7, this, [[7, 18, 22, 30], [23,, 25, 29]]);
       }));
 
-      function unsubscribeType(_x12) {
+      function unsubscribeType(_x13) {
         return _ref7.apply(this, arguments);
       }
 
@@ -29574,7 +29598,7 @@ var TraceServer = function () {
         }, _callee8, this);
       }));
 
-      function setFilter(_x13) {
+      function setFilter(_x14) {
         return _ref8.apply(this, arguments);
       }
 
@@ -29975,8 +29999,6 @@ var CANTrace = function () {
     key: 'sendMultiCANMsgs',
     value: function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(name, canmsgs) {
-        var _this2 = this;
-
         return regenerator.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -29989,18 +30011,16 @@ var CANTrace = function () {
                 throw new Error('CAN Trace service not ready');
 
               case 2:
-                canmsgs.forEach(function (elem) {
-                  setTimeout(function () {
-                    axios$1.post('http://' + _this2.host + ':' + _this2.port + '/send', {
-                      name: name,
-                      canmsg: elem.canmsg
-                    });
-                  }, elem.time);
+                _context2.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/send/multi', {
+                  name: name,
+                  canmsgs: canmsgs
                 });
 
+              case 4:
                 return _context2.abrupt('return', true);
 
-              case 4:
+              case 5:
               case 'end':
                 return _context2.stop();
             }
@@ -30019,378 +30039,661 @@ var CANTrace = function () {
   return CANTrace;
 }();
 
-var RemotepanelClient = function () {
-    function RemotepanelClient(option) {
-        _classCallCheck(this, RemotepanelClient);
+var Remotepanel = {
+  /**
+    * call remotePanel
+    */
+  // keyevent 
+  // action:'exe'/'ret'(execute remotepanel / return canmsg)
+  // keyid:'ZD_SDS'
+  // keyboardid: 'MIB1' / 'MIB2'
+  hardkeyReq: function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(_action, _keyid, _keyboardid) {
+      var keyevent, res;
+      return regenerator.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              keyevent = void 0;
 
-        this.port = option.port || 6006;
-        this.host = option.host || 'localhost';
-        this.subscribeMap = {};
+              if (!(_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret')) {
+                _context.next = 10;
+                break;
+              }
+
+              _context.t0 = _keyboardid.toLowerCase();
+              _context.next = _context.t0 === 'mib1' ? 5 : _context.t0 === 'mib2' ? 7 : 9;
+              break;
+
+            case 5:
+              keyevent = {
+                action: _action,
+                event: {
+                  keyid: _keyid,
+                  keyboardid: 2
+                }
+              };
+              return _context.abrupt('break', 10);
+
+            case 7:
+              keyevent = {
+                action: _action,
+                event: {
+                  keyid: _keyid,
+                  keyboardid: 1
+                }
+              };
+              return _context.abrupt('break', 10);
+
+            case 9:
+              return _context.abrupt('break', 10);
+
+            case 10:
+              if (keyevent) {
+                _context.next = 12;
+                break;
+              }
+
+              throw new Error('Unexpected parameters');
+
+            case 12:
+              if (this.socket) {
+                _context.next = 14;
+                break;
+              }
+
+              throw new Error('Service not ready');
+
+            case 14:
+              _context.next = 16;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/key', keyevent);
+
+            case 16:
+              res = _context.sent;
+              return _context.abrupt('return', res.data);
+
+            case 18:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, this);
+    }));
+
+    function hardkeyReq(_x2, _x3, _x4) {
+      return _ref.apply(this, arguments);
     }
 
-    _createClass(RemotepanelClient, [{
-        key: 'connect',
-        value: function connect() {
-            var _this = this;
+    return hardkeyReq;
+  }(),
 
-            return new _Promise(function (resolve, reject) {
-                _this.socket = lib$4.connect('http://' + _this.host + ':' + _this.port + '/');
-                _this.socket.on('connect', function () {
-                    resolve(1);
-                    _this.socket.emit('identity', 'remote');
-                    _this.socket.removeAllListeners('connect');
-                    _this.socket.removeAllListeners('connect_error');
-                });
-                _this.socket.on('connect_error', function () {
-                    reject(0);
-                    _this.socket.removeAllListeners('connect');
-                    _this.socket.removeAllListeners('connect_error');
-                    delete _this.socket;
-                });
-            });
+  //touchevent 
+  // action:'exe'/'ret'(execute remotepanel / return canmsg)
+  // screentype:'top' / 'bottom'
+  // x: 200
+  // y: 200
+  tapReq: function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(_action, _screentype, _x, _y) {
+      var touchevent, res;
+      return regenerator.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              touchevent = void 0;
+
+              if (!(_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret')) {
+                _context2.next = 14;
+                break;
+              }
+
+              _context2.t0 = _screentype.toLowerCase();
+              _context2.next = _context2.t0 === 'top' ? 5 : _context2.t0 === 'upper' ? 7 : _context2.t0 === 'bottom' ? 9 : _context2.t0 === 'lower' ? 11 : 13;
+              break;
+
+            case 5:
+              touchevent = {
+                action: _action,
+                event: {
+                  screentype: 1,
+                  x: _x,
+                  y: _y
+                }
+              };
+              return _context2.abrupt('break', 14);
+
+            case 7:
+              touchevent = {
+                action: _action,
+                event: {
+                  screentype: 1,
+                  x: _x,
+                  y: _y
+                }
+              };
+              return _context2.abrupt('break', 14);
+
+            case 9:
+              touchevent = {
+                action: _action,
+                event: {
+                  screentype: 2,
+                  x: _x,
+                  y: _y
+                }
+              };
+              return _context2.abrupt('break', 14);
+
+            case 11:
+              touchevent = {
+                action: _action,
+                event: {
+                  screentype: 2,
+                  x: _x,
+                  y: _y
+                }
+              };
+              return _context2.abrupt('break', 14);
+
+            case 13:
+              return _context2.abrupt('break', 14);
+
+            case 14:
+              if (touchevent) {
+                _context2.next = 16;
+                break;
+              }
+
+              throw new Error('Unexpected parameters');
+
+            case 16:
+              if (this.socket) {
+                _context2.next = 18;
+                break;
+              }
+
+              throw new Error('Service not ready');
+
+            case 18:
+              _context2.next = 20;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touch', touchevent);
+
+            case 20:
+              res = _context2.sent;
+              return _context2.abrupt('return', res.data);
+
+            case 22:
+            case 'end':
+              return _context2.stop();
+          }
         }
-        /**
-        * call remotePanel
-        */
-        // keyevent 
-        // action:'exe'/'ret'(execute remotepanel / return canmsg)
-        // keyid:'ZD_SDS'
-        // keyboardid: 'MIB1' / 'MIB2'
+      }, _callee2, this);
+    }));
 
-    }, {
-        key: 'hardkeyReq',
-        value: function () {
-            var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(_action, _keyid, _keyboardid) {
-                var keyevent, res;
-                return regenerator.wrap(function _callee$(_context) {
-                    while (1) {
-                        switch (_context.prev = _context.next) {
-                            case 0:
-                                keyevent = void 0;
+    function tapReq(_x5, _x6, _x7, _x8) {
+      return _ref2.apply(this, arguments);
+    }
 
-                                if (!(_action === 'exe' || _action === 'ret')) {
-                                    _context.next = 10;
-                                    break;
-                                }
+    return tapReq;
+  }(),
 
-                                _context.t0 = _keyboardid;
-                                _context.next = _context.t0 === 'MIB1' ? 5 : _context.t0 === 'MIB2' ? 7 : 9;
-                                break;
+  //dragevent
+  // action:'exe'/'ret'(execute remotepanel / return canmsg)
+  // screentype:'top' / 'bottom'
+  // x: 200
+  // y: 200
+  // dx: 200
+  // dy: 0
+  dragReq: function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(_action, _screentype, _x, _y, _dx, _dy) {
+      var dragevent, res;
+      return regenerator.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              dragevent = void 0;
 
-                            case 5:
-                                keyevent = {
-                                    action: _action,
-                                    event: {
-                                        keyid: _keyid,
-                                        keyboardid: 2
-                                    }
-                                };
-                                return _context.abrupt('break', 10);
+              if (!(_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret')) {
+                _context3.next = 14;
+                break;
+              }
 
-                            case 7:
-                                keyevent = {
-                                    action: _action,
-                                    event: {
-                                        keyid: _keyid,
-                                        keyboardid: 1
-                                    }
-                                };
-                                return _context.abrupt('break', 10);
+              _context3.t0 = _screentype.toLowerCase();
+              _context3.next = _context3.t0 === 'top' ? 5 : _context3.t0 === 'upper' ? 7 : _context3.t0 === 'bottom' ? 9 : _context3.t0 === 'lower' ? 11 : 13;
+              break;
 
-                            case 9:
-                                return _context.abrupt('break', 10);
+            case 5:
+              dragevent = {
+                action: _action,
+                event: {
+                  screentype: 1,
+                  x: _x,
+                  y: _y,
+                  dx: _dx,
+                  dy: _dy
+                }
+              };
+              return _context3.abrupt('break', 14);
 
-                            case 10:
-                                if (keyevent) {
-                                    _context.next = 12;
-                                    break;
-                                }
+            case 7:
+              dragevent = {
+                action: _action,
+                event: {
+                  screentype: 1,
+                  x: _x,
+                  y: _y,
+                  dx: _dx,
+                  dy: _dy
+                }
+              };
+              return _context3.abrupt('break', 14);
 
-                                throw new Error('Unexpected parameters');
+            case 9:
+              dragevent = {
+                action: _action,
+                event: {
+                  screentype: 2,
+                  x: _x,
+                  y: _y,
+                  dx: _dx,
+                  dy: _dy
+                }
+              };
+              return _context3.abrupt('break', 14);
 
-                            case 12:
-                                if (this.socket) {
-                                    _context.next = 14;
-                                    break;
-                                }
+            case 11:
+              dragevent = {
+                action: _action,
+                event: {
+                  screentype: 2,
+                  x: _x,
+                  y: _y,
+                  dx: _dx,
+                  dy: _dy
+                }
+              };
+              return _context3.abrupt('break', 14);
 
-                                throw new Error('Service not ready');
+            case 13:
+              return _context3.abrupt('break', 14);
 
-                            case 14:
-                                _context.next = 16;
-                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/key', keyevent);
+            case 14:
+              if (dragevent) {
+                _context3.next = 16;
+                break;
+              }
 
-                            case 16:
-                                res = _context.sent;
-                                return _context.abrupt('return', res.data);
+              throw new Error('Unexpected parameters');
 
-                            case 18:
-                            case 'end':
-                                return _context.stop();
-                        }
-                    }
-                }, _callee, this);
-            }));
+            case 16:
+              if (this.socket) {
+                _context3.next = 18;
+                break;
+              }
 
-            function hardkeyReq(_x2, _x3, _x4) {
-                return _ref.apply(this, arguments);
-            }
+              throw new Error('Service not ready');
 
-            return hardkeyReq;
-        }()
-        //touchevent 
-        // action:'exe'/'ret'(execute remotepanel / return canmsg)
-        // screentype:'top' / 'bottom'
-        // x: 200
-        // y: 200
+            case 18:
+              _context3.next = 20;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/drag', dragevent);
 
-    }, {
-        key: 'tapReq',
-        value: function () {
-            var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(_action, _screentype, _x, _y) {
-                var touchevent, res;
-                return regenerator.wrap(function _callee2$(_context2) {
-                    while (1) {
-                        switch (_context2.prev = _context2.next) {
-                            case 0:
-                                touchevent = void 0;
+            case 20:
+              res = _context3.sent;
+              return _context3.abrupt('return', res.data);
 
-                                if (!(_action === 'exe' || _action === 'ret')) {
-                                    _context2.next = 10;
-                                    break;
-                                }
+            case 22:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, this);
+    }));
 
-                                _context2.t0 = _screentype;
-                                _context2.next = _context2.t0 === 'top' ? 5 : _context2.t0 === 'bottom' ? 7 : 9;
-                                break;
+    function dragReq(_x9, _x10, _x11, _x12, _x13, _x14) {
+      return _ref3.apply(this, arguments);
+    }
 
-                            case 5:
-                                touchevent = {
-                                    action: _action,
-                                    event: {
-                                        screentype: 1,
-                                        x: _x,
-                                        y: _y
-                                    }
-                                };
-                                return _context2.abrupt('break', 10);
+    return dragReq;
+  }(),
 
-                            case 7:
-                                touchevent = {
-                                    action: _action,
-                                    event: {
-                                        screentype: 2,
-                                        x: _x,
-                                        y: _y
-                                    }
-                                };
-                                return _context2.abrupt('break', 10);
+  //touchscreenshot {action:'exe'/'ret', event: {x:0, y:0}}
+  // action:'exe'/'ret'(execute remotepanel / return canmsg)
+  touchscreenshotReq: function () {
+    var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(_action) {
+      var ssevent, res;
+      return regenerator.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              ssevent = void 0;
 
-                            case 9:
-                                return _context2.abrupt('break', 10);
+              if (_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret') {
+                ssevent = {
+                  action: _action,
+                  event: {
+                    x: 0,
+                    y: 0
+                  }
+                };
+              }
 
-                            case 10:
-                                if (touchevent) {
-                                    _context2.next = 12;
-                                    break;
-                                }
+              if (ssevent) {
+                _context4.next = 4;
+                break;
+              }
 
-                                throw new Error('Unexpected parameters');
+              throw new Error('Unexpected parameters');
 
-                            case 12:
-                                if (this.socket) {
-                                    _context2.next = 14;
-                                    break;
-                                }
+            case 4:
+              if (this.socket) {
+                _context4.next = 6;
+                break;
+              }
 
-                                throw new Error('Service not ready');
+              throw new Error('Service not ready');
 
-                            case 14:
-                                _context2.next = 16;
-                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touch', touchevent);
+            case 6:
+              _context4.next = 8;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touchscreenshot', ssevent);
 
-                            case 16:
-                                res = _context2.sent;
-                                return _context2.abrupt('return', res.data);
+            case 8:
+              res = _context4.sent;
+              return _context4.abrupt('return', res.data);
 
-                            case 18:
-                            case 'end':
-                                return _context2.stop();
-                        }
-                    }
-                }, _callee2, this);
-            }));
+            case 10:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, _callee4, this);
+    }));
 
-            function tapReq(_x5, _x6, _x7, _x8) {
-                return _ref2.apply(this, arguments);
-            }
+    function touchscreenshotReq(_x15) {
+      return _ref4.apply(this, arguments);
+    }
 
-            return tapReq;
-        }()
-        //dragevent
-        // action:'exe'/'ret'(execute remotepanel / return canmsg)
-        // screentype:'top' / 'bottom'
-        // x: 200
-        // y: 200
-        // dx: 200
-        // dy: 0
-
-    }, {
-        key: 'dragReq',
-        value: function () {
-            var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(_action, _screentype, _x, _y, _dx, _dy) {
-                var dragevent, res;
-                return regenerator.wrap(function _callee3$(_context3) {
-                    while (1) {
-                        switch (_context3.prev = _context3.next) {
-                            case 0:
-                                dragevent = void 0;
-
-                                if (!(_action === 'exe' || _action === 'ret')) {
-                                    _context3.next = 10;
-                                    break;
-                                }
-
-                                _context3.t0 = _screentype;
-                                _context3.next = _context3.t0 === 'top' ? 5 : _context3.t0 === 'bottom' ? 7 : 9;
-                                break;
-
-                            case 5:
-                                dragevent = {
-                                    action: _action,
-                                    event: {
-                                        screentype: 1,
-                                        x: _x,
-                                        y: _y,
-                                        dx: _dx,
-                                        dy: _dy
-                                    }
-                                };
-                                return _context3.abrupt('break', 10);
-
-                            case 7:
-                                dragevent = {
-                                    action: _action,
-                                    event: {
-                                        screentype: 2,
-                                        x: _x,
-                                        y: _y,
-                                        dx: _dx,
-                                        dy: _dy
-                                    }
-                                };
-                                return _context3.abrupt('break', 10);
-
-                            case 9:
-                                return _context3.abrupt('break', 10);
-
-                            case 10:
-                                if (dragevent) {
-                                    _context3.next = 12;
-                                    break;
-                                }
-
-                                throw new Error('Unexpected parameters');
-
-                            case 12:
-                                if (this.socket) {
-                                    _context3.next = 14;
-                                    break;
-                                }
-
-                                throw new Error('Service not ready');
-
-                            case 14:
-                                _context3.next = 16;
-                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/drag', dragevent);
-
-                            case 16:
-                                res = _context3.sent;
-                                return _context3.abrupt('return', res.data);
-
-                            case 18:
-                            case 'end':
-                                return _context3.stop();
-                        }
-                    }
-                }, _callee3, this);
-            }));
-
-            function dragReq(_x9, _x10, _x11, _x12, _x13, _x14) {
-                return _ref3.apply(this, arguments);
-            }
-
-            return dragReq;
-        }()
-        //touchscreenshot {action:'exe'/'ret', event: {x:0, y:0}}
-        // action:'exe'/'ret'(execute remotepanel / return canmsg)
-
-    }, {
-        key: 'touchscreenshotReq',
-        value: function () {
-            var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(_action) {
-                var ssevent, res;
-                return regenerator.wrap(function _callee4$(_context4) {
-                    while (1) {
-                        switch (_context4.prev = _context4.next) {
-                            case 0:
-                                ssevent = void 0;
-
-                                if (_action === 'exe' || _action === 'ret') {
-                                    ssevent = {
-                                        action: _action,
-                                        event: {
-                                            x: 0,
-                                            y: 0
-                                        }
-                                    };
-                                }
-
-                                if (ssevent) {
-                                    _context4.next = 4;
-                                    break;
-                                }
-
-                                throw new Error('Unexpected parameters');
-
-                            case 4:
-                                if (this.socket) {
-                                    _context4.next = 6;
-                                    break;
-                                }
-
-                                throw new Error('Service not ready');
-
-                            case 6:
-                                _context4.next = 8;
-                                return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touchscreenshot', ssevent);
-
-                            case 8:
-                                res = _context4.sent;
-                                return _context4.abrupt('return', res.data);
-
-                            case 10:
-                            case 'end':
-                                return _context4.stop();
-                        }
-                    }
-                }, _callee4, this);
-            }));
-
-            function touchscreenshotReq(_x15) {
-                return _ref4.apply(this, arguments);
-            }
-
-            return touchscreenshotReq;
-        }()
-    }]);
-
-    return RemotepanelClient;
-}();
-
-var Simulation = {
-  Remotepanel: RemotepanelClient
+    return touchscreenshotReq;
+  }()
 };
+
+var CANSim = {
+  start: function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
+      var res;
+      return regenerator.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/start');
+
+            case 2:
+              res = _context.sent;
+              return _context.abrupt('return', res.data.isStarted);
+
+            case 4:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, this);
+    }));
+
+    function start() {
+      return _ref.apply(this, arguments);
+    }
+
+    return start;
+  }(),
+  stop: function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2() {
+      var res;
+      return regenerator.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/stop');
+
+            case 2:
+              res = _context2.sent;
+              return _context2.abrupt('return', res.data.isStarted);
+
+            case 4:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, _callee2, this);
+    }));
+
+    function stop() {
+      return _ref2.apply(this, arguments);
+    }
+
+    return stop;
+  }(),
+  reset: function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3() {
+      var res;
+      return regenerator.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/reset');
+
+            case 2:
+              res = _context3.sent;
+              return _context3.abrupt('return', res.data);
+
+            case 4:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, _callee3, this);
+    }));
+
+    function reset() {
+      return _ref3.apply(this, arguments);
+    }
+
+    return reset;
+  }(),
+  setCycle: function () {
+    var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(canID) {
+      var res;
+      return regenerator.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/cycle/' + canID);
+
+            case 2:
+              res = _context4.sent;
+              return _context4.abrupt('return', res.data);
+
+            case 4:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, _callee4, this);
+    }));
+
+    function setCycle(_x) {
+      return _ref4.apply(this, arguments);
+    }
+
+    return setCycle;
+  }(),
+  delCycle: function () {
+    var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(canID) {
+      var res;
+      return regenerator.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              _context5.next = 2;
+              return axios$1.delete('http://' + this.host + ':' + this.port + '/cansim/cycle/' + canID);
+
+            case 2:
+              res = _context5.sent;
+              return _context5.abrupt('return', res.data);
+
+            case 4:
+            case 'end':
+              return _context5.stop();
+          }
+        }
+      }, _callee5, this);
+    }));
+
+    function delCycle(_x2) {
+      return _ref5.apply(this, arguments);
+    }
+
+    return delCycle;
+  }(),
+  setCycleTime: function () {
+    var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(canID, time) {
+      var res;
+      return regenerator.wrap(function _callee6$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              _context6.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/cycle/' + canID + '/time', {
+                time: time
+              });
+
+            case 2:
+              res = _context6.sent;
+              return _context6.abrupt('return', res.data);
+
+            case 4:
+            case 'end':
+              return _context6.stop();
+          }
+        }
+      }, _callee6, this);
+    }));
+
+    function setCycleTime(_x3, _x4) {
+      return _ref6.apply(this, arguments);
+    }
+
+    return setCycleTime;
+  }(),
+  setData: function () {
+    var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(canID, data) {
+      var res;
+      return regenerator.wrap(function _callee7$(_context7) {
+        while (1) {
+          switch (_context7.prev = _context7.next) {
+            case 0:
+              _context7.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/data/' + canID, {
+                data: data
+              });
+
+            case 2:
+              res = _context7.sent;
+              return _context7.abrupt('return', res.data);
+
+            case 4:
+            case 'end':
+              return _context7.stop();
+          }
+        }
+      }, _callee7, this);
+    }));
+
+    function setData(_x5, _x6) {
+      return _ref7.apply(this, arguments);
+    }
+
+    return setData;
+  }(),
+  setDataByName: function () {
+    var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(canID, name, value) {
+      var res;
+      return regenerator.wrap(function _callee8$(_context8) {
+        while (1) {
+          switch (_context8.prev = _context8.next) {
+            case 0:
+              _context8.next = 2;
+              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/data/' + canID + '/' + name, {
+                value: value
+              });
+
+            case 2:
+              res = _context8.sent;
+              return _context8.abrupt('return', res.data);
+
+            case 4:
+            case 'end':
+              return _context8.stop();
+          }
+        }
+      }, _callee8, this);
+    }));
+
+    function setDataByName(_x7, _x8, _x9) {
+      return _ref8.apply(this, arguments);
+    }
+
+    return setDataByName;
+  }()
+};
+
+var Simulation = function () {
+  function Simulation(option) {
+    _classCallCheck(this, Simulation);
+
+    this.port = option.port || 6006;
+    this.host = option.host || 'localhost';
+    this.subscribeMap = {};
+  }
+
+  _createClass(Simulation, [{
+    key: 'connect',
+    value: function connect(type) {
+      var _this = this;
+
+      return new _Promise(function (resolve, reject) {
+        _this.socket = lib$4.connect('http://' + _this.host + ':' + _this.port + '/');
+        _this.socket.on('connect', function () {
+          resolve(1);
+          _this.socket.emit('identity', type);
+          _this.socket.removeAllListeners('connect');
+          _this.socket.removeAllListeners('connect_error');
+        });
+        _this.socket.on('connect_error', function () {
+          reject(1);
+          _this.socket.removeAllListeners('connect');
+          _this.socket.removeAllListeners('connect_error');
+          delete _this.socket;
+        });
+      });
+    }
+  }, {
+    key: 'Remotepanel',
+    get: function get() {
+      if (!this.socket) throw new Error('Service not ready');
+      return Remotepanel;
+    }
+  }, {
+    key: 'CANSim',
+    get: function get() {
+      if (!this.socket) throw new Error('Service not ready');
+      return CANSim;
+    }
+  }]);
+
+  return Simulation;
+}();
 
 var SWAG = {
   AndroidProberProxy: AdroidProberProxy,

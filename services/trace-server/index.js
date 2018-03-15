@@ -108,22 +108,35 @@ export default class TraceServer {
    * Subscribe a type of trace server message with custom event name
    * @param {String} name subscribed event name on which socket listens
    * @param {String} type subscribed event type, could be one of [CAN, BAP, ESO]
+   * @param {String} [filterStr] subscribe additional filter string
    * @returns {boolean} tell whether operation succeed or not, if succeed, listen the event name on this.socket
    */
-  async subscribe(name, type) {
+  async subscribe(name, type, filterStr) {
     if (!this.socket) throw new Error('Service not ready')
 
     switch(type) {
       case 'CAN': {
-        await this.hook(name, '{"protocol" == "CAN"}')
+        let str = '{"protocol" == "CAN"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
+        }
+        await this.hook(name, str)
         break;
       }
       case 'BAP': {
-        await this.hook(name, '{"protocol" == "BAP"}')
+        let str = '{"protocol" == "BAP"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
+        }
+        await this.hook(name, str)
         break;
       }
       case 'ESO': {
-        await this.hook(name, '{"protocol" == "ESO"}')
+        let str = '{"protocol" == "ESO"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
+        }
+        await this.hook(name, str)
         break;
       }
       default:

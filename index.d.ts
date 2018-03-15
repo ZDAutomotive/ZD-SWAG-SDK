@@ -71,7 +71,7 @@ export class CANTrace {
   constructor(option: BasicOption);
   connect(): Promise<number>;
   sendCANMsg(name: string, canmsg: Object): Promise<any>;
-  sendMultiCANMsgs(name: string, canmsg: Array<Object>): boolean;
+  sendMultiCANMsgs(name: string, canmsgs: Array<Object>): boolean;
 }
 
 export interface ZDSWAGInstance {
