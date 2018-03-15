@@ -30039,7 +30039,16 @@ var CANTrace = function () {
   return CANTrace;
 }();
 
+var host = 'locahost';
+var port$1 = 6006;
+
 var Remotepanel = {
+  set host(val) {
+    host = val;
+  },
+  set port(val) {
+    port$1 = val;
+  },
   /**
     * call remotePanel
     */
@@ -30097,22 +30106,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 12:
-              if (this.socket) {
-                _context.next = 14;
-                break;
-              }
-
-              throw new Error('Service not ready');
+              _context.next = 14;
+              return axios$1.post('http://' + host + ':' + port$1 + '/remotepanel/key', keyevent);
 
             case 14:
-              _context.next = 16;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/key', keyevent);
-
-            case 16:
               res = _context.sent;
               return _context.abrupt('return', res.data);
 
-            case 18:
+            case 16:
             case 'end':
               return _context.stop();
           }
@@ -30206,22 +30207,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 16:
-              if (this.socket) {
-                _context2.next = 18;
-                break;
-              }
-
-              throw new Error('Service not ready');
+              _context2.next = 18;
+              return axios$1.post('http://' + host + ':' + port$1 + '/remotepanel/touch', touchevent);
 
             case 18:
-              _context2.next = 20;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touch', touchevent);
-
-            case 20:
               res = _context2.sent;
               return _context2.abrupt('return', res.data);
 
-            case 22:
+            case 20:
             case 'end':
               return _context2.stop();
           }
@@ -30325,22 +30318,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 16:
-              if (this.socket) {
-                _context3.next = 18;
-                break;
-              }
-
-              throw new Error('Service not ready');
+              _context3.next = 18;
+              return axios$1.post('http://' + host + ':' + port$1 + '/remotepanel/drag', dragevent);
 
             case 18:
-              _context3.next = 20;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/drag', dragevent);
-
-            case 20:
               res = _context3.sent;
               return _context3.abrupt('return', res.data);
 
-            case 22:
+            case 20:
             case 'end':
               return _context3.stop();
           }
@@ -30384,22 +30369,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 4:
-              if (this.socket) {
-                _context4.next = 6;
-                break;
-              }
-
-              throw new Error('Service not ready');
+              _context4.next = 6;
+              return axios$1.post('http://' + host + ':' + port$1 + '/remotepanel/touchscreenshot', ssevent);
 
             case 6:
-              _context4.next = 8;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touchscreenshot', ssevent);
-
-            case 8:
               res = _context4.sent;
               return _context4.abrupt('return', res.data);
 
-            case 10:
+            case 8:
             case 'end':
               return _context4.stop();
           }
@@ -30415,7 +30392,16 @@ var Remotepanel = {
   }()
 };
 
+var host$1 = 'locahost';
+var port$2 = 6006;
+
 var CANSim = {
+  set host(val) {
+    host$1 = val;
+  },
+  set port(val) {
+    port$2 = val;
+  },
   start: function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
       var res;
@@ -30424,7 +30410,7 @@ var CANSim = {
           switch (_context.prev = _context.next) {
             case 0:
               _context.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/start');
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/start');
 
             case 2:
               res = _context.sent;
@@ -30452,7 +30438,7 @@ var CANSim = {
           switch (_context2.prev = _context2.next) {
             case 0:
               _context2.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/stop');
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/stop');
 
             case 2:
               res = _context2.sent;
@@ -30480,7 +30466,7 @@ var CANSim = {
           switch (_context3.prev = _context3.next) {
             case 0:
               _context3.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/reset');
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/reset');
 
             case 2:
               res = _context3.sent;
@@ -30508,7 +30494,7 @@ var CANSim = {
           switch (_context4.prev = _context4.next) {
             case 0:
               _context4.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/cycle/' + canID);
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/cycle/' + canID);
 
             case 2:
               res = _context4.sent;
@@ -30536,7 +30522,7 @@ var CANSim = {
           switch (_context5.prev = _context5.next) {
             case 0:
               _context5.next = 2;
-              return axios$1.delete('http://' + this.host + ':' + this.port + '/cansim/cycle/' + canID);
+              return axios$1.delete('http://' + host$1 + ':' + port$2 + '/cansim/cycle/' + canID);
 
             case 2:
               res = _context5.sent;
@@ -30564,7 +30550,7 @@ var CANSim = {
           switch (_context6.prev = _context6.next) {
             case 0:
               _context6.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/cycle/' + canID + '/time', {
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/cycle/' + canID + '/time', {
                 time: time
               });
 
@@ -30594,7 +30580,7 @@ var CANSim = {
           switch (_context7.prev = _context7.next) {
             case 0:
               _context7.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/data/' + canID, {
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/data/' + canID, {
                 data: data
               });
 
@@ -30624,7 +30610,7 @@ var CANSim = {
           switch (_context8.prev = _context8.next) {
             case 0:
               _context8.next = 2;
-              return axios$1.post('http://' + this.host + ':' + this.port + '/cansim/data/' + canID + '/' + name, {
+              return axios$1.post('http://' + host$1 + ':' + port$2 + '/cansim/data/' + canID + '/' + name, {
                 value: value
               });
 
@@ -30667,6 +30653,10 @@ var Simulation = function () {
         _this.socket.on('connect', function () {
           resolve(1);
           _this.socket.emit('identity', type);
+          Remotepanel.host = _this.host;
+          Remotepanel.port = _this.port;
+          CANSim.host = _this.host;
+          CANSim.port = _this.port;
           _this.socket.removeAllListeners('connect');
           _this.socket.removeAllListeners('connect_error');
         });

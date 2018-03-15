@@ -1,6 +1,15 @@
 import axios from 'axios'
 
+let host = 'locahost'
+let port = 6006
+
 export default {
+  set host(val) {
+    host = val
+  },
+  set port(val) {
+    port = val
+  },
   /**
     * call remotePanel
     */
@@ -35,8 +44,7 @@ export default {
       }
     }
     if (!keyevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, keyevent)
+    let res = await axios.post(`http://${host}:${port}/remotepanel/key`, keyevent)
     return res.data;
   },
   //touchevent 
@@ -93,8 +101,7 @@ export default {
       }
     }
     if (!touchevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touch`, touchevent)
+    let res = await axios.post(`http://${host}:${port}/remotepanel/touch`, touchevent)
     return res.data;
   },
   //dragevent
@@ -161,8 +168,7 @@ export default {
       }
     }
     if (!dragevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/drag`, dragevent)
+    let res = await axios.post(`http://${host}:${port}/remotepanel/drag`, dragevent)
     return res.data;
   },
   //touchscreenshot {action:'exe'/'ret', event: {x:0, y:0}}
@@ -179,8 +185,7 @@ export default {
       }
     }
     if (!ssevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touchscreenshot`, ssevent)
+    let res = await axios.post(`http://${host}:${port}/remotepanel/touchscreenshot`, ssevent)
     return res.data;
   }     
 }
