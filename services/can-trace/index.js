@@ -45,13 +45,9 @@ export default class CANTrace {
    */
   async sendMultiCANMsgs(name, canmsgs) {
     if (!this.socket) throw new Error('CAN Trace service not ready')
-    canmsgs.forEach(elem => {
-      setTimeout(() => {
-        axios.post(`http://${this.host}:${this.port}/send`, {
-          name,
-          canmsg: elem.canmsg
-        })
-      }, elem.time)
+    await axios.post(`http://${this.host}:${this.port}/send/multi`, {
+      name,
+      canmsgs
     })
 
     return true
