@@ -4,6 +4,7 @@ import TTS from './tts/index'
 import MainUnit from './audi-mainunit/index'
 import CANTrace from './can-trace'
 import Simulation from './simulation/index'
+import TestService from './testservice/index'
 
 export default {
   AndroidProberProxy,
@@ -11,5 +12,6 @@ export default {
   TTS,
   AudiMainUnit: MainUnit,
   CANTrace,
-  Simulation
+  Simulation,
+  TestService
 };
