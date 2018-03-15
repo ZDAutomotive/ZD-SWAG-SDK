@@ -29985,14 +29985,13 @@ var CANTrace = function () {
 
     /**
      * send a group of canmsg in a time sequence
-     * @param {String} name CAN bus name
      * @param {Object[]} canmsgs a group of canmsg
      */
 
   }, {
     key: 'sendMultiCANMsgs',
     value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(name, canmsgs) {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(canmsgs) {
         return regenerator.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -30006,10 +30005,7 @@ var CANTrace = function () {
 
               case 2:
                 _context2.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/send/multi', {
-                  name: name,
-                  canmsgs: canmsgs
-                });
+                return axios$1.post('http://' + this.host + ':' + this.port + '/send/multi', canmsgs);
 
               case 4:
                 return _context2.abrupt('return', true);
@@ -30022,7 +30018,7 @@ var CANTrace = function () {
         }, _callee2, this);
       }));
 
-      function sendMultiCANMsgs(_x3, _x4) {
+      function sendMultiCANMsgs(_x3) {
         return _ref2.apply(this, arguments);
       }
 
@@ -30679,13 +30675,335 @@ var Simulation = function () {
   return Simulation;
 }();
 
+var TestService = function () {
+  function TestService(option) {
+    _classCallCheck(this, TestService);
+
+    this.port = option.port || 6000;
+    this.host = option.host || 'localhost';
+    this.subscribeMap = {};
+  }
+
+  _createClass(TestService, [{
+    key: 'connect',
+    value: function connect() {
+      var _this = this;
+
+      return new _Promise(function (resolve, reject) {
+        _this.socket = lib$4.connect('http://' + _this.host + ':' + _this.port + '/');
+        _this.socket.on('connect', function () {
+          resolve(1);
+          _this.socket.emit('identity', 'remote');
+          _this.socket.removeAllListeners('connect');
+          _this.socket.removeAllListeners('connect_error');
+        });
+        _this.socket.on('connect_error', function () {
+          reject('connect_error');
+          _this.socket.removeAllListeners('connect');
+          _this.socket.removeAllListeners('connect_error');
+          delete _this.socket;
+        });
+      });
+    }
+
+    /**
+     * load test script
+     */
+
+  }, {
+    key: 'loadTestCase',
+    value: function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(script, ID) {
+        var res;
+        return regenerator.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (this.socket) {
+                  _context.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/testcase', { script: script, ID: ID });
+
+              case 4:
+                res = _context.sent;
+                return _context.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function loadTestCase(_x, _x2) {
+        return _ref.apply(this, arguments);
+      }
+
+      return loadTestCase;
+    }()
+
+    /**
+     * get current test script list
+     */
+
+  }, {
+    key: 'getTestCaseList',
+    value: function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2() {
+        var res;
+        return regenerator.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (this.socket) {
+                  _context2.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context2.next = 4;
+                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/testcase');
+
+              case 4:
+                res = _context2.sent;
+                return _context2.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function getTestCaseList() {
+        return _ref2.apply(this, arguments);
+      }
+
+      return getTestCaseList;
+    }()
+
+    /**
+     * delete test script by ID
+     */
+
+  }, {
+    key: 'deleteTestCase',
+    value: function () {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(ID) {
+        var res;
+        return regenerator.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                if (this.socket) {
+                  _context3.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context3.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/delete', { ID: ID });
+
+              case 4:
+                res = _context3.sent;
+                return _context3.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function deleteTestCase(_x3) {
+        return _ref3.apply(this, arguments);
+      }
+
+      return deleteTestCase;
+    }()
+
+    /**
+     * delete all test script
+     */
+
+  }, {
+    key: 'deleteAllTestCases',
+    value: function () {
+      var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4() {
+        var res;
+        return regenerator.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                if (this.socket) {
+                  _context4.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context4.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/deleteall');
+
+              case 4:
+                res = _context4.sent;
+                return _context4.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function deleteAllTestCases() {
+        return _ref4.apply(this, arguments);
+      }
+
+      return deleteAllTestCases;
+    }()
+  }, {
+    key: 'start',
+    value: function () {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5() {
+        var res;
+        return regenerator.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                if (this.socket) {
+                  _context5.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context5.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/start');
+
+              case 4:
+                res = _context5.sent;
+                return _context5.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function start() {
+        return _ref5.apply(this, arguments);
+      }
+
+      return start;
+    }()
+  }, {
+    key: 'stop',
+    value: function () {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6() {
+        var res;
+        return regenerator.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                if (this.socket) {
+                  _context6.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context6.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/stop');
+
+              case 4:
+                res = _context6.sent;
+                return _context6.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context6.stop();
+            }
+          }
+        }, _callee6, this);
+      }));
+
+      function stop() {
+        return _ref6.apply(this, arguments);
+      }
+
+      return stop;
+    }()
+  }, {
+    key: 'resume',
+    value: function () {
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7() {
+        var res;
+        return regenerator.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                if (this.socket) {
+                  _context7.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context7.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/resume');
+
+              case 4:
+                res = _context7.sent;
+                return _context7.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      function resume() {
+        return _ref7.apply(this, arguments);
+      }
+
+      return resume;
+    }()
+  }]);
+
+  return TestService;
+}();
+
 var SWAG = {
   AndroidProberProxy: AdroidProberProxy,
   TraceServer: TraceServer,
   TTS: tts,
   AudiMainUnit: MainUnit,
   CANTrace: CANTrace,
-  Simulation: Simulation
+  Simulation: Simulation,
+  TestService: TestService
 };
 
 // Load all service classes
