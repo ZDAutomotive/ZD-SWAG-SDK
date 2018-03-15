@@ -30091,22 +30091,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 12:
-              if (this.socket) {
-                _context.next = 14;
-                break;
-              }
-
-              throw new Error('Service not ready');
-
-            case 14:
-              _context.next = 16;
+              _context.next = 14;
               return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/key', keyevent);
 
-            case 16:
+            case 14:
               res = _context.sent;
               return _context.abrupt('return', res.data);
 
-            case 18:
+            case 16:
             case 'end':
               return _context.stop();
           }
@@ -30200,22 +30192,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 16:
-              if (this.socket) {
-                _context2.next = 18;
-                break;
-              }
-
-              throw new Error('Service not ready');
-
-            case 18:
-              _context2.next = 20;
+              _context2.next = 18;
               return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touch', touchevent);
 
-            case 20:
+            case 18:
               res = _context2.sent;
               return _context2.abrupt('return', res.data);
 
-            case 22:
+            case 20:
             case 'end':
               return _context2.stop();
           }
@@ -30319,22 +30303,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 16:
-              if (this.socket) {
-                _context3.next = 18;
-                break;
-              }
-
-              throw new Error('Service not ready');
-
-            case 18:
-              _context3.next = 20;
+              _context3.next = 18;
               return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/drag', dragevent);
 
-            case 20:
+            case 18:
               res = _context3.sent;
               return _context3.abrupt('return', res.data);
 
-            case 22:
+            case 20:
             case 'end':
               return _context3.stop();
           }
@@ -30378,22 +30354,14 @@ var Remotepanel = {
               throw new Error('Unexpected parameters');
 
             case 4:
-              if (this.socket) {
-                _context4.next = 6;
-                break;
-              }
-
-              throw new Error('Service not ready');
-
-            case 6:
-              _context4.next = 8;
+              _context4.next = 6;
               return axios$1.post('http://' + this.host + ':' + this.port + '/remotepanel/touchscreenshot', ssevent);
 
-            case 8:
+            case 6:
               res = _context4.sent;
               return _context4.abrupt('return', res.data);
 
-            case 10:
+            case 8:
             case 'end':
               return _context4.stop();
           }

@@ -35,7 +35,6 @@ export default {
       }
     }
     if (!keyevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, keyevent)
     return res.data;
   },
@@ -93,7 +92,6 @@ export default {
       }
     }
     if (!touchevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touch`, touchevent)
     return res.data;
   },
@@ -161,7 +159,6 @@ export default {
       }
     }
     if (!dragevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/drag`, dragevent)
     return res.data;
   },
@@ -179,7 +176,6 @@ export default {
       }
     }
     if (!ssevent) throw new Error('Unexpected parameters')
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touchscreenshot`, ssevent)
     return res.data;
   }     
