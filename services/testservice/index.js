@@ -79,4 +79,15 @@ export default class TestService {
     let res = await axios.post(`http://${this.host}:${this.port}/ts/resume`);
     return res.data;
   }
+  //{softwareVersion : ''}
+  async setBenchConfig(benchConfig) {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/ts/benchconfig`, benchConfig);
+    return res.data;
+  }
+  async getBenchConfig() {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.get(`http://${this.host}:${this.port}/ts/benchconfig`);
+    return res.data;
+  }
 }
