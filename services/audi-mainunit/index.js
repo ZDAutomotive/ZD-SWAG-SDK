@@ -61,4 +61,13 @@ export default class MainUnit {
     let res = await axios.post(`http://${this.host}:${this.port}/envstatus/backend`, backend);
     return res.data;
   }
+
+  /**
+   * fetch files from MU to service folder(remote local)
+   */
+  async fetchFiles(serverFile, remoteFolder){
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/mu/fetchfiles`, {files: serverFile, toPath: remoteFolder});
+    return res.data;
+  }
 }
