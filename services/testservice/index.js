@@ -3,6 +3,7 @@ import axios from 'axios';
 
 export default class TestService {
   constructor(option) {
+    option = option || {}
     this.port = option.port || 6000;
     this.host = option.host || 'localhost'
     this.subscribeMap = {}

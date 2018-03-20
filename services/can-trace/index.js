@@ -3,6 +3,7 @@ import axios from 'axios';
 
 export default class CANTrace {
   constructor(option) {
+    option = option || {}
     this.port = option.port || 6002;
     this.host = option.host || 'localhost'
     this.subscribeMap = {}
