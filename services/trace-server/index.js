@@ -20,7 +20,7 @@ export default class TraceServer {
         this.socket.removeAllListeners('connect_error')
       })
       this.socket.on('connect_error', () => {
-        reject(1)
+        reject('connect_error')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
         delete this.socket
@@ -122,8 +122,8 @@ export default class TraceServer {
       const hookName = '';
       // set time out event
       const timer = setTimeout(() => {
-        if (!option.onFailed) reject(2)
-        else resolve(1)
+        if (!option.onFailed) resolve({res:false, trace:''})
+        else resolve({res:true, trace:''})
         this.socket.removeAllListeners(hookName)
         this.removeHook(hookName)
       }, option.timeout || 20000);
@@ -143,8 +143,8 @@ export default class TraceServer {
         //      msgType: 'STRING_UTF8',
         //      size: 70,
         //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
-        if (!option.onFailed) resolve(trace)
-        else reject(2)
+        if (!option.onFailed) resolve({res: true, trace})
+        else resolve({res:false})
         clearTimeout(timer)
         this.removeHook(hookName)
       })
@@ -153,14 +153,16 @@ export default class TraceServer {
       const checkBeginTime = now - 5000 // check from 5000ms before now
 
       const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
+      console.log(beforeESOs);
+      //trace.data.data.channel === eso trace port
       const foundBeforeESO = beforeESOs.find(
         trace => {
-          (trace.data.msgData.data.channelId === option.channelID) &&
-         (trace.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
+          (trace.data.data.msgData.data.channelId === option.channelID) &&
+         (trace.data.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
       if (foundBeforeESO) {
         // found a matching CAN msg
-        if (!option.onFailed) resolve(foundBeforeESO)
-        else reject(2)
+        if (!option.onFailed) resolve({res:false, trace: foundBeforeESO[0]});
+        else resolve({res:true, trace:foundBeforeESO[0]});
         this.socket.removeAllListeners(hookName)
         clearTimeout(timer)
         this.removeHook(hookName)
