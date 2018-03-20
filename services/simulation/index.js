@@ -4,6 +4,7 @@ import CANSim from './cansim'
 
 export default class Simulation {
   constructor(option) {
+    option = option || {}
     this.port = option.port || 6006;
     this.host = option.host || 'localhost'
     this.subscribeMap = {}

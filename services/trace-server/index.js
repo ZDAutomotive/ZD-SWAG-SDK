@@ -4,6 +4,7 @@ import canDPI from '../../utils/can/dpi';
 
 export default class TraceServer {
   constructor(option) {
+    option = option || {}
     this.port = option.port || 6001;
     this.host = option.host || 'localhost'
     this.subscribeMap = {}
