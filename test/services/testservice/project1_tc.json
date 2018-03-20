@@ -57,7 +57,18 @@
         "buttonName": "MFL_PTT"
       }
     }
-  }, {
+  },{
+    "delay": 1000,
+    "action": {
+      "command": "assertESOTrace",
+      "type": "trace",
+      "args":{
+         "timeout":30,
+         "channelID": "7599",
+         "keyword": "BIG_COMMAND_DISPLAY"
+      }
+    }
+  },{
     "delay": 3000,
     "action": {
       "command": "tap",
