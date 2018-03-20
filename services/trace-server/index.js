@@ -15,6 +15,7 @@ export default class TraceServer {
       this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
       this.socket.on('connect', () => {
         resolve(1)
+        this.socketId = this.socket.id
         this.socket.emit('identity', 'remote')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
@@ -41,6 +42,7 @@ export default class TraceServer {
   async hook(eventName, filterString) {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.post(`http://${this.host}:${this.port}/hook`, {
+      id: this.socketId,
       eventName,
       filterString
     })
@@ -50,6 +52,7 @@ export default class TraceServer {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.delete(`http://${this.host}:${this.port}/hook`, {
       params: {
+        id: this.socketId,
         eventName
       }
     })
@@ -183,32 +186,32 @@ export default class TraceServer {
 
     switch (type) {
       case 'CAN':
-        {
-          let str = '{"protocol" == "CAN"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
+      {
+        let str = '{"protocol" == "CAN"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
         }
+        await this.hook(name, str)
+        break;
+      }
       case 'BAP':
-        {
-          let str = '{"protocol" == "BAP"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
+      {
+        let str = '{"protocol" == "BAP"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
         }
+        await this.hook(name, str)
+        break;
+      }
       case 'ESO':
-        {
-          let str = '{"protocol" == "ESO"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
+      {
+        let str = '{"protocol" == "ESO"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
         }
+        await this.hook(name, str)
+        break;
+      }
       default:
         throw new Error('unsupported subscribe type')
     }
