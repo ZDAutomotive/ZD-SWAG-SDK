@@ -1,6 +1,8 @@
 import ioClient from 'socket.io-client';
 import axios from 'axios';
+import crypto from 'crypto';
 import canDPI from '../../utils/can/dpi';
+
 
 export default class TraceServer {
   constructor(option) {
@@ -119,10 +121,10 @@ export default class TraceServer {
   assertESOTrace(option) {
     return new Promise(async (resolve, reject) => {
       if (!this.socket) {
-        reject(1)
+        reject('connect_error')
         return
       }
-      const hookName = '';
+      const hookName = crypto.createHash('md5').update(JSON.stringify(option)).digest('hex');
       // set time out event
       const timer = setTimeout(() => {
         if (!option.onFailed) resolve({res:false, trace:''})
@@ -133,6 +135,7 @@ export default class TraceServer {
 
       // set a hook
       await this.hook(hookName, `{"protocol" == "ESO"} && {"esotext"=="${option.keyword}"} && {"esoclid"=="${option.channelID}"}`)
+      //console.log('waiting for hook')
       this.socket.on(hookName, (trace) => {
         //data.data.msgData
         // { size: 97,
@@ -156,7 +159,6 @@ export default class TraceServer {
       const checkBeginTime = now - 5000 // check from 5000ms before now
 
       const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
-      console.log(beforeESOs);
       //trace.data.data.channel === eso trace port
       const foundBeforeESO = beforeESOs.find(
         trace => {
@@ -164,8 +166,8 @@ export default class TraceServer {
          (trace.data.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
       if (foundBeforeESO) {
         // found a matching CAN msg
-        if (!option.onFailed) resolve({res:false, trace: foundBeforeESO[0]});
-        else resolve({res:true, trace:foundBeforeESO[0]});
+        if (!option.onFailed) resolve({res:true, trace: foundBeforeESO[0]});
+        else resolve({res:false, trace:foundBeforeESO[0]});
         this.socket.removeAllListeners(hookName)
         clearTimeout(timer)
         this.removeHook(hookName)
