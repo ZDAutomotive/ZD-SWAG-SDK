@@ -1,5 +1,5 @@
 const swag = require('../../../dist/bundle.cjs');
-const demoScript = require('./first-test-tc.json')
+const demoScript = require('./project1_tc.json')
 // let mu = new swag.AudiMainUnit({});
 // mu.connect().then(async () => {
 //   try{
@@ -11,7 +11,9 @@ const demoScript = require('./first-test-tc.json')
 
 // })
 
-let ts = new swag.TestService({});
+let ts = new swag.TestService({
+  host: '192.168.178.73'
+});
 
 // const demoScript = {
 //   'headInfo': {
@@ -269,6 +271,8 @@ let ts = new swag.TestService({});
   try {
     let conn = await ts.connect();
     console.log(conn);
+    // let stop = await ts.stop();
+    // console.log(stop);
     let testcases = await ts.getTestCaseList();
     console.log(testcases);
     try {
@@ -282,8 +286,8 @@ let ts = new swag.TestService({});
     console.log(setConfigRes);
     let getConfigRes = await ts.getBenchConfig();
     console.log(getConfigRes);
-    // let deleteAllRes = await ts.deleteAllTestCases();
-    // console.log(deleteAllRes);
+    let deleteAllRes = await ts.deleteAllTestCases();
+    console.log(deleteAllRes);
     let loadTestcaseRes = await ts.loadTestCase(demoScript, 'aaa');
     console.log(loadTestcaseRes);
     testcases = await ts.getTestCaseList();
