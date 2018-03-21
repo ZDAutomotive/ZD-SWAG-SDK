@@ -37,9 +37,7 @@ class TboxSimulator {
 
     connect(option, cb) {
         axios
-            .post(`http://${this.option.host}:${this.option.port}/leopaard/tbox-simulator/connect`, {
-                hostname: option.hostname, port: option.port
-            })
+            .post(`http://${this.option.host}:${this.option.port}/leopaard/tbox-simulator/connect`, option)
             .then(res => {
                 cb(false, res.data);
             })
@@ -56,7 +54,17 @@ class TboxSimulator {
             .catch(err => {
                 cb(true, err);
             });
-    }    
+    }
+    send(message, cb) {
+        axios
+            .post(`http://${this.option.host}:${this.option.port}/leopaard/tbox-simulator/send`, { message })
+            .then(res => {
+                cb(false, res.data);
+            })
+            .catch(err => {
+                cb(true, err);
+            });
+    }
 }
 
 class TspSimulator {
@@ -69,13 +77,31 @@ class TspSimulator {
         return this.emitter;
     }
 
-    run(script, cb) {
+    start(option, cb) {
         axios
-            .post(`http://${this.option.host}:${this.option.port}/leopaard/executor/run`, {
-                script
-            })
+            .post(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/start`, option)
             .then(res => {
                 cb(false, res);
+            })
+            .catch(err => {
+                cb(true, err);
+            });
+    }
+    stop(cb) {
+        axios
+            .get(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/stop`)
+            .then(res => {
+                cb(false, res.data);
+            })
+            .catch(err => {
+                cb(true, err);
+            });
+    }
+    send(message, cb) {
+        axios
+            .post(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/send`, {message})
+            .then(res => {
+                cb(false, res.body);
             })
             .catch(err => {
                 cb(true, err);
