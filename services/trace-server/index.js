@@ -1,9 +1,12 @@
 import ioClient from 'socket.io-client';
 import axios from 'axios';
+import crypto from 'crypto';
 import canDPI from '../../utils/can/dpi';
+
 
 export default class TraceServer {
   constructor(option) {
+    option = option || {}
     this.port = option.port || 6001;
     this.host = option.host || 'localhost'
     this.subscribeMap = {}
@@ -14,12 +17,13 @@ export default class TraceServer {
       this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
       this.socket.on('connect', () => {
         resolve(1)
+        this.socketId = this.socket.id
         this.socket.emit('identity', 'remote')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
       })
       this.socket.on('connect_error', () => {
-        reject(1)
+        reject('connect_error')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
         delete this.socket
@@ -40,6 +44,7 @@ export default class TraceServer {
   async hook(eventName, filterString) {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.post(`http://${this.host}:${this.port}/hook`, {
+      id: this.socketId,
       eventName,
       filterString
     })
@@ -49,6 +54,7 @@ export default class TraceServer {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.delete(`http://${this.host}:${this.port}/hook`, {
       params: {
+        id: this.socketId,
         eventName
       }
     })
@@ -92,10 +98,76 @@ export default class TraceServer {
 
       const beforeCANs = await this.pull(checkBeginTime, now, ['can'])
       const foundBeforeCAN = beforeCANs.find(can => canDPI.verify(can.data.canmsg, option.signature))
-      if(foundBeforeCAN) {
+      if (foundBeforeCAN) {
         // found a matching CAN msg
         if (!option.onFailed) resolve(foundBeforeCAN)
         else reject(2)
+        this.socket.removeAllListeners(hookName)
+        clearTimeout(timer)
+        this.removeHook(hookName)
+        return
+      }
+    })
+  }
+
+  /**
+   * assert a eso keyword on success or on failed 
+   * @param {Object} option
+   * @param {string} option.channelID
+   * @param {String} option.keyword
+   * @param {number} option.timeout default 20000, max waiting time for matching can msg
+   * @param {boolean} option.onFailed when to trigger callback, true means on failed, false means on success
+   */
+  assertESOTrace(option) {
+    return new Promise(async (resolve, reject) => {
+      if (!this.socket) {
+        reject('connect_error')
+        return
+      }
+      const hookName = crypto.createHash('md5').update(JSON.stringify(option)).digest('hex');
+      // set time out event
+      const timer = setTimeout(() => {
+        if (!option.onFailed) resolve({res:false, trace:''})
+        else resolve({res:true, trace:''})
+        this.socket.removeAllListeners(hookName)
+        this.removeHook(hookName)
+      }, option.timeout || 20000);
+
+      // set a hook
+      await this.hook(hookName, `{"protocol" == "ESO"} && {"esotext"=="${option.keyword}"} && {"esoclid"=="${option.channelID}"}`)
+      //console.log('waiting for hook')
+      this.socket.on(hookName, (trace) => {
+        //data.data.msgData
+        // { size: 97,
+        //   id: 4,
+        //   data: 
+        //    { timeStamp: 4660142,
+        //      modifiers: 0,
+        //      channelId: 10847,
+        //      threadId: 7939,
+        //      level: 'INFO',
+        //      msgType: 'STRING_UTF8',
+        //      size: 70,
+        //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
+        if (!option.onFailed) resolve({res: true, trace})
+        else resolve({res:false})
+        clearTimeout(timer)
+        this.removeHook(hookName)
+      })
+
+      const now = Date.now()
+      const checkBeginTime = now - 5000 // check from 5000ms before now
+
+      const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
+      //trace.data.data.channel === eso trace port
+      const foundBeforeESO = beforeESOs.find(
+        trace => {
+          (trace.data.data.msgData.data.channelId === option.channelID) &&
+         (trace.data.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
+      if (foundBeforeESO) {
+        // found a matching CAN msg
+        if (!option.onFailed) resolve({res:true, trace: foundBeforeESO[0]});
+        else resolve({res:false, trace:foundBeforeESO[0]});
         this.socket.removeAllListeners(hookName)
         clearTimeout(timer)
         this.removeHook(hookName)
@@ -114,8 +186,9 @@ export default class TraceServer {
   async subscribe(name, type, filterStr) {
     if (!this.socket) throw new Error('Service not ready')
 
-    switch(type) {
-      case 'CAN': {
+    switch (type) {
+      case 'CAN':
+      {
         let str = '{"protocol" == "CAN"}'
         if (filterStr) {
           str += ' && (' + filterStr + ')'
@@ -123,7 +196,8 @@ export default class TraceServer {
         await this.hook(name, str)
         break;
       }
-      case 'BAP': {
+      case 'BAP':
+      {
         let str = '{"protocol" == "BAP"}'
         if (filterStr) {
           str += ' && (' + filterStr + ')'
@@ -131,7 +205,8 @@ export default class TraceServer {
         await this.hook(name, str)
         break;
       }
-      case 'ESO': {
+      case 'ESO':
+      {
         let str = '{"protocol" == "ESO"}'
         if (filterStr) {
           str += ' && (' + filterStr + ')'
@@ -165,7 +240,7 @@ export default class TraceServer {
     const foundNames = Object.keys(this.subscribeMap)
       .filter(key => this.subscribeMap[key] === type)
     if (foundNames.length) {
-      for(let name of foundNames) {
+      for (let name of foundNames) {
         await this.removeHook(name)
       }
     }

@@ -2197,6 +2197,17 @@ module.exports = { "default": keys, __esModule: true };
 
 var _Object$keys = unwrapExports(keys$2);
 
+var $JSON = _core.JSON || (_core.JSON = { stringify: JSON.stringify });
+var stringify = function stringify(it) { // eslint-disable-line no-unused-vars
+  return $JSON.stringify.apply($JSON, arguments);
+};
+
+var stringify$2 = createCommonjsModule(function (module) {
+module.exports = { "default": stringify, __esModule: true };
+});
+
+var _JSON$stringify = unwrapExports(stringify$2);
+
 /**
  * Parses an URI
  *
@@ -3698,18 +3709,18 @@ var util$1 = Object.freeze({
 	default: util
 });
 
-var empty$1 = {};
+var crypto = {};
 
 
-var empty$2 = Object.freeze({
-	default: empty$1
+var empty$1 = Object.freeze({
+	default: crypto
 });
 
 var tty$2 = ( tty$1 && tty ) || tty$1;
 
 var util$2 = ( util$1 && util ) || util$1;
 
-var crypto = ( empty$2 && empty$1 ) || empty$2;
+var crypto$1 = ( empty$1 && crypto ) || empty$1;
 
 var node = createCommonjsModule(function (module, exports) {
 /**
@@ -3897,14 +3908,14 @@ function createWritableStdioStream (fd) {
       break;
 
     case 'FILE':
-      var fs = crypto;
+      var fs = crypto$1;
       stream = new fs.SyncWriteStream(fd, { autoClose: false });
       stream._type = 'fs';
       break;
 
     case 'PIPE':
     case 'TCP':
-      var net = crypto;
+      var net = crypto$1;
       stream = new net.Socket({
         fd: fd,
         readable: false,
@@ -5953,7 +5964,7 @@ function stringifyPrimitive(v) {
   }
 }
 
-function stringify (obj, sep, eq, name) {
+function stringify$3 (obj, sep, eq, name) {
   sep = sep || '&';
   eq = eq || '=';
   if (obj === null) {
@@ -6437,7 +6448,7 @@ function format$1(self) {
   if (self.query &&
     isObject$1(self.query) &&
     Object.keys(self.query).length) {
-    query = stringify(self.query);
+    query = stringify$3(self.query);
   }
 
   var search = self.search || (query && ('?' + query)) || '';
@@ -11943,7 +11954,7 @@ var https = ( http$1 && http ) || http$1;
 
 
 
-var spawn = crypto.spawn;
+var spawn = crypto$1.spawn;
 
 /**
  * Module exports.
@@ -12250,7 +12261,7 @@ function XMLHttpRequest$1(opts) {
       }
 
       if (settings.async) {
-        crypto.readFile(url.pathname, 'utf8', function(error, data) {
+        crypto$1.readFile(url.pathname, 'utf8', function(error, data) {
           if (error) {
             self.handleError(error);
           } else {
@@ -12261,7 +12272,7 @@ function XMLHttpRequest$1(opts) {
         });
       } else {
         try {
-          this.responseText = crypto.readFileSync(url.pathname, 'utf8');
+          this.responseText = crypto$1.readFileSync(url.pathname, 'utf8');
           this.status = 200;
           setState(self.DONE);
         } catch(e) {
@@ -12434,7 +12445,7 @@ function XMLHttpRequest$1(opts) {
       // Create a temporary file for communication with the other Node process
       var contentFile = ".node-xmlhttprequest-content-" + process.pid;
       var syncFile = ".node-xmlhttprequest-sync-" + process.pid;
-      crypto.writeFileSync(syncFile, "", "utf8");
+      crypto$1.writeFileSync(syncFile, "", "utf8");
       // The async request the other Node process executes
       var execString = "var http = require('http'), https = require('https'), fs = require('fs');"
         + "var doRequest = http" + (ssl ? "s" : "") + ".request;"
@@ -12461,14 +12472,14 @@ function XMLHttpRequest$1(opts) {
         + "req.end();";
       // Start the other Node Process, executing this string
       var syncProc = spawn(process.argv[0], ["-e", execString]);
-      while(crypto.existsSync(syncFile)) {
+      while(crypto$1.existsSync(syncFile)) {
         // Wait while the sync file is empty
       }
-      self.responseText = crypto.readFileSync(contentFile, 'utf8');
+      self.responseText = crypto$1.readFileSync(contentFile, 'utf8');
       // Kill the child process once the file has data
       syncProc.stdin.end();
       // Remove the temporary file
-      crypto.unlinkSync(contentFile);
+      crypto$1.unlinkSync(contentFile);
       if (self.responseText.match(/^NODE-XMLHTTPREQUEST-ERROR:/)) {
         // If the file returned an error, handle it
         var errorObj = self.responseText.replace(/^NODE-XMLHTTPREQUEST-ERROR:/, "");
@@ -13919,7 +13930,7 @@ var Request_1 = Request;
  * Empty function
  */
 
-function empty$3 () {}
+function empty$2 () {}
 
 /**
  * XHR Polling constructor.
@@ -14222,9 +14233,9 @@ Request.prototype.cleanup = function (fromError) {
   }
   // xmlhttprequest
   if (this.hasXDR()) {
-    this.xhr.onload = this.xhr.onerror = empty$3;
+    this.xhr.onload = this.xhr.onerror = empty$2;
   } else {
-    this.xhr.onreadystatechange = empty$3;
+    this.xhr.onreadystatechange = empty$2;
   }
 
   if (fromError) {
@@ -14343,7 +14354,7 @@ var callbacks;
  * Noop.
  */
 
-function empty$4 () { }
+function empty$3 () { }
 
 /**
  * JSONP Polling constructor.
@@ -14380,7 +14391,7 @@ function JSONPPolling (opts) {
   // prevent spurious errors from being emitted when the window is unloaded
   if (commonjsGlobal.document && commonjsGlobal.addEventListener) {
     commonjsGlobal.addEventListener('beforeunload', function () {
-      if (self.script) self.script.onerror = empty$4;
+      if (self.script) self.script.onerror = empty$3;
     }, false);
   }
 }
@@ -22697,7 +22708,7 @@ class Sender {
       return [target, data];
     }
 
-    const mask = crypto.randomBytes(4);
+    const mask = crypto$1.randomBytes(4);
 
     target[1] = payloadLength | 0x80;
     target[offset - 4] = mask[0];
@@ -23542,7 +23553,7 @@ function initAsClient (address, protocols, options) {
   }
 
   const isSecure = serverUrl.protocol === 'wss:' || serverUrl.protocol === 'https:';
-  const key = crypto.randomBytes(16).toString('base64');
+  const key = crypto$1.randomBytes(16).toString('base64');
   const httpObj = isSecure ? https : https;
   var perMessageDeflate;
 
@@ -23669,7 +23680,7 @@ function initAsClient (address, protocols, options) {
 
     this._req = null;
 
-    const digest = crypto.createHash('sha1')
+    const digest = crypto$1.createHash('sha1')
       .update(key + Constants.GUID, 'binary')
       .digest('base64');
 
@@ -23947,7 +23958,7 @@ class WebSocketServer extends EventEmitter$2 {
     //
     if (!socket.readable || !socket.writable) return socket.destroy();
 
-    const key = crypto.createHash('sha1')
+    const key = crypto$1.createHash('sha1')
       .update(req.headers['sec-websocket-key'] + Constants.GUID, 'binary')
       .digest('base64');
 
@@ -27726,9 +27737,9 @@ var assert$3 = Object.freeze({
 
 var assert$4 = ( assert$3 && assert$1 ) || assert$3;
 
-var require$$0$27 = ( stream && Stream$1 ) || stream;
+var require$$0$28 = ( stream && Stream$1 ) || stream;
 
-var Writable$2 = require$$0$27.Writable;
+var Writable$2 = require$$0$28.Writable;
 var debug$11 = src$2("follow-redirects");
 
 // RFC7231§4.2.1: Of the request methods defined by this specification,
@@ -28941,6 +28952,7 @@ var TraceServer = function () {
   function TraceServer(option) {
     _classCallCheck(this, TraceServer);
 
+    option = option || {};
     this.port = option.port || 6001;
     this.host = option.host || 'localhost';
     this.subscribeMap = {};
@@ -28955,12 +28967,13 @@ var TraceServer = function () {
         _this.socket = lib$4.connect('http://' + _this.host + ':' + _this.port + '/');
         _this.socket.on('connect', function () {
           resolve(1);
+          _this.socketId = _this.socket.id;
           _this.socket.emit('identity', 'remote');
           _this.socket.removeAllListeners('connect');
           _this.socket.removeAllListeners('connect_error');
         });
         _this.socket.on('connect_error', function () {
-          reject(1);
+          reject('connect_error');
           _this.socket.removeAllListeners('connect');
           _this.socket.removeAllListeners('connect_error');
           delete _this.socket;
@@ -29026,6 +29039,7 @@ var TraceServer = function () {
               case 2:
                 _context2.next = 4;
                 return axios$1.post('http://' + this.host + ':' + this.port + '/hook', {
+                  id: this.socketId,
                   eventName: eventName,
                   filterString: filterString
                 });
@@ -29066,6 +29080,7 @@ var TraceServer = function () {
                 _context3.next = 4;
                 return axios$1.delete('http://' + this.host + ':' + this.port + '/hook', {
                   params: {
+                    id: this.socketId,
                     eventName: eventName
                   }
                 });
@@ -29179,6 +29194,110 @@ var TraceServer = function () {
     }
 
     /**
+     * assert a eso keyword on success or on failed 
+     * @param {Object} option
+     * @param {string} option.channelID
+     * @param {String} option.keyword
+     * @param {number} option.timeout default 20000, max waiting time for matching can msg
+     * @param {boolean} option.onFailed when to trigger callback, true means on failed, false means on success
+     */
+
+  }, {
+    key: 'assertESOTrace',
+    value: function assertESOTrace(option) {
+      var _this3 = this;
+
+      return new _Promise(function () {
+        var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(resolve, reject) {
+          var hookName, timer, now, checkBeginTime, beforeESOs, foundBeforeESO;
+          return regenerator.wrap(function _callee5$(_context5) {
+            while (1) {
+              switch (_context5.prev = _context5.next) {
+                case 0:
+                  if (_this3.socket) {
+                    _context5.next = 3;
+                    break;
+                  }
+
+                  reject('connect_error');
+                  return _context5.abrupt('return');
+
+                case 3:
+                  hookName = crypto.createHash('md5').update(_JSON$stringify(option)).digest('hex');
+                  // set time out event
+
+                  timer = setTimeout(function () {
+                    if (!option.onFailed) resolve({ res: false, trace: '' });else resolve({ res: true, trace: '' });
+                    _this3.socket.removeAllListeners(hookName);
+                    _this3.removeHook(hookName);
+                  }, option.timeout || 20000);
+
+                  // set a hook
+
+                  _context5.next = 7;
+                  return _this3.hook(hookName, '{"protocol" == "ESO"} && {"esotext"=="' + option.keyword + '"} && {"esoclid"=="' + option.channelID + '"}');
+
+                case 7:
+                  //console.log('waiting for hook')
+                  _this3.socket.on(hookName, function (trace) {
+                    //data.data.msgData
+                    // { size: 97,
+                    //   id: 4,
+                    //   data: 
+                    //    { timeStamp: 4660142,
+                    //      modifiers: 0,
+                    //      channelId: 10847,
+                    //      threadId: 7939,
+                    //      level: 'INFO',
+                    //      msgType: 'STRING_UTF8',
+                    //      size: 70,
+                    //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
+                    if (!option.onFailed) resolve({ res: true, trace: trace });else resolve({ res: false });
+                    clearTimeout(timer);
+                    _this3.removeHook(hookName);
+                  });
+
+                  now = Date.now();
+                  checkBeginTime = now - 5000; // check from 5000ms before now
+
+                  _context5.next = 12;
+                  return _this3.pull(checkBeginTime, now, ['eso']);
+
+                case 12:
+                  beforeESOs = _context5.sent;
+
+                  //trace.data.data.channel === eso trace port
+                  foundBeforeESO = beforeESOs.find(function (trace) {
+                    trace.data.data.msgData.data.channelId === option.channelID && trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1;
+                  });
+
+                  if (!foundBeforeESO) {
+                    _context5.next = 20;
+                    break;
+                  }
+
+                  // found a matching CAN msg
+                  if (!option.onFailed) resolve({ res: true, trace: foundBeforeESO[0] });else resolve({ res: false, trace: foundBeforeESO[0] });
+                  _this3.socket.removeAllListeners(hookName);
+                  clearTimeout(timer);
+                  _this3.removeHook(hookName);
+                  return _context5.abrupt('return');
+
+                case 20:
+                case 'end':
+                  return _context5.stop();
+              }
+            }
+          }, _callee5, _this3);
+        }));
+
+        return function (_x9, _x10) {
+          return _ref5.apply(this, arguments);
+        };
+      }());
+    }
+
+    /**
      * Subscribe a type of trace server message with custom event name
      * @param {String} name subscribed event name on which socket listens
      * @param {String} type subscribed event type, could be one of [CAN, BAP, ESO]
@@ -29189,23 +29308,23 @@ var TraceServer = function () {
   }, {
     key: 'subscribe',
     value: function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(name, type, filterStr) {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(name, type, filterStr) {
         var str, _str, _str2;
 
-        return regenerator.wrap(function _callee5$(_context5) {
+        return regenerator.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
                 if (this.socket) {
-                  _context5.next = 2;
+                  _context6.next = 2;
                   break;
                 }
 
                 throw new Error('Service not ready');
 
               case 2:
-                _context5.t0 = type;
-                _context5.next = _context5.t0 === 'CAN' ? 5 : _context5.t0 === 'BAP' ? 10 : _context5.t0 === 'ESO' ? 15 : 20;
+                _context6.t0 = type;
+                _context6.next = _context6.t0 === 'CAN' ? 5 : _context6.t0 === 'BAP' ? 10 : _context6.t0 === 'ESO' ? 15 : 20;
                 break;
 
               case 5:
@@ -29214,11 +29333,11 @@ var TraceServer = function () {
                 if (filterStr) {
                   str += ' && (' + filterStr + ')';
                 }
-                _context5.next = 9;
+                _context6.next = 9;
                 return this.hook(name, str);
 
               case 9:
-                return _context5.abrupt('break', 21);
+                return _context6.abrupt('break', 21);
 
               case 10:
                 _str = '{"protocol" == "BAP"}';
@@ -29226,11 +29345,11 @@ var TraceServer = function () {
                 if (filterStr) {
                   _str += ' && (' + filterStr + ')';
                 }
-                _context5.next = 14;
+                _context6.next = 14;
                 return this.hook(name, _str);
 
               case 14:
-                return _context5.abrupt('break', 21);
+                return _context6.abrupt('break', 21);
 
               case 15:
                 _str2 = '{"protocol" == "ESO"}';
@@ -29238,11 +29357,11 @@ var TraceServer = function () {
                 if (filterStr) {
                   _str2 += ' && (' + filterStr + ')';
                 }
-                _context5.next = 19;
+                _context6.next = 19;
                 return this.hook(name, _str2);
 
               case 19:
-                return _context5.abrupt('break', 21);
+                return _context6.abrupt('break', 21);
 
               case 20:
                 throw new Error('unsupported subscribe type');
@@ -29250,18 +29369,18 @@ var TraceServer = function () {
               case 21:
                 this.subscribeMap[name] = type;
 
-                return _context5.abrupt('return', true);
+                return _context6.abrupt('return', true);
 
               case 23:
               case 'end':
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this);
+        }, _callee6, this);
       }));
 
-      function subscribe(_x9, _x10, _x11) {
-        return _ref5.apply(this, arguments);
+      function subscribe(_x11, _x12, _x13) {
+        return _ref6.apply(this, arguments);
       }
 
       return subscribe;
@@ -29275,55 +29394,7 @@ var TraceServer = function () {
   }, {
     key: 'unsubscribe',
     value: function () {
-      var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(name) {
-        return regenerator.wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                if (this.socket) {
-                  _context6.next = 2;
-                  break;
-                }
-
-                throw new Error('Service not ready');
-
-              case 2:
-                if (this.subscribeMap[name]) {
-                  _context6.next = 4;
-                  break;
-                }
-
-                throw new Error('name not exists');
-
-              case 4:
-                _context6.next = 6;
-                return this.removeHook(name);
-
-              case 6:
-                return _context6.abrupt('return', true);
-
-              case 7:
-              case 'end':
-                return _context6.stop();
-            }
-          }
-        }, _callee6, this);
-      }));
-
-      function unsubscribe(_x12) {
-        return _ref6.apply(this, arguments);
-      }
-
-      return unsubscribe;
-    }()
-  }, {
-    key: 'unsubscribeType',
-    value: function () {
-      var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(type) {
-        var _this3 = this;
-
-        var foundNames, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, name;
-
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(name) {
         return regenerator.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
@@ -29336,91 +29407,42 @@ var TraceServer = function () {
                 throw new Error('Service not ready');
 
               case 2:
-                foundNames = _Object$keys(this.subscribeMap).filter(function (key) {
-                  return _this3.subscribeMap[key] === type;
-                });
-
-                if (!foundNames.length) {
-                  _context7.next = 30;
+                if (this.subscribeMap[name]) {
+                  _context7.next = 4;
                   break;
                 }
 
-                _iteratorNormalCompletion = true;
-                _didIteratorError = false;
-                _iteratorError = undefined;
-                _context7.prev = 7;
-                _iterator = _getIterator(foundNames);
+                throw new Error('name not exists');
 
-              case 9:
-                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context7.next = 16;
-                  break;
-                }
-
-                name = _step.value;
-                _context7.next = 13;
+              case 4:
+                _context7.next = 6;
                 return this.removeHook(name);
 
-              case 13:
-                _iteratorNormalCompletion = true;
-                _context7.next = 9;
-                break;
-
-              case 16:
-                _context7.next = 22;
-                break;
-
-              case 18:
-                _context7.prev = 18;
-                _context7.t0 = _context7['catch'](7);
-                _didIteratorError = true;
-                _iteratorError = _context7.t0;
-
-              case 22:
-                _context7.prev = 22;
-                _context7.prev = 23;
-
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                  _iterator.return();
-                }
-
-              case 25:
-                _context7.prev = 25;
-
-                if (!_didIteratorError) {
-                  _context7.next = 28;
-                  break;
-                }
-
-                throw _iteratorError;
-
-              case 28:
-                return _context7.finish(25);
-
-              case 29:
-                return _context7.finish(22);
-
-              case 30:
+              case 6:
                 return _context7.abrupt('return', true);
 
-              case 31:
+              case 7:
               case 'end':
                 return _context7.stop();
             }
           }
-        }, _callee7, this, [[7, 18, 22, 30], [23,, 25, 29]]);
+        }, _callee7, this);
       }));
 
-      function unsubscribeType(_x13) {
+      function unsubscribe(_x14) {
         return _ref7.apply(this, arguments);
       }
 
-      return unsubscribeType;
+      return unsubscribe;
     }()
   }, {
-    key: 'setFilter',
+    key: 'unsubscribeType',
     value: function () {
-      var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(filters) {
+      var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(type) {
+        var _this4 = this;
+
+        var foundNames, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, name;
+
         return regenerator.wrap(function _callee8$(_context8) {
           while (1) {
             switch (_context8.prev = _context8.next) {
@@ -29433,30 +29455,91 @@ var TraceServer = function () {
                 throw new Error('Service not ready');
 
               case 2:
-                _context8.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/filter', filters);
+                foundNames = _Object$keys(this.subscribeMap).filter(function (key) {
+                  return _this4.subscribeMap[key] === type;
+                });
 
-              case 4:
-                return _context8.abrupt('return', _context8.sent);
+                if (!foundNames.length) {
+                  _context8.next = 30;
+                  break;
+                }
 
-              case 5:
+                _iteratorNormalCompletion = true;
+                _didIteratorError = false;
+                _iteratorError = undefined;
+                _context8.prev = 7;
+                _iterator = _getIterator(foundNames);
+
+              case 9:
+                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                  _context8.next = 16;
+                  break;
+                }
+
+                name = _step.value;
+                _context8.next = 13;
+                return this.removeHook(name);
+
+              case 13:
+                _iteratorNormalCompletion = true;
+                _context8.next = 9;
+                break;
+
+              case 16:
+                _context8.next = 22;
+                break;
+
+              case 18:
+                _context8.prev = 18;
+                _context8.t0 = _context8['catch'](7);
+                _didIteratorError = true;
+                _iteratorError = _context8.t0;
+
+              case 22:
+                _context8.prev = 22;
+                _context8.prev = 23;
+
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                  _iterator.return();
+                }
+
+              case 25:
+                _context8.prev = 25;
+
+                if (!_didIteratorError) {
+                  _context8.next = 28;
+                  break;
+                }
+
+                throw _iteratorError;
+
+              case 28:
+                return _context8.finish(25);
+
+              case 29:
+                return _context8.finish(22);
+
+              case 30:
+                return _context8.abrupt('return', true);
+
+              case 31:
               case 'end':
                 return _context8.stop();
             }
           }
-        }, _callee8, this);
+        }, _callee8, this, [[7, 18, 22, 30], [23,, 25, 29]]);
       }));
 
-      function setFilter(_x14) {
+      function unsubscribeType(_x15) {
         return _ref8.apply(this, arguments);
       }
 
-      return setFilter;
+      return unsubscribeType;
     }()
   }, {
-    key: 'getFilter',
+    key: 'setFilter',
     value: function () {
-      var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9() {
+      var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9(filters) {
         return regenerator.wrap(function _callee9$(_context9) {
           while (1) {
             switch (_context9.prev = _context9.next) {
@@ -29470,10 +29553,10 @@ var TraceServer = function () {
 
               case 2:
                 _context9.next = 4;
-                return axios$1.get('http://' + this.host + ':' + this.port + '/filter');
+                return axios$1.post('http://' + this.host + ':' + this.port + '/filter', filters);
 
               case 4:
-                return _context9.abrupt('return', _context9.sent.data);
+                return _context9.abrupt('return', _context9.sent);
 
               case 5:
               case 'end':
@@ -29483,8 +29566,44 @@ var TraceServer = function () {
         }, _callee9, this);
       }));
 
-      function getFilter() {
+      function setFilter(_x16) {
         return _ref9.apply(this, arguments);
+      }
+
+      return setFilter;
+    }()
+  }, {
+    key: 'getFilter',
+    value: function () {
+      var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10() {
+        return regenerator.wrap(function _callee10$(_context10) {
+          while (1) {
+            switch (_context10.prev = _context10.next) {
+              case 0:
+                if (this.socket) {
+                  _context10.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context10.next = 4;
+                return axios$1.get('http://' + this.host + ':' + this.port + '/filter');
+
+              case 4:
+                return _context10.abrupt('return', _context10.sent.data);
+
+              case 5:
+              case 'end':
+                return _context10.stop();
+            }
+          }
+        }, _callee10, this);
+      }));
+
+      function getFilter() {
+        return _ref10.apply(this, arguments);
       }
 
       return getFilter;
@@ -29558,6 +29677,7 @@ var MainUnit = function () {
   function MainUnit(option) {
     _classCallCheck(this, MainUnit);
 
+    option = option || {};
     this.port = option.port || 6009;
     this.host = option.host || 'localhost';
     this.subscribeMap = {};
@@ -29808,6 +29928,7 @@ var CANTrace = function () {
   function CANTrace(option) {
     _classCallCheck(this, CANTrace);
 
+    option = option || {};
     this.port = option.port || 6002;
     this.host = option.host || 'localhost';
     this.subscribeMap = {};
@@ -30526,6 +30647,7 @@ var Simulation = function () {
   function Simulation(option) {
     _classCallCheck(this, Simulation);
 
+    option = option || {};
     this.port = option.port || 6006;
     this.host = option.host || 'localhost';
     this.subscribeMap = {};
@@ -30577,6 +30699,7 @@ var TestService = function () {
   function TestService(option) {
     _classCallCheck(this, TestService);
 
+    option = option || {};
     this.port = option.port || 6000;
     this.host = option.host || 'localhost';
     this.subscribeMap = {};
