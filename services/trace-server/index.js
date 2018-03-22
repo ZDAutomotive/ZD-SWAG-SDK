@@ -127,10 +127,11 @@ export default class TraceServer {
       const hookName = crypto.createHash('md5').update(JSON.stringify(option)).digest('hex');
       // set time out event
       const timer = setTimeout(() => {
-        if (!option.onFailed) resolve({res:false, trace:''})
-        else resolve({res:true, trace:''})
         this.socket.removeAllListeners(hookName)
-        this.removeHook(hookName)
+        this.removeHook(hookName).then(() => {
+          if (!option.onFailed) resolve({res:false, trace:''})
+          else resolve({res:true, trace:''})
+        })
       }, option.timeout || 20000);
 
       // set a hook
@@ -214,11 +215,19 @@ export default class TraceServer {
         await this.hook(name, str)
         break;
       }
+      case 'SERIAL':
+      {
+        let str = '{"protocol" == "SERIAL"}'
+        if (filterStr) {
+          str += ' && (' + filterStr + ')'
+        }
+        await this.hook(name, str)
+        break;
+      }
       default:
         throw new Error('unsupported subscribe type')
     }
     this.subscribeMap[name] = type
-
     return true
   }
 
