@@ -71,4 +71,10 @@ export default class MainUnit {
     let res = await axios.post(`http://${this.host}:${this.port}/mu/fetchfiles`, {files: serverFile, toPath: remoteFolder});
     return res.data;
   }
+
+  async getCurrentScreenID() {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.get(`http://${this.host}:${this.port}/mu/currentscreenid`);
+    return res;
+  }
 }
