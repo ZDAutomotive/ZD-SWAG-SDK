@@ -63,9 +63,9 @@
       "command": "assertESOTrace",
       "type": "trace",
       "args":{
-         "timeout":30,
+         "timeout":30000,
          "channelID": "7599",
-         "keyword": "BIG_COMMAND_DISPLAY"
+         "keyword": "BIG_COAND_DISPLAY"
       }
     }
   },{

@@ -29221,9 +29221,10 @@ var TraceServer = function () {
                   // set time out event
 
                   timer = setTimeout(function () {
-                    if (!option.onFailed) resolve({ res: false, trace: '' });else resolve({ res: true, trace: '' });
                     _this3.socket.removeAllListeners(hookName);
-                    _this3.removeHook(hookName);
+                    _this3.removeHook(hookName).then(function () {
+                      if (!option.onFailed) resolve({ res: false, trace: '' });else resolve({ res: true, trace: '' });
+                    });
                   }, option.timeout || 20000);
 
                   // set a hook
@@ -29303,7 +29304,7 @@ var TraceServer = function () {
     key: 'subscribe',
     value: function () {
       var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(name, type, filterStr) {
-        var str, _str, _str2;
+        var str, _str, _str2, _str3;
 
         return regenerator.wrap(function _callee6$(_context6) {
           while (1) {
@@ -29318,7 +29319,7 @@ var TraceServer = function () {
 
               case 2:
                 _context6.t0 = type;
-                _context6.next = _context6.t0 === 'CAN' ? 5 : _context6.t0 === 'BAP' ? 10 : _context6.t0 === 'ESO' ? 15 : 20;
+                _context6.next = _context6.t0 === 'CAN' ? 5 : _context6.t0 === 'BAP' ? 10 : _context6.t0 === 'ESO' ? 15 : _context6.t0 === 'SERIAL' ? 20 : 25;
                 break;
 
               case 5:
@@ -29331,7 +29332,7 @@ var TraceServer = function () {
                 return this.hook(name, str);
 
               case 9:
-                return _context6.abrupt('break', 21);
+                return _context6.abrupt('break', 26);
 
               case 10:
                 _str = '{"protocol" == "BAP"}';
@@ -29343,7 +29344,7 @@ var TraceServer = function () {
                 return this.hook(name, _str);
 
               case 14:
-                return _context6.abrupt('break', 21);
+                return _context6.abrupt('break', 26);
 
               case 15:
                 _str2 = '{"protocol" == "ESO"}';
@@ -29355,17 +29356,28 @@ var TraceServer = function () {
                 return this.hook(name, _str2);
 
               case 19:
-                return _context6.abrupt('break', 21);
+                return _context6.abrupt('break', 26);
 
               case 20:
+                _str3 = '{"protocol" == "SERIAL"}';
+
+                if (filterStr) {
+                  _str3 += ' && (' + filterStr + ')';
+                }
+                _context6.next = 24;
+                return this.hook(name, _str3);
+
+              case 24:
+                return _context6.abrupt('break', 26);
+
+              case 25:
                 throw new Error('unsupported subscribe type');
 
-              case 21:
+              case 26:
                 this.subscribeMap[name] = type;
-
                 return _context6.abrupt('return', true);
 
-              case 23:
+              case 28:
               case 'end':
                 return _context6.stop();
             }
@@ -29912,6 +29924,44 @@ var MainUnit = function () {
       }
 
       return fetchFiles;
+    }()
+  }, {
+    key: 'getCurrentScreenID',
+    value: function () {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6() {
+        var res;
+        return regenerator.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                if (this.socket) {
+                  _context6.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context6.next = 4;
+                return axios$1.get('http://' + this.host + ':' + this.port + '/mu/currentscreenid');
+
+              case 4:
+                res = _context6.sent;
+                return _context6.abrupt('return', res);
+
+              case 6:
+              case 'end':
+                return _context6.stop();
+            }
+          }
+        }, _callee6, this);
+      }));
+
+      function getCurrentScreenID() {
+        return _ref6.apply(this, arguments);
+      }
+
+      return getCurrentScreenID;
     }()
   }]);
 
