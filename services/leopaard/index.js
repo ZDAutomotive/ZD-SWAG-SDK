@@ -1,5 +1,8 @@
 const Event = require('events');
 const axios = require("axios");
+const ioClient = require('socket.io-client');
+
+var g_socket = null
 
 class Executor {
     constructor(option) {
@@ -29,6 +32,9 @@ class TboxSimulator {
     constructor(option) {
         this.emitter = new Event();
         this.option = option;
+        g_socket.on('TBOX-RECV', (message) => {
+            this.emitter.emit('message', message)
+        })
     }
 
     listen() {
@@ -71,6 +77,9 @@ class TspSimulator {
     constructor(option) {
         this.emitter = new Event();
         this.option = option;
+        g_socket.on('TSP-RECV', (message) => {
+            this.emitter.emit('message', message)
+        })
     }
 
     listen() {
@@ -99,7 +108,7 @@ class TspSimulator {
     }
     send(message, cb) {
         axios
-            .post(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/send`, {message})
+            .post(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/send`, { message })
             .then(res => {
                 cb(false, res.body);
             })
@@ -109,8 +118,28 @@ class TspSimulator {
     }
 }
 
-module.exports = {
-    Executor: Executor,
-    TboxSimulator: TboxSimulator,
-    TspSimulator: TspSimulator,
+module.exports = class {
+    constructor(option) {
+        this.option = option
+        g_socket = ioClient(`http://${this.option.host}:${this.option.port}/`)
+        g_socket.on('connect', () => {
+            console.log('Socket.IO available now')
+        })
+    }
+
+    newExecutor() {
+        return new Executor(this.option)
+    }
+    newTboxSimulator() {
+        return new TboxSimulator(this.option)
+    }
+    newTspSimulator() {
+        return new TspSimulator(this.option)
+    }
 }
+
+// module.exports = {
+//     Executor Executor,
+//     TboxSimulator: TboxSimulator,
+//     TspSimulator: TspSimulator,
+// }

@@ -2,16 +2,10 @@ const fs = require('fs')
 const path = require('fs')
 const Leopaard = require('../../../services/leopaard')
 
-const executor = new Leopaard.Executor({ host: 'localhost', port: 9008 })
-const tboxSimulator = new Leopaard.TboxSimulator({ host: 'localhost', port: 9008 })
-const tspSimulator = new Leopaard.TspSimulator({ host: 'localhost', port: 9008 })
-
-// const script = fs.readFileSync('./tbox-fsm.js')
-// //console.log('script', script.toString('utf8'))
-
-// executor.run(script.toString('utf8'), (failed, result) => {
-//     console.log(result)
-// })
+const leopaard = new Leopaard({ host: 'localhost', port: 6011 })
+const executor = leopaard.newExecutor()
+const tboxSimulator = leopaard.newTboxSimulator()
+const tspSimulator = leopaard.newTspSimulator()
 
 let unlockMessage = {
     startDelimiter: 11822,
@@ -42,7 +36,7 @@ tspSimulator.start({ hostname: 'localhost', port: 8888 }, (failed, result) => {
 tboxSimulator.connect({ hostname: 'localhost', port: 8888 }, (failed, result) => {
     if (!failed) {
         console.log('connected!')
-        tspSimulator.send(unlockMessage, (failed, result)=>{
+        tspSimulator.send(unlockMessage, (failed, result) => {
             if (!failed) {
                 console.log(result)
                 console.log('sent unlock message to TBOX')
@@ -59,4 +53,12 @@ setTimeout(tboxSimulator.disconnect.bind(tboxSimulator), 2000, (failed, result) 
 
 setTimeout(tspSimulator.stop.bind(tspSimulator), 2500, (failed, result) => {
     console.log('tspSimulator.stop() called!')
+})
+
+tboxSimulator.listen().on('message', message=>{
+    console.log('TBOX:',message)
+})
+
+tspSimulator.listen().on('message', message=>{
+    console.log('TSP:',message)
 })
