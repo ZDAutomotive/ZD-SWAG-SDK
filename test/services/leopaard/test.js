@@ -55,10 +55,27 @@ setTimeout(tspSimulator.stop.bind(tspSimulator), 2500, (failed, result) => {
     console.log('tspSimulator.stop() called!')
 })
 
-tboxSimulator.listen().on('message', message=>{
-    console.log('TBOX:',message)
+tboxSimulator.listen().on('message', message => {
+    console.log('TBOX:', message)
+
+    message.dataLength += 2
+
+    let d = new Date()
+    message.data.timestamp[0] = d.getFullYear()-2000
+    message.data.timestamp[1] = d.getMonth()
+    message.data.timestamp[2] = d.getDay()
+    message.data.timestamp[3] = d.getHours()
+    message.data.timestamp[4] = d.getMinutes()
+    message.data.timestamp[5] = d.getSeconds()
+
+    message.response = 1
+    message.data.result = 0
+
+    tboxSimulator.send(message,(result)=>{
+        console.log(result)
+    })
 })
 
-tspSimulator.listen().on('message', message=>{
-    console.log('TSP:',message)
+tspSimulator.listen().on('message', message => {
+    console.log('TSP:', message)
 })
