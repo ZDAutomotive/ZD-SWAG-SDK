@@ -4,7 +4,7 @@ import axios from 'axios';
 export default class TestService {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6000;
+    this.port = option.port || 7001;
     this.host = option.host || 'localhost'
     this.subscribeMap = {}
   }
@@ -30,9 +30,9 @@ export default class TestService {
   /**
    * load test script
    */
-  async loadTestCase(script, ID) {
+  async loadTestCase(tasklist) {
     if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase`, {script, ID});
+    let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase`, tasklist);
     return res.data;
   }
 

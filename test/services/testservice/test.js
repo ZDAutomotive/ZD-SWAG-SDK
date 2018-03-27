@@ -12,7 +12,8 @@ const demoScript = require('./project1_tc.json')
 // })
 
 let ts = new swag.TestService({
-  host: '192.168.178.73'
+  host: '192.168.178.71',
+  port: 7001
 });
 
 (async () => {

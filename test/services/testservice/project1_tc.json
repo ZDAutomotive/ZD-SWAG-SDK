@@ -65,7 +65,7 @@
       "args":{
          "timeout":30000,
          "channelID": "7599",
-         "keyword": "BIG_COAND_DISPLAY"
+         "keyword": "BIG_COMMAND_DISPLAY"
       }
     }
   },{
