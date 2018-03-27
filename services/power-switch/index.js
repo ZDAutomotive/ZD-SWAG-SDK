@@ -41,7 +41,6 @@ export default class POWERSwitch {
   async powerOff() {
     if (!this.socket) throw new Error('Power Switch service not ready')
     await axios.post(`http://${this.host}:${this.port}/poweroff`)
-
     return true
   }
   /**
@@ -53,11 +52,19 @@ export default class POWERSwitch {
     return true
   }
   /**
-   * readcurrent
+   * usbconnect
    */
-  async readCurrent(){
-    if(!this.socket) throw new Error('Current monitoring service not ready')
-    let res = await axios.get(`http://${this.host}:${this.port}/readcurrent`)
-    return res.data
+  async usbConnect() {
+    if (!this.socket) throw new Error('Power Switch service not ready')
+    await axios.post(`http://${this.host}:${this.port}/usbconnect`)
+    return true
+  }
+  /**
+   * usbdisconnect
+   */
+  async usbDisconnect() {
+    if (!this.socket) throw new Error('Power Switch service not ready')
+    await axios.post(`http://${this.host}:${this.port}/usbdisconnect`)
+    return true
   }
 }
