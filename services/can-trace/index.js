@@ -14,7 +14,7 @@ export default class CANTrace {
       this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
       this.socket.on('connect', () => {
         resolve(1)
-        this.socket.emit('identity', type)
+        if (type) this.socket.emit('identity', type)
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
       })
