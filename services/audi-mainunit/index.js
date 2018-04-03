@@ -75,6 +75,6 @@ export default class MainUnit {
   async getCurrentScreenID() {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/mu/currentscreenid`);
-    return res;
+    return res.data.screenID;
   }
 }
