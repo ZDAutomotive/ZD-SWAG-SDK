@@ -30120,6 +30120,122 @@ var MainUnit = function () {
 
       return getCurrentScreenID;
     }()
+  }, {
+    key: 'getStartupTestMode',
+    value: function () {
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7() {
+        var res;
+        return regenerator.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                if (this.socket) {
+                  _context7.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context7.next = 4;
+                return axios$1.get('http://' + this.host + ':' + this.port + '/envstatus/startuptestmode');
+
+              case 4:
+                res = _context7.sent;
+                return _context7.abrupt('return', res.data.state);
+
+              case 6:
+              case 'end':
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      function getStartupTestMode() {
+        return _ref7.apply(this, arguments);
+      }
+
+      return getStartupTestMode;
+    }()
+  }, {
+    key: 'setStartupTestMode',
+    value: function () {
+      var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(state) {
+        var res;
+        return regenerator.wrap(function _callee8$(_context8) {
+          while (1) {
+            switch (_context8.prev = _context8.next) {
+              case 0:
+                if (this.socket) {
+                  _context8.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context8.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/envstatus/startuptestmode', {
+                  enable: state
+                });
+
+              case 4:
+                res = _context8.sent;
+                return _context8.abrupt('return', res.data.state);
+
+              case 6:
+              case 'end':
+                return _context8.stop();
+            }
+          }
+        }, _callee8, this);
+      }));
+
+      function setStartupTestMode(_x4) {
+        return _ref8.apply(this, arguments);
+      }
+
+      return setStartupTestMode;
+    }()
+  }, {
+    key: 'resetEsoToDefault',
+    value: function () {
+      var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9() {
+        var res;
+        return regenerator.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                if (this.socket) {
+                  _context9.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context9.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/envstatus/resetesotrace', { token: 'resetEsoTraceDefault' });
+
+              case 4:
+                res = _context9.sent;
+                return _context9.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context9.stop();
+            }
+          }
+        }, _callee9, this);
+      }));
+
+      function resetEsoToDefault() {
+        return _ref9.apply(this, arguments);
+      }
+
+      return resetEsoToDefault;
+    }()
   }]);
 
   return MainUnit;

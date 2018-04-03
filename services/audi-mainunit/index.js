@@ -77,4 +77,24 @@ export default class MainUnit {
     let res = await axios.get(`http://${this.host}:${this.port}/mu/currentscreenid`);
     return res.data.screenID;
   }
+
+  async getStartupTestMode() {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.get(`http://${this.host}:${this.port}/envstatus/startuptestmode`);
+    return res.data.state;
+  }
+
+  async setStartupTestMode(state) {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/envstatus/startuptestmode`, {
+      enable: state
+    });
+    return res.data.state;
+  }
+
+  async resetEsoToDefault() {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/envstatus/resetesotrace`, {token:'resetEsoTraceDefault'})
+    return res.data
+  }
 }
