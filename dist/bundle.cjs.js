@@ -15211,9 +15211,10 @@ var TraceServer = function () {
                   // set a hook
 
                   _context5.next = 7;
-                  return _this3.hook(hookName, '{"protocol" == "ESO"} && {"esotext"=="' + option.keyword + '"} && {"esoclid"=="' + option.channelID + '"}');
+                  return _this3.hook(hookName, '{"protocol" == "ESO"} && {"esotext"=="' + option.keyword + '"}');
 
                 case 7:
+                  // && {"esoclid"=="${option.channelID}"}`)
                   //console.log('waiting for hook')
                   _this3.socket.on(hookName, function (trace) {
                     //data.data.msgData
@@ -15244,7 +15245,8 @@ var TraceServer = function () {
 
                   //trace.data.data.channel === eso trace port
                   foundBeforeESO = beforeESOs.find(function (trace) {
-                    trace.data.data.msgData.data.channelId === option.channelID && trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1;
+                    // (trace.data.data.msgData.data.channelId === option.channelID) &&
+                    trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1;
                   });
 
                   if (!foundBeforeESO) {

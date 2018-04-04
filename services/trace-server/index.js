@@ -135,7 +135,7 @@ export default class TraceServer {
       }, option.timeout || 20000);
 
       // set a hook
-      await this.hook(hookName, `{"protocol" == "ESO"} && {"esotext"=="${option.keyword}"} && {"esoclid"=="${option.channelID}"}`)
+      await this.hook(hookName, `{"protocol" == "ESO"} && {"esotext"=="${option.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
       //console.log('waiting for hook')
       this.socket.on(hookName, (trace) => {
         //data.data.msgData
@@ -163,8 +163,8 @@ export default class TraceServer {
       //trace.data.data.channel === eso trace port
       const foundBeforeESO = beforeESOs.find(
         trace => {
-          (trace.data.data.msgData.data.channelId === option.channelID) &&
-         (trace.data.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
+          // (trace.data.data.msgData.data.channelId === option.channelID) &&
+          (trace.data.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
       if (foundBeforeESO) {
         // found a matching CAN msg
         if (!option.onFailed) resolve({res:true, trace: foundBeforeESO[0]});
