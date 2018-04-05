@@ -4,30 +4,6 @@ const ioClient = require('socket.io-client');
 
 var g_socket = null
 
-class Executor {
-    constructor(option) {
-        this.emitter = new Event();
-        this.option = option;
-    }
-
-    listen() {
-        return this.emitter;
-    }
-
-    run(script, cb) {
-        axios
-            .post(`http://${this.option.host}:${this.option.port}/leopaard/executor/run`, {
-                script
-            })
-            .then(res => {
-                cb(false, res.data);
-            })
-            .catch(err => {
-                cb(true, err);
-            });
-    }
-}
-
 class TboxSimulator {
     constructor(option) {
         this.emitter = new Event();
@@ -121,15 +97,18 @@ class TspSimulator {
 module.exports = class {
     constructor(option) {
         this.option = option
-        g_socket = ioClient(`http://${this.option.host}:${this.option.port}/`)
-        g_socket.on('connect', () => {
-            console.log('Socket.IO available now')
-        })
+        if (!g_socket) {
+            g_socket = ioClient(`http://${this.option.host}:${this.option.port}/`)
+            g_socket.on('connect', () => {
+                console.log('Leopaard Service available')
+            })
+            .on('close',()=>{
+                console.log('Leopaard Service unavailable')
+                g_socket.removeAllListener()
+            })
+        }
     }
 
-    newExecutor() {
-        return new Executor(this.option)
-    }
     newTboxSimulator() {
         return new TboxSimulator(this.option)
     }
@@ -139,7 +118,6 @@ module.exports = class {
 }
 
 // module.exports = {
-//     Executor Executor,
 //     TboxSimulator: TboxSimulator,
 //     TspSimulator: TspSimulator,
 // }
