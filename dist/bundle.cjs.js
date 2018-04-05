@@ -15246,7 +15246,7 @@ var TraceServer = function () {
                   //trace.data.data.channel === eso trace port
                   foundBeforeESO = beforeESOs.find(function (trace) {
                     // (trace.data.data.msgData.data.channelId === option.channelID) &&
-                    trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1;
+                    trace.data.data.msgData.data.msgData && trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1;
                   });
 
                   if (!foundBeforeESO) {
