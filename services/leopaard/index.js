@@ -21,30 +21,30 @@ class TboxSimulator {
         axios
             .post(`http://${this.option.host}:${this.option.port}/leopaard/tbox-simulator/connect`, option)
             .then(res => {
-                cb(false, res.data);
+                cb(true, res.data);
             })
             .catch(err => {
-                cb(true, err);
+                cb(false, err);
             });
     }
     disconnect(cb) {
         axios
             .get(`http://${this.option.host}:${this.option.port}/leopaard/tbox-simulator/disconnect`)
             .then(res => {
-                cb(false, res.data);
+                cb(true, res.data);
             })
             .catch(err => {
-                cb(true, err);
+                cb(false, err);
             });
     }
     send(message, cb) {
         axios
             .post(`http://${this.option.host}:${this.option.port}/leopaard/tbox-simulator/send`, { message })
             .then(res => {
-                cb(false, res.data);
+                cb(true, res.data);
             })
             .catch(err => {
-                cb(true, err);
+                cb(false, err);
             });
     }
 }
@@ -66,30 +66,30 @@ class TspSimulator {
         axios
             .post(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/start`, option)
             .then(res => {
-                cb(false, res);
+                cb(true, res);
             })
             .catch(err => {
-                cb(true, err);
+                cb(false, err);
             });
     }
     stop(cb) {
         axios
             .get(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/stop`)
             .then(res => {
-                cb(false, res.data);
+                cb(true, res.data);
             })
             .catch(err => {
-                cb(true, err);
+                cb(false, err);
             });
     }
     send(message, cb) {
         axios
             .post(`http://${this.option.host}:${this.option.port}/leopaard/tsp-simulator/send`, { message })
             .then(res => {
-                cb(false, res.body);
+                cb(true, res.body);
             })
             .catch(err => {
-                cb(true, err);
+                cb(false, err);
             });
     }
 }
@@ -105,8 +105,13 @@ module.exports = class {
             .on('close',()=>{
                 console.log('Leopaard Service unavailable')
                 g_socket.removeAllListener()
+                g_socket = null
             })
         }
+    }
+
+    finish() {
+        g_socket.end()
     }
 
     newTboxSimulator() {
