@@ -1,5 +1,6 @@
 import ioClient from 'socket.io-client';
 import axios from 'axios';
+import FormData from 'form-data';
 
 export default class TestService {
   constructor(option) {
@@ -45,12 +46,18 @@ export default class TestService {
     return res.data
   }
 
+  async getTestCaseByID(ID) {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.get(`http://${this.host}:${this.port}/ts/testcase/${ID}`)
+    return res.data
+  }
+
   /**
    * delete test script by ID
    */
   async deleteTestCase(ID) {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/ts/delete`, {ID})
+    let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase?id=${ID}`)
     return res.data
   }
   
@@ -59,7 +66,7 @@ export default class TestService {
    */
   async deleteAllTestCases() {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/ts/deleteall`);
+    let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase`);
     return res.data;
   }
 
@@ -72,6 +79,12 @@ export default class TestService {
   async stop() {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/stop`);
+    return res.data;
+  }
+
+  async pause() {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/ts/pause`);
     return res.data;
   }
 
@@ -89,6 +102,21 @@ export default class TestService {
   async getBenchConfig() {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/benchconfig`);
+    return res.data;
+  }
+
+  /**
+   * 
+   * @param {Buffer} caseFile test case file as a buffer object
+   */
+  async uploadTestcase(dirname, filename, caseFile) {
+    if(!this.socket) throw new Error('Service not ready')
+    const form = new FormData()
+    form.append('type', 'application/json')
+    form.append('media', caseFile, filename)
+    let res = await axios.post(`http://${this.host}:8080/api/filemanage/upload?dirname=${dirname}`, form, {
+      headers: form.getHeaders()
+    });
     return res.data;
   }
 }

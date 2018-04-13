@@ -16,7 +16,7 @@ let cantrace = new SDK.CANTrace({port:6002, host:'192.168.178.71'})
 //         y: 300
 //     }
 // )
-// remotepanel.dragReq(
+// remotepanel.swipeReq(
 //     {
 //         screentype: 1,
 //         x: 200, 

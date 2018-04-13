@@ -104,19 +104,19 @@ export default {
     let res = await axios.post(`http://${host}:${port}/remotepanel/touch`, touchevent)
     return res.data;
   },
-  //dragevent
+  //swipeevent
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   // screentype:'top' / 'bottom'
   // x: 200
   // y: 200
   // dx: 200
   // dy: 0
-  async dragReq(_action, _screentype, _x, _y, _dx, _dy) {
-    let dragevent
+  async swipeReq(_action, _screentype, _x, _y, _dx, _dy) {
+    let swipeevent
     if (_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret') {
       switch(_screentype.toLowerCase()) {
         case 'top':
-          dragevent = {
+          swipeevent = {
             action: _action,
             event: {
               screentype: 1,
@@ -128,7 +128,7 @@ export default {
           }
           break
         case 'upper':
-          dragevent = {
+          swipeevent = {
             action: _action,
             event: {
               screentype: 1,
@@ -140,7 +140,7 @@ export default {
           }
           break
         case 'bottom':
-          dragevent = {
+          swipeevent = {
             action: _action,
             event: {
               screentype: 2,
@@ -152,7 +152,7 @@ export default {
           }
           break
         case 'lower':
-          dragevent = {
+          swipeevent = {
             action: _action,
             event: {
               screentype: 2,
@@ -167,8 +167,8 @@ export default {
           break      
       }
     }
-    if (!dragevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${host}:${port}/remotepanel/drag`, dragevent)
+    if (!swipeevent) throw new Error('Unexpected parameters')
+    let res = await axios.post(`http://${host}:${port}/remotepanel/swipe`, swipeevent)
     return res.data;
   },
   //touchscreenshot {action:'exe'/'ret', event: {x:0, y:0}}
