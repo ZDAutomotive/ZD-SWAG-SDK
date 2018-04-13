@@ -2,10 +2,10 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var os = _interopDefault(require('os'));
 var tty = _interopDefault(require('tty'));
 var util = _interopDefault(require('util'));
 var fs = _interopDefault(require('fs'));
-var net = _interopDefault(require('net'));
 var url = _interopDefault(require('url'));
 var child_process = _interopDefault(require('child_process'));
 var http = _interopDefault(require('http'));
@@ -16,7 +16,6 @@ var zlib = _interopDefault(require('zlib'));
 var utf8Validate = _interopDefault(require('utf-8-validate'));
 var crypto = _interopDefault(require('crypto'));
 var events = _interopDefault(require('events'));
-var os = _interopDefault(require('os'));
 var assert = _interopDefault(require('assert'));
 var require$$0 = _interopDefault(require('stream'));
 var path = _interopDefault(require('path'));
@@ -2431,6 +2430,11 @@ exports.enabled = enabled;
 exports.humanize = ms;
 
 /**
+ * Active `debug` instances.
+ */
+exports.instances = [];
+
+/**
  * The currently active debug mode names, and names to skip.
  */
 
@@ -2444,12 +2448,6 @@ exports.skips = [];
  */
 
 exports.formatters = {};
-
-/**
- * Previous log timestamp.
- */
-
-var prevTime;
 
 /**
  * Select a color.
@@ -2478,6 +2476,8 @@ function selectColor(namespace) {
  */
 
 function createDebug(namespace) {
+
+  var prevTime;
 
   function debug() {
     // disabled?
@@ -2535,13 +2535,26 @@ function createDebug(namespace) {
   debug.enabled = exports.enabled(namespace);
   debug.useColors = exports.useColors();
   debug.color = selectColor(namespace);
+  debug.destroy = destroy;
 
   // env-specific initialization logic for debug instances
   if ('function' === typeof exports.init) {
     exports.init(debug);
   }
 
+  exports.instances.push(debug);
+
   return debug;
+}
+
+function destroy () {
+  var index = exports.instances.indexOf(this);
+  if (index !== -1) {
+    exports.instances.splice(index, 1);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -2558,10 +2571,11 @@ function enable(namespaces) {
   exports.names = [];
   exports.skips = [];
 
+  var i;
   var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
   var len = split.length;
 
-  for (var i = 0; i < len; i++) {
+  for (i = 0; i < len; i++) {
     if (!split[i]) continue; // ignore empty strings
     namespaces = split[i].replace(/\*/g, '.*?');
     if (namespaces[0] === '-') {
@@ -2569,6 +2583,11 @@ function enable(namespaces) {
     } else {
       exports.names.push(new RegExp('^' + namespaces + '$'));
     }
+  }
+
+  for (i = 0; i < exports.instances.length; i++) {
+    var instance = exports.instances[i];
+    instance.enabled = exports.enabled(instance.namespace);
   }
 }
 
@@ -2591,6 +2610,9 @@ function disable() {
  */
 
 function enabled(name) {
+  if (name[name.length - 1] === '*') {
+    return true;
+  }
   var i, len;
   for (i = 0, len = exports.skips.length; i < len; i++) {
     if (exports.skips[i].test(name)) {
@@ -2624,9 +2646,10 @@ var debug_2 = debug.disable;
 var debug_3 = debug.enable;
 var debug_4 = debug.enabled;
 var debug_5 = debug.humanize;
-var debug_6 = debug.names;
-var debug_7 = debug.skips;
-var debug_8 = debug.formatters;
+var debug_6 = debug.instances;
+var debug_7 = debug.names;
+var debug_8 = debug.skips;
+var debug_9 = debug.formatters;
 
 var browser = createCommonjsModule(function (module, exports) {
 /**
@@ -2651,12 +2674,17 @@ exports.storage = 'undefined' != typeof chrome
  */
 
 exports.colors = [
-  'lightseagreen',
-  'forestgreen',
-  'goldenrod',
-  'dodgerblue',
-  'darkorchid',
-  'crimson'
+  '#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC',
+  '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF',
+  '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC',
+  '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF',
+  '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC',
+  '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033',
+  '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366',
+  '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933',
+  '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC',
+  '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF',
+  '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'
 ];
 
 /**
@@ -2673,6 +2701,11 @@ function useColors() {
   // explicitly
   if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
     return true;
+  }
+
+  // Internet Explorer and Edge do not support colors.
+  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+    return false;
   }
 
   // is webkit? http://stackoverflow.com/a/16459606/376773
@@ -2824,6 +2857,130 @@ var browser_5 = browser.useColors;
 var browser_6 = browser.storage;
 var browser_7 = browser.colors;
 
+var hasFlag = function (flag, argv) {
+	argv = argv || process.argv;
+
+	var terminatorPos = argv.indexOf('--');
+	var prefix = /^-{1,2}/.test(flag) ? '' : '--';
+	var pos = argv.indexOf(prefix + flag);
+
+	return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
+};
+
+var supportsColor = createCommonjsModule(function (module) {
+const env = process.env;
+
+const support = level => {
+	if (level === 0) {
+		return false;
+	}
+
+	return {
+		level,
+		hasBasic: true,
+		has256: level >= 2,
+		has16m: level >= 3
+	};
+};
+
+let supportLevel = (() => {
+	if (hasFlag('no-color') ||
+		hasFlag('no-colors') ||
+		hasFlag('color=false')) {
+		return 0;
+	}
+
+	if (hasFlag('color=16m') ||
+		hasFlag('color=full') ||
+		hasFlag('color=truecolor')) {
+		return 3;
+	}
+
+	if (hasFlag('color=256')) {
+		return 2;
+	}
+
+	if (hasFlag('color') ||
+		hasFlag('colors') ||
+		hasFlag('color=true') ||
+		hasFlag('color=always')) {
+		return 1;
+	}
+
+	if (process.stdout && !process.stdout.isTTY) {
+		return 0;
+	}
+
+	if (process.platform === 'win32') {
+		// Node.js 7.5.0 is the first version of Node.js to include a patch to
+		// libuv that enables 256 color output on Windows. Anything earlier and it
+		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
+		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
+		// release that supports 256 colors.
+		const osRelease = os.release().split('.');
+		if (
+			Number(process.versions.node.split('.')[0]) >= 8 &&
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return 2;
+		}
+
+		return 1;
+	}
+
+	if ('CI' in env) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+			return 1;
+		}
+
+		return 0;
+	}
+
+	if ('TEAMCITY_VERSION' in env) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	}
+
+	if ('TERM_PROGRAM' in env) {
+		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Hyper':
+				return 3;
+			case 'Apple_Terminal':
+				return 2;
+			// No default
+		}
+	}
+
+	if (/-256(color)?$/i.test(env.TERM)) {
+		return 2;
+	}
+
+	if (/^screen|^xterm|^vt100|color|ansi|cygwin|linux/i.test(env.TERM)) {
+		return 1;
+	}
+
+	if ('COLORTERM' in env) {
+		return 1;
+	}
+
+	if (env.TERM === 'dumb') {
+		return 0;
+	}
+
+	return 0;
+})();
+
+if ('FORCE_COLOR' in env) {
+	supportLevel = parseInt(env.FORCE_COLOR, 10) === 0 ? 0 : (supportLevel || 1);
+}
+
+module.exports = process && support(supportLevel);
+});
+
 var node = createCommonjsModule(function (module, exports) {
 /**
  * Module dependencies.
@@ -2850,7 +3007,22 @@ exports.useColors = useColors;
  * Colors.
  */
 
-exports.colors = [6, 2, 3, 4, 5, 1];
+exports.colors = [ 6, 2, 3, 4, 5, 1 ];
+
+try {
+  var supportsColor$$1 = supportsColor;
+  if (supportsColor$$1 && supportsColor$$1.level >= 2) {
+    exports.colors = [
+      20, 21, 26, 27, 32, 33, 38, 39, 40, 41, 42, 43, 44, 45, 56, 57, 62, 63, 68,
+      69, 74, 75, 76, 77, 78, 79, 80, 81, 92, 93, 98, 99, 112, 113, 128, 129, 134,
+      135, 148, 149, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,
+      172, 173, 178, 179, 184, 185, 196, 197, 198, 199, 200, 201, 202, 203, 204,
+      205, 206, 207, 208, 209, 214, 215, 220, 221
+    ];
+  }
+} catch (err) {
+  // swallow - we only care if `supports-color` is available; it doesn't have to be.
+}
 
 /**
  * Build up the default `inspectOpts` object from the environment variables.
@@ -2879,30 +3051,13 @@ exports.inspectOpts = Object.keys(process.env).filter(function (key) {
 }, {});
 
 /**
- * The file descriptor to write the `debug()` calls to.
- * Set the `DEBUG_FD` env variable to override with another value. i.e.:
- *
- *   $ DEBUG_FD=3 node script.js 3>debug.log
- */
-
-var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
-
-if (1 !== fd && 2 !== fd) {
-  util.deprecate(function(){}, 'except for stderr(2) and stdout(1), any other usage of DEBUG_FD is deprecated. Override debug.log if you want to use a different log function (https://git.io/debug_fd)')();
-}
-
-var stream = 1 === fd ? process.stdout :
-             2 === fd ? process.stderr :
-             createWritableStdioStream(fd);
-
-/**
  * Is stdout a TTY? Colored output is enabled when `true`.
  */
 
 function useColors() {
   return 'colors' in exports.inspectOpts
     ? Boolean(exports.inspectOpts.colors)
-    : tty.isatty(fd);
+    : tty.isatty(process.stderr.fd);
 }
 
 /**
@@ -2938,22 +3093,30 @@ function formatArgs(args) {
 
   if (useColors) {
     var c = this.color;
-    var prefix = '  \u001b[3' + c + ';1m' + name + ' ' + '\u001b[0m';
+    var colorCode = '\u001b[3' + (c < 8 ? c : '8;5;' + c);
+    var prefix = '  ' + colorCode + ';1m' + name + ' ' + '\u001b[0m';
 
     args[0] = prefix + args[0].split('\n').join('\n' + prefix);
-    args.push('\u001b[3' + c + 'm+' + exports.humanize(this.diff) + '\u001b[0m');
+    args.push(colorCode + 'm+' + exports.humanize(this.diff) + '\u001b[0m');
   } else {
-    args[0] = new Date().toUTCString()
-      + ' ' + name + ' ' + args[0];
+    args[0] = getDate() + name + ' ' + args[0];
+  }
+}
+
+function getDate() {
+  if (exports.inspectOpts.hideDate) {
+    return '';
+  } else {
+    return new Date().toISOString() + ' ';
   }
 }
 
 /**
- * Invokes `util.format()` with the specified arguments and writes to `stream`.
+ * Invokes `util.format()` with the specified arguments and writes to stderr.
  */
 
 function log() {
-  return stream.write(util.format.apply(util, arguments) + '\n');
+  return process.stderr.write(util.format.apply(util, arguments) + '\n');
 }
 
 /**
@@ -2982,74 +3145,6 @@ function save(namespaces) {
 
 function load() {
   return process.env.DEBUG;
-}
-
-/**
- * Copied from `node/src/node.js`.
- *
- * XXX: It's lame that node doesn't expose this API out-of-the-box. It also
- * relies on the undocumented `tty_wrap.guessHandleType()` which is also lame.
- */
-
-function createWritableStdioStream (fd) {
-  var stream;
-  var tty_wrap = process.binding('tty_wrap');
-
-  // Note stream._type is used for test-module-load-list.js
-
-  switch (tty_wrap.guessHandleType(fd)) {
-    case 'TTY':
-      stream = new tty.WriteStream(fd);
-      stream._type = 'tty';
-
-      // Hack to have stream not keep the event loop alive.
-      // See https://github.com/joyent/node/issues/1726
-      if (stream._handle && stream._handle.unref) {
-        stream._handle.unref();
-      }
-      break;
-
-    case 'FILE':
-      var fs$$1 = fs;
-      stream = new fs$$1.SyncWriteStream(fd, { autoClose: false });
-      stream._type = 'fs';
-      break;
-
-    case 'PIPE':
-    case 'TCP':
-      var net$$1 = net;
-      stream = new net$$1.Socket({
-        fd: fd,
-        readable: false,
-        writable: true
-      });
-
-      // FIXME Should probably have an option in net.Socket to create a
-      // stream from an existing fd which is writable only. But for now
-      // we'll just add this hack and set the `readable` member to false.
-      // Test: ./node test/fixtures/echo.js < /etc/passwd
-      stream.readable = false;
-      stream.read = null;
-      stream._type = 'pipe';
-
-      // FIXME Hack to have stream not keep the event loop alive.
-      // See https://github.com/joyent/node/issues/1726
-      if (stream._handle && stream._handle.unref) {
-        stream._handle.unref();
-      }
-      break;
-
-    default:
-      // Probably an error on in uv_guess_handle()
-      throw new Error('Implement me. Unknown stream file type!');
-  }
-
-  // For supporting legacy API we put the FD here.
-  stream.fd = fd;
-
-  stream._isStdio = true;
-
-  return stream;
 }
 
 /**
@@ -3090,7 +3185,7 @@ var src = createCommonjsModule(function (module) {
  * treat as a browser.
  */
 
-if (typeof process !== 'undefined' && process.type === 'renderer') {
+if (typeof process === 'undefined' || process.type === 'renderer') {
   module.exports = browser;
 } else {
   module.exports = node;
@@ -3171,6 +3266,660 @@ function url$1 (uri, loc) {
 
   return obj;
 }
+
+var debug$3 = createCommonjsModule(function (module, exports) {
+/**
+ * This is the common logic for both the Node.js and web browser
+ * implementations of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = createDebug.debug = createDebug['default'] = createDebug;
+exports.coerce = coerce;
+exports.disable = disable;
+exports.enable = enable;
+exports.enabled = enabled;
+exports.humanize = ms;
+
+/**
+ * Active `debug` instances.
+ */
+exports.instances = [];
+
+/**
+ * The currently active debug mode names, and names to skip.
+ */
+
+exports.names = [];
+exports.skips = [];
+
+/**
+ * Map of special "%n" handling functions, for the debug "format" argument.
+ *
+ * Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
+ */
+
+exports.formatters = {};
+
+/**
+ * Select a color.
+ * @param {String} namespace
+ * @return {Number}
+ * @api private
+ */
+
+function selectColor(namespace) {
+  var hash = 0, i;
+
+  for (i in namespace) {
+    hash  = ((hash << 5) - hash) + namespace.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+
+  return exports.colors[Math.abs(hash) % exports.colors.length];
+}
+
+/**
+ * Create a debugger with the given `namespace`.
+ *
+ * @param {String} namespace
+ * @return {Function}
+ * @api public
+ */
+
+function createDebug(namespace) {
+
+  var prevTime;
+
+  function debug() {
+    // disabled?
+    if (!debug.enabled) return;
+
+    var self = debug;
+
+    // set `diff` timestamp
+    var curr = +new Date();
+    var ms$$1 = curr - (prevTime || curr);
+    self.diff = ms$$1;
+    self.prev = prevTime;
+    self.curr = curr;
+    prevTime = curr;
+
+    // turn the `arguments` into a proper Array
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+
+    args[0] = exports.coerce(args[0]);
+
+    if ('string' !== typeof args[0]) {
+      // anything else let's inspect with %O
+      args.unshift('%O');
+    }
+
+    // apply any `formatters` transformations
+    var index = 0;
+    args[0] = args[0].replace(/%([a-zA-Z%])/g, function(match, format) {
+      // if we encounter an escaped % then don't increase the array index
+      if (match === '%%') return match;
+      index++;
+      var formatter = exports.formatters[format];
+      if ('function' === typeof formatter) {
+        var val = args[index];
+        match = formatter.call(self, val);
+
+        // now we need to remove `args[index]` since it's inlined in the `format`
+        args.splice(index, 1);
+        index--;
+      }
+      return match;
+    });
+
+    // apply env-specific formatting (colors, etc.)
+    exports.formatArgs.call(self, args);
+
+    var logFn = debug.log || exports.log || console.log.bind(console);
+    logFn.apply(self, args);
+  }
+
+  debug.namespace = namespace;
+  debug.enabled = exports.enabled(namespace);
+  debug.useColors = exports.useColors();
+  debug.color = selectColor(namespace);
+  debug.destroy = destroy;
+
+  // env-specific initialization logic for debug instances
+  if ('function' === typeof exports.init) {
+    exports.init(debug);
+  }
+
+  exports.instances.push(debug);
+
+  return debug;
+}
+
+function destroy () {
+  var index = exports.instances.indexOf(this);
+  if (index !== -1) {
+    exports.instances.splice(index, 1);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Enables a debug mode by namespaces. This can include modes
+ * separated by a colon and wildcards.
+ *
+ * @param {String} namespaces
+ * @api public
+ */
+
+function enable(namespaces) {
+  exports.save(namespaces);
+
+  exports.names = [];
+  exports.skips = [];
+
+  var i;
+  var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
+  var len = split.length;
+
+  for (i = 0; i < len; i++) {
+    if (!split[i]) continue; // ignore empty strings
+    namespaces = split[i].replace(/\*/g, '.*?');
+    if (namespaces[0] === '-') {
+      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+    } else {
+      exports.names.push(new RegExp('^' + namespaces + '$'));
+    }
+  }
+
+  for (i = 0; i < exports.instances.length; i++) {
+    var instance = exports.instances[i];
+    instance.enabled = exports.enabled(instance.namespace);
+  }
+}
+
+/**
+ * Disable debug output.
+ *
+ * @api public
+ */
+
+function disable() {
+  exports.enable('');
+}
+
+/**
+ * Returns true if the given mode name is enabled, false otherwise.
+ *
+ * @param {String} name
+ * @return {Boolean}
+ * @api public
+ */
+
+function enabled(name) {
+  if (name[name.length - 1] === '*') {
+    return true;
+  }
+  var i, len;
+  for (i = 0, len = exports.skips.length; i < len; i++) {
+    if (exports.skips[i].test(name)) {
+      return false;
+    }
+  }
+  for (i = 0, len = exports.names.length; i < len; i++) {
+    if (exports.names[i].test(name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Coerce `val`.
+ *
+ * @param {Mixed} val
+ * @return {Mixed}
+ * @api private
+ */
+
+function coerce(val) {
+  if (val instanceof Error) return val.stack || val.message;
+  return val;
+}
+});
+
+var debug_1$1 = debug$3.coerce;
+var debug_2$1 = debug$3.disable;
+var debug_3$1 = debug$3.enable;
+var debug_4$1 = debug$3.enabled;
+var debug_5$1 = debug$3.humanize;
+var debug_6$1 = debug$3.instances;
+var debug_7$1 = debug$3.names;
+var debug_8$1 = debug$3.skips;
+var debug_9$1 = debug$3.formatters;
+
+var browser$2 = createCommonjsModule(function (module, exports) {
+/**
+ * This is the web browser implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = debug$3;
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+exports.storage = 'undefined' != typeof chrome
+               && 'undefined' != typeof chrome.storage
+                  ? chrome.storage.local
+                  : localstorage();
+
+/**
+ * Colors.
+ */
+
+exports.colors = [
+  '#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC',
+  '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF',
+  '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC',
+  '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF',
+  '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC',
+  '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033',
+  '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366',
+  '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933',
+  '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC',
+  '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF',
+  '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'
+];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+function useColors() {
+  // NB: In an Electron preload script, document will be defined but not fully
+  // initialized. Since we know we're in Chrome, we'll just detect this case
+  // explicitly
+  if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+    return true;
+  }
+
+  // Internet Explorer and Edge do not support colors.
+  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+    return false;
+  }
+
+  // is webkit? http://stackoverflow.com/a/16459606/376773
+  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+  return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
+    // is firebug? http://stackoverflow.com/a/398120/376773
+    (typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
+    // is firefox >= v31?
+    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+    // double check webkit in userAgent just in case we are in a worker
+    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
+}
+
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+exports.formatters.j = function(v) {
+  try {
+    return JSON.stringify(v);
+  } catch (err) {
+    return '[UnexpectedJSONParseError]: ' + err.message;
+  }
+};
+
+
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs(args) {
+  var useColors = this.useColors;
+
+  args[0] = (useColors ? '%c' : '')
+    + this.namespace
+    + (useColors ? ' %c' : ' ')
+    + args[0]
+    + (useColors ? '%c ' : ' ')
+    + '+' + exports.humanize(this.diff);
+
+  if (!useColors) return;
+
+  var c = 'color: ' + this.color;
+  args.splice(1, 0, c, 'color: inherit');
+
+  // the final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-zA-Z%]/g, function(match) {
+    if ('%%' === match) return;
+    index++;
+    if ('%c' === match) {
+      // we only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
+    }
+  });
+
+  args.splice(lastC, 0, c);
+}
+
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+
+function log() {
+  // this hackery is required for IE8/9, where
+  // the `console.log` function doesn't have 'apply'
+  return 'object' === typeof console
+    && console.log
+    && Function.prototype.apply.call(console.log, console, arguments);
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  try {
+    if (null == namespaces) {
+      exports.storage.removeItem('debug');
+    } else {
+      exports.storage.debug = namespaces;
+    }
+  } catch(e) {}
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  var r;
+  try {
+    r = exports.storage.debug;
+  } catch(e) {}
+
+  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+  if (!r && typeof process !== 'undefined' && 'env' in process) {
+    r = process.env.DEBUG;
+  }
+
+  return r;
+}
+
+/**
+ * Enable namespaces listed in `localStorage.debug` initially.
+ */
+
+exports.enable(load());
+
+/**
+ * Localstorage attempts to return the localstorage.
+ *
+ * This is necessary because safari throws
+ * when a user disables cookies/localstorage
+ * and you attempt to access it.
+ *
+ * @return {LocalStorage}
+ * @api private
+ */
+
+function localstorage() {
+  try {
+    return window.localStorage;
+  } catch (e) {}
+}
+});
+
+var browser_1$1 = browser$2.log;
+var browser_2$1 = browser$2.formatArgs;
+var browser_3$1 = browser$2.save;
+var browser_4$1 = browser$2.load;
+var browser_5$1 = browser$2.useColors;
+var browser_6$1 = browser$2.storage;
+var browser_7$1 = browser$2.colors;
+
+var node$2 = createCommonjsModule(function (module, exports) {
+/**
+ * Module dependencies.
+ */
+
+
+
+
+/**
+ * This is the Node.js implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = debug$3;
+exports.init = init;
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+
+/**
+ * Colors.
+ */
+
+exports.colors = [ 6, 2, 3, 4, 5, 1 ];
+
+try {
+  var supportsColor$$1 = supportsColor;
+  if (supportsColor$$1 && supportsColor$$1.level >= 2) {
+    exports.colors = [
+      20, 21, 26, 27, 32, 33, 38, 39, 40, 41, 42, 43, 44, 45, 56, 57, 62, 63, 68,
+      69, 74, 75, 76, 77, 78, 79, 80, 81, 92, 93, 98, 99, 112, 113, 128, 129, 134,
+      135, 148, 149, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,
+      172, 173, 178, 179, 184, 185, 196, 197, 198, 199, 200, 201, 202, 203, 204,
+      205, 206, 207, 208, 209, 214, 215, 220, 221
+    ];
+  }
+} catch (err) {
+  // swallow - we only care if `supports-color` is available; it doesn't have to be.
+}
+
+/**
+ * Build up the default `inspectOpts` object from the environment variables.
+ *
+ *   $ DEBUG_COLORS=no DEBUG_DEPTH=10 DEBUG_SHOW_HIDDEN=enabled node script.js
+ */
+
+exports.inspectOpts = Object.keys(process.env).filter(function (key) {
+  return /^debug_/i.test(key);
+}).reduce(function (obj, key) {
+  // camel-case
+  var prop = key
+    .substring(6)
+    .toLowerCase()
+    .replace(/_([a-z])/g, function (_, k) { return k.toUpperCase() });
+
+  // coerce string value into JS value
+  var val = process.env[key];
+  if (/^(yes|on|true|enabled)$/i.test(val)) val = true;
+  else if (/^(no|off|false|disabled)$/i.test(val)) val = false;
+  else if (val === 'null') val = null;
+  else val = Number(val);
+
+  obj[prop] = val;
+  return obj;
+}, {});
+
+/**
+ * Is stdout a TTY? Colored output is enabled when `true`.
+ */
+
+function useColors() {
+  return 'colors' in exports.inspectOpts
+    ? Boolean(exports.inspectOpts.colors)
+    : tty.isatty(process.stderr.fd);
+}
+
+/**
+ * Map %o to `util.inspect()`, all on a single line.
+ */
+
+exports.formatters.o = function(v) {
+  this.inspectOpts.colors = this.useColors;
+  return util.inspect(v, this.inspectOpts)
+    .split('\n').map(function(str) {
+      return str.trim()
+    }).join(' ');
+};
+
+/**
+ * Map %o to `util.inspect()`, allowing multiple lines if needed.
+ */
+
+exports.formatters.O = function(v) {
+  this.inspectOpts.colors = this.useColors;
+  return util.inspect(v, this.inspectOpts);
+};
+
+/**
+ * Adds ANSI color escape codes if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs(args) {
+  var name = this.namespace;
+  var useColors = this.useColors;
+
+  if (useColors) {
+    var c = this.color;
+    var colorCode = '\u001b[3' + (c < 8 ? c : '8;5;' + c);
+    var prefix = '  ' + colorCode + ';1m' + name + ' ' + '\u001b[0m';
+
+    args[0] = prefix + args[0].split('\n').join('\n' + prefix);
+    args.push(colorCode + 'm+' + exports.humanize(this.diff) + '\u001b[0m');
+  } else {
+    args[0] = getDate() + name + ' ' + args[0];
+  }
+}
+
+function getDate() {
+  if (exports.inspectOpts.hideDate) {
+    return '';
+  } else {
+    return new Date().toISOString() + ' ';
+  }
+}
+
+/**
+ * Invokes `util.format()` with the specified arguments and writes to stderr.
+ */
+
+function log() {
+  return process.stderr.write(util.format.apply(util, arguments) + '\n');
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  if (null == namespaces) {
+    // If you set a process.env field to null or undefined, it gets cast to the
+    // string 'null' or 'undefined'. Just delete instead.
+    delete process.env.DEBUG;
+  } else {
+    process.env.DEBUG = namespaces;
+  }
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  return process.env.DEBUG;
+}
+
+/**
+ * Init logic for `debug` instances.
+ *
+ * Create a new `inspectOpts` object in case `useColors` is set
+ * differently for a particular `debug` instance.
+ */
+
+function init (debug) {
+  debug.inspectOpts = {};
+
+  var keys = Object.keys(exports.inspectOpts);
+  for (var i = 0; i < keys.length; i++) {
+    debug.inspectOpts[keys[i]] = exports.inspectOpts[keys[i]];
+  }
+}
+
+/**
+ * Enable namespaces listed in `process.env.DEBUG` initially.
+ */
+
+exports.enable(load());
+});
+
+var node_1$1 = node$2.init;
+var node_2$1 = node$2.log;
+var node_3$1 = node$2.formatArgs;
+var node_4$1 = node$2.save;
+var node_5$1 = node$2.load;
+var node_6$1 = node$2.useColors;
+var node_7$1 = node$2.colors;
+var node_8$1 = node$2.inspectOpts;
+
+var src$2 = createCommonjsModule(function (module) {
+/**
+ * Detect Electron renderer process, which is node, but we should
+ * treat as a browser.
+ */
+
+if (typeof process === 'undefined' || process.type === 'renderer') {
+  module.exports = browser$2;
+} else {
+  module.exports = node$2;
+}
+});
 
 var componentEmitter = createCommonjsModule(function (module) {
 /**
@@ -3343,70 +4092,18 @@ var isarray = Array.isArray || function (arr) {
   return toString$1.call(arr) == '[object Array]';
 };
 
-/* global Blob File */
-
-/*
- * Module requirements.
- */
-
-
-
-var toString$2 = Object.prototype.toString;
-var withNativeBlob = typeof commonjsGlobal.Blob === 'function' || toString$2.call(commonjsGlobal.Blob) === '[object BlobConstructor]';
-var withNativeFile = typeof commonjsGlobal.File === 'function' || toString$2.call(commonjsGlobal.File) === '[object FileConstructor]';
-
-/**
- * Module exports.
- */
-
-var hasBinary2 = hasBinary;
-
-/**
- * Checks for binary data.
- *
- * Supports Buffer, ArrayBuffer, Blob and File.
- *
- * @param {Object} anything
- * @api public
- */
-
-function hasBinary (obj) {
-  if (!obj || typeof obj !== 'object') {
-    return false;
-  }
-
-  if (isarray(obj)) {
-    for (var i = 0, l = obj.length; i < l; i++) {
-      if (hasBinary(obj[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  if ((typeof commonjsGlobal.Buffer === 'function' && commonjsGlobal.Buffer.isBuffer && commonjsGlobal.Buffer.isBuffer(obj)) ||
-     (typeof commonjsGlobal.ArrayBuffer === 'function' && obj instanceof ArrayBuffer) ||
-     (withNativeBlob && obj instanceof Blob) ||
-     (withNativeFile && obj instanceof File)
-    ) {
-    return true;
-  }
-
-  // see: https://github.com/Automattic/has-binary/pull/4
-  if (obj.toJSON && typeof obj.toJSON === 'function' && arguments.length === 1) {
-    return hasBinary(obj.toJSON(), true);
-  }
-
-  for (var key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key) && hasBinary(obj[key])) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 var isBuffer = isBuf;
+
+var withNativeBuffer = typeof commonjsGlobal.Buffer === 'function' && typeof commonjsGlobal.Buffer.isBuffer === 'function';
+var withNativeArrayBuffer = typeof commonjsGlobal.ArrayBuffer === 'function';
+
+var isView = (function () {
+  if (withNativeArrayBuffer && typeof commonjsGlobal.ArrayBuffer.isView === 'function') {
+    return commonjsGlobal.ArrayBuffer.isView;
+  } else {
+    return function (obj) { return obj.buffer instanceof commonjsGlobal.ArrayBuffer; };
+  }
+})();
 
 /**
  * Returns true if obj is a buffer or an arraybuffer.
@@ -3415,8 +4112,8 @@ var isBuffer = isBuf;
  */
 
 function isBuf(obj) {
-  return (commonjsGlobal.Buffer && commonjsGlobal.Buffer.isBuffer(obj)) ||
-         (commonjsGlobal.ArrayBuffer && obj instanceof ArrayBuffer);
+  return (withNativeBuffer && commonjsGlobal.Buffer.isBuffer(obj)) ||
+          (withNativeArrayBuffer && (obj instanceof commonjsGlobal.ArrayBuffer || isView(obj)));
 }
 
 /*global Blob,File*/
@@ -3427,9 +4124,9 @@ function isBuf(obj) {
 
 
 
-var toString$3 = Object.prototype.toString;
-var withNativeBlob$1 = typeof commonjsGlobal.Blob === 'function' || toString$3.call(commonjsGlobal.Blob) === '[object BlobConstructor]';
-var withNativeFile$1 = typeof commonjsGlobal.File === 'function' || toString$3.call(commonjsGlobal.File) === '[object FileConstructor]';
+var toString$2 = Object.prototype.toString;
+var withNativeBlob = typeof commonjsGlobal.Blob === 'function' || toString$2.call(commonjsGlobal.Blob) === '[object BlobConstructor]';
+var withNativeFile = typeof commonjsGlobal.File === 'function' || toString$2.call(commonjsGlobal.File) === '[object FileConstructor]';
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -3521,8 +4218,8 @@ var removeBlobs = function(data, callback) {
     if (!obj) return obj;
 
     // convert any blob
-    if ((withNativeBlob$1 && obj instanceof Blob) ||
-        (withNativeFile$1 && obj instanceof File)) {
+    if ((withNativeBlob && obj instanceof Blob) ||
+        (withNativeFile && obj instanceof File)) {
       pendingBlobs++;
 
       // async filereader
@@ -3572,7 +4269,7 @@ var socket_ioParser = createCommonjsModule(function (module, exports) {
  * Module dependencies.
  */
 
-var debug = src('socket.io-parser');
+var debug = src$2('socket.io-parser');
 
 
 
@@ -3682,6 +4379,8 @@ exports.Decoder = Decoder;
 
 function Encoder() {}
 
+var ERROR_PACKET = exports.ERROR + '"encode error"';
+
 /**
  * Encode a packet as a single string if non-binary, or as a
  * buffer sequence, depending on packet type.
@@ -3693,16 +4392,11 @@ function Encoder() {}
  */
 
 Encoder.prototype.encode = function(obj, callback){
-  if ((obj.type === exports.EVENT || obj.type === exports.ACK) && hasBinary2(obj.data)) {
-    obj.type = obj.type === exports.EVENT ? exports.BINARY_EVENT : exports.BINARY_ACK;
-  }
-
   debug('encoding packet %j', obj);
 
   if (exports.BINARY_EVENT === obj.type || exports.BINARY_ACK === obj.type) {
     encodeAsBinary(obj, callback);
-  }
-  else {
+  } else {
     var encoding = encodeAsString(obj);
     callback([encoding]);
   }
@@ -3739,11 +4433,24 @@ function encodeAsString(obj) {
 
   // json data
   if (null != obj.data) {
-    str += JSON.stringify(obj.data);
+    var payload = tryStringify(obj.data);
+    if (payload !== false) {
+      str += payload;
+    } else {
+      return ERROR_PACKET;
+    }
   }
 
   debug('encoded %j as %s', obj, str);
   return str;
+}
+
+function tryStringify(str) {
+  try {
+    return JSON.stringify(str);
+  } catch(e){
+    return false;
+  }
 }
 
 /**
@@ -3841,7 +4548,9 @@ function decodeString(str) {
     type: Number(str.charAt(0))
   };
 
-  if (null == exports.types[p.type]) return error();
+  if (null == exports.types[p.type]) {
+    return error('unknown packet type ' + p.type);
+  }
 
   // look up attachments if type binary
   if (exports.BINARY_EVENT === p.type || exports.BINARY_ACK === p.type) {
@@ -3887,20 +4596,25 @@ function decodeString(str) {
 
   // look up json data
   if (str.charAt(++i)) {
-    p = tryParse(p, str.substr(i));
+    var payload = tryParse(str.substr(i));
+    var isPayloadValid = payload !== false && (p.type === exports.ERROR || isarray(payload));
+    if (isPayloadValid) {
+      p.data = payload;
+    } else {
+      return error('invalid payload');
+    }
   }
 
   debug('decoded %s as %j', str, p);
   return p;
 }
 
-function tryParse(p, str) {
+function tryParse(str) {
   try {
-    p.data = JSON.parse(str);
+    return JSON.parse(str);
   } catch(e){
-    return error();
+    return false;
   }
-  return p; 
 }
 
 /**
@@ -3961,10 +4675,10 @@ BinaryReconstructor.prototype.finishedReconstruction = function() {
   this.buffers = [];
 };
 
-function error() {
+function error(msg) {
   return {
     type: exports.ERROR,
-    data: 'parser error'
+    data: 'parser error: ' + msg
   };
 }
 });
@@ -4018,6 +4732,11 @@ XMLHttpRequest$1.XMLHttpRequest = XMLHttpRequest$1;
  */
 
 function XMLHttpRequest$1(opts) {
+  opts = opts || {};
+
+  /**
+   * Private variables
+   */
   var self = this;
   var http$$1 = http;
   var https$$1 = https;
@@ -4356,10 +5075,7 @@ function XMLHttpRequest$1(opts) {
       headers["Content-Length"] = 0;
     }
 
-    var agent = false;
-    if (opts && opts.agent) {
-      agent = opts.agent;
-    }
+    var agent = opts.agent || false;
     var options = {
       host: host,
       port: port,
@@ -4885,6 +5601,75 @@ var utf8 = createCommonjsModule(function (module, exports) {
 
 }(commonjsGlobal));
 });
+
+var toString$3 = {}.toString;
+
+var isarray$2 = Array.isArray || function (arr) {
+  return toString$3.call(arr) == '[object Array]';
+};
+
+/* global Blob File */
+
+/*
+ * Module requirements.
+ */
+
+
+
+var toString$4 = Object.prototype.toString;
+var withNativeBlob$1 = typeof commonjsGlobal.Blob === 'function' || toString$4.call(commonjsGlobal.Blob) === '[object BlobConstructor]';
+var withNativeFile$1 = typeof commonjsGlobal.File === 'function' || toString$4.call(commonjsGlobal.File) === '[object FileConstructor]';
+
+/**
+ * Module exports.
+ */
+
+var hasBinary2 = hasBinary;
+
+/**
+ * Checks for binary data.
+ *
+ * Supports Buffer, ArrayBuffer, Blob and File.
+ *
+ * @param {Object} anything
+ * @api public
+ */
+
+function hasBinary (obj) {
+  if (!obj || typeof obj !== 'object') {
+    return false;
+  }
+
+  if (isarray$2(obj)) {
+    for (var i = 0, l = obj.length; i < l; i++) {
+      if (hasBinary(obj[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if ((typeof commonjsGlobal.Buffer === 'function' && commonjsGlobal.Buffer.isBuffer && commonjsGlobal.Buffer.isBuffer(obj)) ||
+     (typeof commonjsGlobal.ArrayBuffer === 'function' && obj instanceof ArrayBuffer) ||
+     (withNativeBlob$1 && obj instanceof Blob) ||
+     (withNativeFile$1 && obj instanceof File)
+    ) {
+    return true;
+  }
+
+  // see: https://github.com/Automattic/has-binary/pull/4
+  if (obj.toJSON && typeof obj.toJSON === 'function' && arguments.length === 1) {
+    return hasBinary(obj.toJSON(), true);
+  }
+
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key) && hasBinary(obj[key])) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 var after_1 = after;
 
@@ -5428,8 +6213,6 @@ var lib_8 = lib.decodePayload;
 var lib_9 = lib.encodePayloadAsBinary;
 var lib_10 = lib.decodePayloadAsBinary;
 
-var engine_ioParser = lib;
-
 /**
  * Module dependencies.
  */
@@ -5565,7 +6348,7 @@ Transport.prototype.onOpen = function () {
  */
 
 Transport.prototype.onData = function (data) {
-  var packet = engine_ioParser.decodePacket(data, this.socket.binaryType);
+  var packet = lib.decodePacket(data, this.socket.binaryType);
   this.onPacket(packet);
 };
 
@@ -5705,6 +6488,660 @@ yeast.encode = encode$1;
 yeast.decode = decode$1;
 var yeast_1 = yeast;
 
+var debug$5 = createCommonjsModule(function (module, exports) {
+/**
+ * This is the common logic for both the Node.js and web browser
+ * implementations of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = createDebug.debug = createDebug['default'] = createDebug;
+exports.coerce = coerce;
+exports.disable = disable;
+exports.enable = enable;
+exports.enabled = enabled;
+exports.humanize = ms;
+
+/**
+ * Active `debug` instances.
+ */
+exports.instances = [];
+
+/**
+ * The currently active debug mode names, and names to skip.
+ */
+
+exports.names = [];
+exports.skips = [];
+
+/**
+ * Map of special "%n" handling functions, for the debug "format" argument.
+ *
+ * Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
+ */
+
+exports.formatters = {};
+
+/**
+ * Select a color.
+ * @param {String} namespace
+ * @return {Number}
+ * @api private
+ */
+
+function selectColor(namespace) {
+  var hash = 0, i;
+
+  for (i in namespace) {
+    hash  = ((hash << 5) - hash) + namespace.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+
+  return exports.colors[Math.abs(hash) % exports.colors.length];
+}
+
+/**
+ * Create a debugger with the given `namespace`.
+ *
+ * @param {String} namespace
+ * @return {Function}
+ * @api public
+ */
+
+function createDebug(namespace) {
+
+  var prevTime;
+
+  function debug() {
+    // disabled?
+    if (!debug.enabled) return;
+
+    var self = debug;
+
+    // set `diff` timestamp
+    var curr = +new Date();
+    var ms$$1 = curr - (prevTime || curr);
+    self.diff = ms$$1;
+    self.prev = prevTime;
+    self.curr = curr;
+    prevTime = curr;
+
+    // turn the `arguments` into a proper Array
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+
+    args[0] = exports.coerce(args[0]);
+
+    if ('string' !== typeof args[0]) {
+      // anything else let's inspect with %O
+      args.unshift('%O');
+    }
+
+    // apply any `formatters` transformations
+    var index = 0;
+    args[0] = args[0].replace(/%([a-zA-Z%])/g, function(match, format) {
+      // if we encounter an escaped % then don't increase the array index
+      if (match === '%%') return match;
+      index++;
+      var formatter = exports.formatters[format];
+      if ('function' === typeof formatter) {
+        var val = args[index];
+        match = formatter.call(self, val);
+
+        // now we need to remove `args[index]` since it's inlined in the `format`
+        args.splice(index, 1);
+        index--;
+      }
+      return match;
+    });
+
+    // apply env-specific formatting (colors, etc.)
+    exports.formatArgs.call(self, args);
+
+    var logFn = debug.log || exports.log || console.log.bind(console);
+    logFn.apply(self, args);
+  }
+
+  debug.namespace = namespace;
+  debug.enabled = exports.enabled(namespace);
+  debug.useColors = exports.useColors();
+  debug.color = selectColor(namespace);
+  debug.destroy = destroy;
+
+  // env-specific initialization logic for debug instances
+  if ('function' === typeof exports.init) {
+    exports.init(debug);
+  }
+
+  exports.instances.push(debug);
+
+  return debug;
+}
+
+function destroy () {
+  var index = exports.instances.indexOf(this);
+  if (index !== -1) {
+    exports.instances.splice(index, 1);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Enables a debug mode by namespaces. This can include modes
+ * separated by a colon and wildcards.
+ *
+ * @param {String} namespaces
+ * @api public
+ */
+
+function enable(namespaces) {
+  exports.save(namespaces);
+
+  exports.names = [];
+  exports.skips = [];
+
+  var i;
+  var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
+  var len = split.length;
+
+  for (i = 0; i < len; i++) {
+    if (!split[i]) continue; // ignore empty strings
+    namespaces = split[i].replace(/\*/g, '.*?');
+    if (namespaces[0] === '-') {
+      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+    } else {
+      exports.names.push(new RegExp('^' + namespaces + '$'));
+    }
+  }
+
+  for (i = 0; i < exports.instances.length; i++) {
+    var instance = exports.instances[i];
+    instance.enabled = exports.enabled(instance.namespace);
+  }
+}
+
+/**
+ * Disable debug output.
+ *
+ * @api public
+ */
+
+function disable() {
+  exports.enable('');
+}
+
+/**
+ * Returns true if the given mode name is enabled, false otherwise.
+ *
+ * @param {String} name
+ * @return {Boolean}
+ * @api public
+ */
+
+function enabled(name) {
+  if (name[name.length - 1] === '*') {
+    return true;
+  }
+  var i, len;
+  for (i = 0, len = exports.skips.length; i < len; i++) {
+    if (exports.skips[i].test(name)) {
+      return false;
+    }
+  }
+  for (i = 0, len = exports.names.length; i < len; i++) {
+    if (exports.names[i].test(name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Coerce `val`.
+ *
+ * @param {Mixed} val
+ * @return {Mixed}
+ * @api private
+ */
+
+function coerce(val) {
+  if (val instanceof Error) return val.stack || val.message;
+  return val;
+}
+});
+
+var debug_1$2 = debug$5.coerce;
+var debug_2$2 = debug$5.disable;
+var debug_3$2 = debug$5.enable;
+var debug_4$2 = debug$5.enabled;
+var debug_5$2 = debug$5.humanize;
+var debug_6$2 = debug$5.instances;
+var debug_7$2 = debug$5.names;
+var debug_8$2 = debug$5.skips;
+var debug_9$2 = debug$5.formatters;
+
+var browser$4 = createCommonjsModule(function (module, exports) {
+/**
+ * This is the web browser implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = debug$5;
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+exports.storage = 'undefined' != typeof chrome
+               && 'undefined' != typeof chrome.storage
+                  ? chrome.storage.local
+                  : localstorage();
+
+/**
+ * Colors.
+ */
+
+exports.colors = [
+  '#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC',
+  '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF',
+  '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC',
+  '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF',
+  '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC',
+  '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033',
+  '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366',
+  '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933',
+  '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC',
+  '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF',
+  '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'
+];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+function useColors() {
+  // NB: In an Electron preload script, document will be defined but not fully
+  // initialized. Since we know we're in Chrome, we'll just detect this case
+  // explicitly
+  if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+    return true;
+  }
+
+  // Internet Explorer and Edge do not support colors.
+  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+    return false;
+  }
+
+  // is webkit? http://stackoverflow.com/a/16459606/376773
+  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+  return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
+    // is firebug? http://stackoverflow.com/a/398120/376773
+    (typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
+    // is firefox >= v31?
+    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+    // double check webkit in userAgent just in case we are in a worker
+    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
+}
+
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+exports.formatters.j = function(v) {
+  try {
+    return JSON.stringify(v);
+  } catch (err) {
+    return '[UnexpectedJSONParseError]: ' + err.message;
+  }
+};
+
+
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs(args) {
+  var useColors = this.useColors;
+
+  args[0] = (useColors ? '%c' : '')
+    + this.namespace
+    + (useColors ? ' %c' : ' ')
+    + args[0]
+    + (useColors ? '%c ' : ' ')
+    + '+' + exports.humanize(this.diff);
+
+  if (!useColors) return;
+
+  var c = 'color: ' + this.color;
+  args.splice(1, 0, c, 'color: inherit');
+
+  // the final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-zA-Z%]/g, function(match) {
+    if ('%%' === match) return;
+    index++;
+    if ('%c' === match) {
+      // we only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
+    }
+  });
+
+  args.splice(lastC, 0, c);
+}
+
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+
+function log() {
+  // this hackery is required for IE8/9, where
+  // the `console.log` function doesn't have 'apply'
+  return 'object' === typeof console
+    && console.log
+    && Function.prototype.apply.call(console.log, console, arguments);
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  try {
+    if (null == namespaces) {
+      exports.storage.removeItem('debug');
+    } else {
+      exports.storage.debug = namespaces;
+    }
+  } catch(e) {}
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  var r;
+  try {
+    r = exports.storage.debug;
+  } catch(e) {}
+
+  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+  if (!r && typeof process !== 'undefined' && 'env' in process) {
+    r = process.env.DEBUG;
+  }
+
+  return r;
+}
+
+/**
+ * Enable namespaces listed in `localStorage.debug` initially.
+ */
+
+exports.enable(load());
+
+/**
+ * Localstorage attempts to return the localstorage.
+ *
+ * This is necessary because safari throws
+ * when a user disables cookies/localstorage
+ * and you attempt to access it.
+ *
+ * @return {LocalStorage}
+ * @api private
+ */
+
+function localstorage() {
+  try {
+    return window.localStorage;
+  } catch (e) {}
+}
+});
+
+var browser_1$2 = browser$4.log;
+var browser_2$2 = browser$4.formatArgs;
+var browser_3$2 = browser$4.save;
+var browser_4$2 = browser$4.load;
+var browser_5$2 = browser$4.useColors;
+var browser_6$2 = browser$4.storage;
+var browser_7$2 = browser$4.colors;
+
+var node$4 = createCommonjsModule(function (module, exports) {
+/**
+ * Module dependencies.
+ */
+
+
+
+
+/**
+ * This is the Node.js implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = debug$5;
+exports.init = init;
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+
+/**
+ * Colors.
+ */
+
+exports.colors = [ 6, 2, 3, 4, 5, 1 ];
+
+try {
+  var supportsColor$$1 = supportsColor;
+  if (supportsColor$$1 && supportsColor$$1.level >= 2) {
+    exports.colors = [
+      20, 21, 26, 27, 32, 33, 38, 39, 40, 41, 42, 43, 44, 45, 56, 57, 62, 63, 68,
+      69, 74, 75, 76, 77, 78, 79, 80, 81, 92, 93, 98, 99, 112, 113, 128, 129, 134,
+      135, 148, 149, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,
+      172, 173, 178, 179, 184, 185, 196, 197, 198, 199, 200, 201, 202, 203, 204,
+      205, 206, 207, 208, 209, 214, 215, 220, 221
+    ];
+  }
+} catch (err) {
+  // swallow - we only care if `supports-color` is available; it doesn't have to be.
+}
+
+/**
+ * Build up the default `inspectOpts` object from the environment variables.
+ *
+ *   $ DEBUG_COLORS=no DEBUG_DEPTH=10 DEBUG_SHOW_HIDDEN=enabled node script.js
+ */
+
+exports.inspectOpts = Object.keys(process.env).filter(function (key) {
+  return /^debug_/i.test(key);
+}).reduce(function (obj, key) {
+  // camel-case
+  var prop = key
+    .substring(6)
+    .toLowerCase()
+    .replace(/_([a-z])/g, function (_, k) { return k.toUpperCase() });
+
+  // coerce string value into JS value
+  var val = process.env[key];
+  if (/^(yes|on|true|enabled)$/i.test(val)) val = true;
+  else if (/^(no|off|false|disabled)$/i.test(val)) val = false;
+  else if (val === 'null') val = null;
+  else val = Number(val);
+
+  obj[prop] = val;
+  return obj;
+}, {});
+
+/**
+ * Is stdout a TTY? Colored output is enabled when `true`.
+ */
+
+function useColors() {
+  return 'colors' in exports.inspectOpts
+    ? Boolean(exports.inspectOpts.colors)
+    : tty.isatty(process.stderr.fd);
+}
+
+/**
+ * Map %o to `util.inspect()`, all on a single line.
+ */
+
+exports.formatters.o = function(v) {
+  this.inspectOpts.colors = this.useColors;
+  return util.inspect(v, this.inspectOpts)
+    .split('\n').map(function(str) {
+      return str.trim()
+    }).join(' ');
+};
+
+/**
+ * Map %o to `util.inspect()`, allowing multiple lines if needed.
+ */
+
+exports.formatters.O = function(v) {
+  this.inspectOpts.colors = this.useColors;
+  return util.inspect(v, this.inspectOpts);
+};
+
+/**
+ * Adds ANSI color escape codes if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs(args) {
+  var name = this.namespace;
+  var useColors = this.useColors;
+
+  if (useColors) {
+    var c = this.color;
+    var colorCode = '\u001b[3' + (c < 8 ? c : '8;5;' + c);
+    var prefix = '  ' + colorCode + ';1m' + name + ' ' + '\u001b[0m';
+
+    args[0] = prefix + args[0].split('\n').join('\n' + prefix);
+    args.push(colorCode + 'm+' + exports.humanize(this.diff) + '\u001b[0m');
+  } else {
+    args[0] = getDate() + name + ' ' + args[0];
+  }
+}
+
+function getDate() {
+  if (exports.inspectOpts.hideDate) {
+    return '';
+  } else {
+    return new Date().toISOString() + ' ';
+  }
+}
+
+/**
+ * Invokes `util.format()` with the specified arguments and writes to stderr.
+ */
+
+function log() {
+  return process.stderr.write(util.format.apply(util, arguments) + '\n');
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  if (null == namespaces) {
+    // If you set a process.env field to null or undefined, it gets cast to the
+    // string 'null' or 'undefined'. Just delete instead.
+    delete process.env.DEBUG;
+  } else {
+    process.env.DEBUG = namespaces;
+  }
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  return process.env.DEBUG;
+}
+
+/**
+ * Init logic for `debug` instances.
+ *
+ * Create a new `inspectOpts` object in case `useColors` is set
+ * differently for a particular `debug` instance.
+ */
+
+function init (debug) {
+  debug.inspectOpts = {};
+
+  var keys = Object.keys(exports.inspectOpts);
+  for (var i = 0; i < keys.length; i++) {
+    debug.inspectOpts[keys[i]] = exports.inspectOpts[keys[i]];
+  }
+}
+
+/**
+ * Enable namespaces listed in `process.env.DEBUG` initially.
+ */
+
+exports.enable(load());
+});
+
+var node_1$2 = node$4.init;
+var node_2$2 = node$4.log;
+var node_3$2 = node$4.formatArgs;
+var node_4$2 = node$4.save;
+var node_5$2 = node$4.load;
+var node_6$2 = node$4.useColors;
+var node_7$2 = node$4.colors;
+var node_8$2 = node$4.inspectOpts;
+
+var src$4 = createCommonjsModule(function (module) {
+/**
+ * Detect Electron renderer process, which is node, but we should
+ * treat as a browser.
+ */
+
+if (typeof process === 'undefined' || process.type === 'renderer') {
+  module.exports = browser$4;
+} else {
+  module.exports = node$4;
+}
+});
+
 /**
  * Module dependencies.
  */
@@ -5714,7 +7151,7 @@ var yeast_1 = yeast;
 
 
 
-var debug$3 = src('engine.io-client:polling');
+var debug$7 = src$4('engine.io-client:polling');
 
 /**
  * Module exports.
@@ -5783,7 +7220,7 @@ Polling.prototype.pause = function (onPause) {
   this.readyState = 'pausing';
 
   function pause () {
-    debug$3('paused');
+    debug$7('paused');
     self.readyState = 'paused';
     onPause();
   }
@@ -5792,19 +7229,19 @@ Polling.prototype.pause = function (onPause) {
     var total = 0;
 
     if (this.polling) {
-      debug$3('we are currently polling - waiting to pause');
+      debug$7('we are currently polling - waiting to pause');
       total++;
       this.once('pollComplete', function () {
-        debug$3('pre-pause polling complete');
+        debug$7('pre-pause polling complete');
         --total || pause();
       });
     }
 
     if (!this.writable) {
-      debug$3('we are currently writing - waiting to pause');
+      debug$7('we are currently writing - waiting to pause');
       total++;
       this.once('drain', function () {
-        debug$3('pre-pause writing complete');
+        debug$7('pre-pause writing complete');
         --total || pause();
       });
     }
@@ -5820,7 +7257,7 @@ Polling.prototype.pause = function (onPause) {
  */
 
 Polling.prototype.poll = function () {
-  debug$3('polling');
+  debug$7('polling');
   this.polling = true;
   this.doPoll();
   this.emit('poll');
@@ -5834,7 +7271,7 @@ Polling.prototype.poll = function () {
 
 Polling.prototype.onData = function (data) {
   var self = this;
-  debug$3('polling got data %s', data);
+  debug$7('polling got data %s', data);
   var callback = function (packet, index, total) {
     // if its the first message we consider the transport open
     if ('opening' === self.readyState) {
@@ -5852,7 +7289,7 @@ Polling.prototype.onData = function (data) {
   };
 
   // decode payload
-  engine_ioParser.decodePayload(data, this.socket.binaryType, callback);
+  lib.decodePayload(data, this.socket.binaryType, callback);
 
   // if an event did not trigger closing
   if ('closed' !== this.readyState) {
@@ -5863,7 +7300,7 @@ Polling.prototype.onData = function (data) {
     if ('open' === this.readyState) {
       this.poll();
     } else {
-      debug$3('ignoring poll - transport state "%s"', this.readyState);
+      debug$7('ignoring poll - transport state "%s"', this.readyState);
     }
   }
 };
@@ -5878,17 +7315,17 @@ Polling.prototype.doClose = function () {
   var self = this;
 
   function close () {
-    debug$3('writing close packet');
+    debug$7('writing close packet');
     self.write([{ type: 'close' }]);
   }
 
   if ('open' === this.readyState) {
-    debug$3('transport open - closing');
+    debug$7('transport open - closing');
     close();
   } else {
     // in case we're trying to close while
     // handshaking is in progress (GH-164)
-    debug$3('transport not open - deferring close');
+    debug$7('transport not open - deferring close');
     this.once('open', close);
   }
 };
@@ -5909,7 +7346,7 @@ Polling.prototype.write = function (packets) {
     self.emit('drain');
   };
 
-  engine_ioParser.encodePayload(packets, this.supportsBinary, function (data) {
+  lib.encodePayload(packets, this.supportsBinary, function (data) {
     self.doWrite(data, callbackfn);
   });
 };
@@ -5959,7 +7396,7 @@ Polling.prototype.uri = function () {
 
 
 
-var debug$4 = src('engine.io-client:polling-xhr');
+var debug$8 = src$4('engine.io-client:polling-xhr');
 
 /**
  * Module exports.
@@ -6071,7 +7508,7 @@ XHR.prototype.doWrite = function (data, fn) {
  */
 
 XHR.prototype.doPoll = function () {
-  debug$4('xhr poll');
+  debug$8('xhr poll');
   var req = this.request();
   var self = this;
   req.on('data', function (data) {
@@ -6146,7 +7583,7 @@ Request.prototype.create = function () {
   var self = this;
 
   try {
-    debug$4('xhr open %s: %s', this.method, this.uri);
+    debug$8('xhr open %s: %s', this.method, this.uri);
     xhr.open(this.method, this.uri, this.async);
     try {
       if (this.extraHeaders) {
@@ -6192,13 +7629,12 @@ Request.prototype.create = function () {
     } else {
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 2) {
-          var contentType;
           try {
-            contentType = xhr.getResponseHeader('Content-Type');
+            var contentType = xhr.getResponseHeader('Content-Type');
+            if (self.supportsBinary && contentType === 'application/octet-stream') {
+              xhr.responseType = 'arraybuffer';
+            }
           } catch (e) {}
-          if (contentType === 'application/octet-stream') {
-            xhr.responseType = 'arraybuffer';
-          }
         }
         if (4 !== xhr.readyState) return;
         if (200 === xhr.status || 1223 === xhr.status) {
@@ -6213,7 +7649,7 @@ Request.prototype.create = function () {
       };
     }
 
-    debug$4('xhr data %s', this.data);
+    debug$8('xhr data %s', this.data);
     xhr.send(this.data);
   } catch (e) {
     // Need to defer since .create() is called directly fhrom the constructor
@@ -7495,7 +8931,7 @@ class CloseEvent extends Event$1 {
   constructor (code, reason, target) {
     super('close', target);
 
-    this.wasClean = code === undefined || code === 1000 || (code >= 3000 && code <= 4999);
+    this.wasClean = target._closeFrameReceived && target._closeFrameSent;
     this.reason = reason;
     this.code = code;
   }
@@ -8488,14 +9924,26 @@ class Sender {
    * @public
    */
   close (code, data, mask, cb) {
-    if (code !== undefined && (typeof code !== 'number' || !ErrorCodes.isValidErrorCode(code))) {
+    var buf;
+
+    if (code === undefined) {
+      code = 1000;
+    } else if (typeof code !== 'number' || !ErrorCodes.isValidErrorCode(code)) {
       throw new Error('first argument must be a valid error code number');
     }
 
-    const buf = Buffer$4.allocUnsafe(2 + (data ? Buffer$4.byteLength(data) : 0));
-
-    buf.writeUInt16BE(code || 1000, 0, true);
-    if (buf.length > 2) buf.write(data, 2);
+    if (data === undefined || data === '') {
+      if (code === 1000) {
+        buf = Constants.EMPTY_BUFFER;
+      } else {
+        buf = Buffer$4.allocUnsafe(2);
+        buf.writeUInt16BE(code, 0, true);
+      }
+    } else {
+      buf = Buffer$4.allocUnsafe(2 + Buffer$4.byteLength(data));
+      buf.writeUInt16BE(code, 0, true);
+      buf.write(data, 2);
+    }
 
     if (this._deflating) {
       this.enqueue([this.doClose, buf, mask, cb]);
@@ -8809,10 +10257,12 @@ class WebSocket extends events {
 
     this._binaryType = Constants.BINARY_TYPES[0];
     this._finalize = this.finalize.bind(this);
-    this._finalizeCalled = false;
-    this._closeMessage = null;
+    this._closeFrameReceived = false;
+    this._closeFrameSent = false;
+    this._closeMessage = '';
     this._closeTimer = null;
-    this._closeCode = null;
+    this._finalized = false;
+    this._closeCode = 1006;
     this._receiver = null;
     this._sender = null;
     this._socket = null;
@@ -8879,21 +10329,17 @@ class WebSocket extends events {
     this._ultron = new ultron(socket);
     this._socket = socket;
 
-    // socket cleanup handlers
     this._ultron.on('close', this._finalize);
     this._ultron.on('error', this._finalize);
     this._ultron.on('end', this._finalize);
 
-    // ensure that the head is added to the receiver
     if (head.length > 0) socket.unshift(head);
 
-    // subsequent packets are pushed to the receiver
     this._ultron.on('data', (data) => {
       this.bytesReceived += data.length;
       this._receiver.add(data);
     });
 
-    // receiver event handlers
     this._receiver.onmessage = (data) => this.emit('message', data);
     this._receiver.onping = (data) => {
       this.pong(data, !this._isServer, true);
@@ -8901,14 +10347,22 @@ class WebSocket extends events {
     };
     this._receiver.onpong = (data) => this.emit('pong', data);
     this._receiver.onclose = (code, reason) => {
+      this._closeFrameReceived = true;
       this._closeMessage = reason;
       this._closeCode = code;
-      this.close(code, reason);
+      if (!this._finalized) this.close(code, reason);
     };
     this._receiver.onerror = (error, code) => {
-      // close the connection when the receiver reports a HyBi error code
-      this.close(code, '');
+      this._closeMessage = '';
+      this._closeCode = code;
+
+      //
+      // Ensure that the error is emitted even if `WebSocket#finalize()` has
+      // already been called.
+      //
+      this.readyState = WebSocket.CLOSING;
       this.emit('error', error);
+      this.finalize(true);
     };
 
     this.readyState = WebSocket.OPEN;
@@ -8918,43 +10372,34 @@ class WebSocket extends events {
   /**
    * Clean up and release internal resources.
    *
-   * @param {(Boolean|Error)} Indicates whether or not an error occurred
+   * @param {(Boolean|Error)} error Indicates whether or not an error occurred
    * @private
    */
   finalize (error) {
-    if (this._finalizeCalled) return;
+    if (this._finalized) return;
 
     this.readyState = WebSocket.CLOSING;
-    this._finalizeCalled = true;
+    this._finalized = true;
+
+    if (typeof error === 'object') this.emit('error', error);
+    if (!this._socket) return this.emitClose();
 
     clearTimeout(this._closeTimer);
     this._closeTimer = null;
 
-    //
-    // If the connection was closed abnormally (with an error), or if the close
-    // control frame was malformed or not received then the close code must be
-    // 1006.
-    //
-    if (error) this._closeCode = 1006;
+    this._ultron.destroy();
+    this._ultron = null;
 
-    if (this._socket) {
-      this._ultron.destroy();
-      this._socket.on('error', function onerror () {
-        this.destroy();
-      });
+    this._socket.on('error', Constants.NOOP);
 
-      if (!error) this._socket.end();
-      else this._socket.destroy();
+    if (!error) this._socket.end();
+    else this._socket.destroy();
 
-      this._receiver.cleanup(() => this.emitClose());
+    this._socket = null;
+    this._sender = null;
 
-      this._receiver = null;
-      this._sender = null;
-      this._socket = null;
-      this._ultron = null;
-    } else {
-      this.emitClose();
-    }
+    this._receiver.cleanup(() => this.emitClose());
+    this._receiver = null;
   }
 
   /**
@@ -8964,7 +10409,8 @@ class WebSocket extends events {
    */
   emitClose () {
     this.readyState = WebSocket.CLOSED;
-    this.emit('close', this._closeCode || 1006, this._closeMessage || '');
+
+    this.emit('close', this._closeCode, this._closeMessage);
 
     if (this.extensions[PerMessageDeflate_1.extensionName]) {
       this.extensions[PerMessageDeflate_1.extensionName].cleanup();
@@ -8973,7 +10419,6 @@ class WebSocket extends events {
     this.extensions = null;
 
     this.removeAllListeners();
-    this.on('error', Constants.NOOP); // Catch all errors after this.
   }
 
   /**
@@ -9001,6 +10446,22 @@ class WebSocket extends events {
   /**
    * Start a closing handshake.
    *
+   *            +----------+     +-----------+   +----------+
+   *     + - - -|ws.close()|---->|close frame|-->|ws.close()|- - - -
+   *            +----------+     +-----------+   +----------+       |
+   *     |      +----------+     +-----------+         |
+   *            |ws.close()|<----|close frame|<--------+            |
+   *            +----------+     +-----------+         |
+   *  CLOSING         |              +---+             |         CLOSING
+   *                  |          +---|fin|<------------+
+   *     |            |          |   +---+                          |
+   *                  |          |   +---+      +-------------+
+   *     |            +----------+-->|fin|----->|ws.finalize()| - - +
+   *                             |   +---+      +-------------+
+   *     |     +-------------+   |
+   *      - - -|ws.finalize()|<--+
+   *           +-------------+
+   *
    * @param {Number} code Status code explaining why the connection is closing
    * @param {String} data A string explaining why the connection is closing
    * @public
@@ -9008,30 +10469,33 @@ class WebSocket extends events {
   close (code, data) {
     if (this.readyState === WebSocket.CLOSED) return;
     if (this.readyState === WebSocket.CONNECTING) {
-      if (this._req && !this._req.aborted) {
-        this._req.abort();
-        this.emit('error', new Error('closed before the connection is established'));
-        this.finalize(true);
-      }
+      this._req.abort();
+      this.finalize(new Error('closed before the connection is established'));
       return;
     }
 
     if (this.readyState === WebSocket.CLOSING) {
-      if (this._closeCode && this._socket) this._socket.end();
+      if (this._closeFrameSent && this._closeFrameReceived) this._socket.end();
       return;
     }
 
     this.readyState = WebSocket.CLOSING;
     this._sender.close(code, data, !this._isServer, (err) => {
-      if (err) this.emit('error', err);
+      //
+      // This error is handled by the `'error'` listener on the socket. We only
+      // want to know if the close frame has been sent here.
+      //
+      if (err) return;
 
-      if (this._socket) {
-        if (this._closeCode) this._socket.end();
+      this._closeFrameSent = true;
+
+      if (!this._finalized) {
+        if (this._closeFrameReceived) this._socket.end();
+
         //
         // Ensure that the connection is cleaned up even when the closing
         // handshake fails.
         //
-        clearTimeout(this._closeTimer);
         this._closeTimer = setTimeout(this._finalize, closeTimeout, true);
       }
     });
@@ -9123,11 +10587,8 @@ class WebSocket extends events {
   terminate () {
     if (this.readyState === WebSocket.CLOSED) return;
     if (this.readyState === WebSocket.CONNECTING) {
-      if (this._req && !this._req.aborted) {
-        this._req.abort();
-        this.emit('error', new Error('closed before the connection is established'));
-        this.finalize(true);
-      }
+      this._req.abort();
+      this.finalize(new Error('closed before the connection is established'));
       return;
     }
 
@@ -9377,8 +10838,7 @@ function initAsClient (address, protocols, options) {
   if (options.handshakeTimeout) {
     this._req.setTimeout(options.handshakeTimeout, () => {
       this._req.abort();
-      this.emit('error', new Error('opening handshake has timed out'));
-      this.finalize(true);
+      this.finalize(new Error('opening handshake has timed out'));
     });
   }
 
@@ -9386,15 +10846,13 @@ function initAsClient (address, protocols, options) {
     if (this._req.aborted) return;
 
     this._req = null;
-    this.emit('error', error);
-    this.finalize(true);
+    this.finalize(error);
   });
 
   this._req.on('response', (res) => {
     if (!this.emit('unexpected-response', this._req, res)) {
       this._req.abort();
-      this.emit('error', new Error(`unexpected server response (${res.statusCode})`));
-      this.finalize(true);
+      this.finalize(new Error(`unexpected server response (${res.statusCode})`));
     }
   });
 
@@ -9415,8 +10873,7 @@ function initAsClient (address, protocols, options) {
 
     if (res.headers['sec-websocket-accept'] !== digest) {
       socket.destroy();
-      this.emit('error', new Error('invalid server key'));
-      return this.finalize(true);
+      return this.finalize(new Error('invalid server key'));
     }
 
     const serverProt = res.headers['sec-websocket-protocol'];
@@ -9433,8 +10890,7 @@ function initAsClient (address, protocols, options) {
 
     if (protError) {
       socket.destroy();
-      this.emit('error', new Error(protError));
-      return this.finalize(true);
+      return this.finalize(new Error(protError));
     }
 
     if (serverProt) this.protocol = serverProt;
@@ -9453,8 +10909,8 @@ function initAsClient (address, protocols, options) {
         }
       } catch (err) {
         socket.destroy();
-        this.emit('error', new Error('invalid Sec-WebSocket-Extensions header'));
-        return this.finalize(true);
+        this.finalize(new Error('invalid Sec-WebSocket-Extensions header'));
+        return;
       }
     }
 
@@ -9517,7 +10973,6 @@ class WebSocketServer extends events {
         });
         res.end(body);
       });
-      this._server.allowHalfOpen = false;
       this._server.listen(options.port, options.host, options.backlog, callback);
     } else if (options.server) {
       this._server = options.server;
@@ -9785,7 +11240,7 @@ var ws = WebSocket_1;
 
 
 
-var debug$5 = src('engine.io-client:websocket');
+var debug$9 = src$4('engine.io-client:websocket');
 var BrowserWebSocket = commonjsGlobal.WebSocket || commonjsGlobal.MozWebSocket;
 var NodeWebSocket;
 if (typeof window === 'undefined') {
@@ -9945,7 +11400,7 @@ WS.prototype.write = function (packets) {
   var total = packets.length;
   for (var i = 0, l = total; i < l; i++) {
     (function (packet) {
-      engine_ioParser.encodePacket(packet, self.supportsBinary, function (data) {
+      lib.encodePacket(packet, self.supportsBinary, function (data) {
         if (!self.usingBrowserWebSocket) {
           // always create a new object (GH-437)
           var opts = {};
@@ -9972,7 +11427,7 @@ WS.prototype.write = function (packets) {
             self.ws.send(data, opts);
           }
         } catch (e) {
-          debug$5('websocket closed before onclose event');
+          debug$9('websocket closed before onclose event');
         }
 
         --total || done();
@@ -10138,7 +11593,7 @@ var indexof = function(arr, obj){
 
 
 
-var debug$6 = src('engine.io-client:socket');
+var debug$10 = src$4('engine.io-client:socket');
 
 
 
@@ -10267,7 +11722,7 @@ componentEmitter(Socket.prototype);
  * @api public
  */
 
-Socket.protocol = engine_ioParser.protocol; // this is an int
+Socket.protocol = lib.protocol; // this is an int
 
 /**
  * Expose deps for legacy compatibility
@@ -10277,7 +11732,7 @@ Socket.protocol = engine_ioParser.protocol; // this is an int
 Socket.Socket = Socket;
 Socket.Transport = transport;
 Socket.transports = transports;
-Socket.parser = engine_ioParser;
+Socket.parser = lib;
 
 /**
  * Creates transport of the given type.
@@ -10288,11 +11743,11 @@ Socket.parser = engine_ioParser;
  */
 
 Socket.prototype.createTransport = function (name) {
-  debug$6('creating transport "%s"', name);
+  debug$10('creating transport "%s"', name);
   var query = clone(this.query);
 
   // append engine.io protocol identifier
-  query.EIO = engine_ioParser.protocol;
+  query.EIO = lib.protocol;
 
   // transport name
   query.transport = name;
@@ -10387,11 +11842,11 @@ Socket.prototype.open = function () {
  */
 
 Socket.prototype.setTransport = function (transport$$1) {
-  debug$6('setting transport %s', transport$$1.name);
+  debug$10('setting transport %s', transport$$1.name);
   var self = this;
 
   if (this.transport) {
-    debug$6('clearing existing transport %s', this.transport.name);
+    debug$10('clearing existing transport %s', this.transport.name);
     this.transport.removeAllListeners();
   }
 
@@ -10422,7 +11877,7 @@ Socket.prototype.setTransport = function (transport$$1) {
  */
 
 Socket.prototype.probe = function (name) {
-  debug$6('probing transport "%s"', name);
+  debug$10('probing transport "%s"', name);
   var transport$$1 = this.createTransport(name, { probe: 1 });
   var failed = false;
   var self = this;
@@ -10436,22 +11891,22 @@ Socket.prototype.probe = function (name) {
     }
     if (failed) return;
 
-    debug$6('probe transport "%s" opened', name);
+    debug$10('probe transport "%s" opened', name);
     transport$$1.send([{ type: 'ping', data: 'probe' }]);
     transport$$1.once('packet', function (msg) {
       if (failed) return;
       if ('pong' === msg.type && 'probe' === msg.data) {
-        debug$6('probe transport "%s" pong', name);
+        debug$10('probe transport "%s" pong', name);
         self.upgrading = true;
         self.emit('upgrading', transport$$1);
         if (!transport$$1) return;
         Socket.priorWebsocketSuccess = 'websocket' === transport$$1.name;
 
-        debug$6('pausing current transport "%s"', self.transport.name);
+        debug$10('pausing current transport "%s"', self.transport.name);
         self.transport.pause(function () {
           if (failed) return;
           if ('closed' === self.readyState) return;
-          debug$6('changing transport and sending upgrade packet');
+          debug$10('changing transport and sending upgrade packet');
 
           cleanup();
 
@@ -10463,7 +11918,7 @@ Socket.prototype.probe = function (name) {
           self.flush();
         });
       } else {
-        debug$6('probe transport "%s" failed', name);
+        debug$10('probe transport "%s" failed', name);
         var err = new Error('probe error');
         err.transport = transport$$1.name;
         self.emit('upgradeError', err);
@@ -10490,7 +11945,7 @@ Socket.prototype.probe = function (name) {
 
     freezeTransport();
 
-    debug$6('probe transport "%s" failed because of error: %s', name, err);
+    debug$10('probe transport "%s" failed because of error: %s', name, err);
 
     self.emit('upgradeError', error);
   }
@@ -10507,7 +11962,7 @@ Socket.prototype.probe = function (name) {
   // When the socket is upgraded while we're probing
   function onupgrade (to) {
     if (transport$$1 && to.name !== transport$$1.name) {
-      debug$6('"%s" works - aborting "%s"', to.name, transport$$1.name);
+      debug$10('"%s" works - aborting "%s"', to.name, transport$$1.name);
       freezeTransport();
     }
   }
@@ -10538,7 +11993,7 @@ Socket.prototype.probe = function (name) {
  */
 
 Socket.prototype.onOpen = function () {
-  debug$6('socket open');
+  debug$10('socket open');
   this.readyState = 'open';
   Socket.priorWebsocketSuccess = 'websocket' === this.transport.name;
   this.emit('open');
@@ -10547,7 +12002,7 @@ Socket.prototype.onOpen = function () {
   // we check for `readyState` in case an `open`
   // listener already closed the socket
   if ('open' === this.readyState && this.upgrade && this.transport.pause) {
-    debug$6('starting upgrade probes');
+    debug$10('starting upgrade probes');
     for (var i = 0, l = this.upgrades.length; i < l; i++) {
       this.probe(this.upgrades[i]);
     }
@@ -10563,7 +12018,7 @@ Socket.prototype.onOpen = function () {
 Socket.prototype.onPacket = function (packet) {
   if ('opening' === this.readyState || 'open' === this.readyState ||
       'closing' === this.readyState) {
-    debug$6('socket receive: type "%s", data "%s"', packet.type, packet.data);
+    debug$10('socket receive: type "%s", data "%s"', packet.type, packet.data);
 
     this.emit('packet', packet);
 
@@ -10592,7 +12047,7 @@ Socket.prototype.onPacket = function (packet) {
         break;
     }
   } else {
-    debug$6('packet received with socket readyState "%s"', this.readyState);
+    debug$10('packet received with socket readyState "%s"', this.readyState);
   }
 };
 
@@ -10646,7 +12101,7 @@ Socket.prototype.setPing = function () {
   var self = this;
   clearTimeout(self.pingIntervalTimer);
   self.pingIntervalTimer = setTimeout(function () {
-    debug$6('writing ping packet - expecting pong within %sms', self.pingTimeout);
+    debug$10('writing ping packet - expecting pong within %sms', self.pingTimeout);
     self.ping();
     self.onHeartbeat(self.pingTimeout);
   }, self.pingInterval);
@@ -10695,7 +12150,7 @@ Socket.prototype.onDrain = function () {
 Socket.prototype.flush = function () {
   if ('closed' !== this.readyState && this.transport.writable &&
     !this.upgrading && this.writeBuffer.length) {
-    debug$6('flushing %d packets in socket', this.writeBuffer.length);
+    debug$10('flushing %d packets in socket', this.writeBuffer.length);
     this.transport.send(this.writeBuffer);
     // keep track of current length of writeBuffer
     // splice writeBuffer and callbackBuffer on `drain`
@@ -10788,7 +12243,7 @@ Socket.prototype.close = function () {
 
   function close () {
     self.onClose('forced close');
-    debug$6('socket closing - telling transport to close');
+    debug$10('socket closing - telling transport to close');
     self.transport.close();
   }
 
@@ -10814,7 +12269,7 @@ Socket.prototype.close = function () {
  */
 
 Socket.prototype.onError = function (err) {
-  debug$6('socket error %j', err);
+  debug$10('socket error %j', err);
   Socket.priorWebsocketSuccess = false;
   this.emit('error', err);
   this.onClose('transport error', err);
@@ -10828,7 +12283,7 @@ Socket.prototype.onError = function (err) {
 
 Socket.prototype.onClose = function (reason, desc) {
   if ('opening' === this.readyState || 'open' === this.readyState || 'closing' === this.readyState) {
-    debug$6('socket close with reason: "%s"', reason);
+    debug$10('socket close with reason: "%s"', reason);
     var self = this;
 
     // clear timers
@@ -10884,7 +12339,7 @@ var lib$2 = socket;
  * @api public
  *
  */
-var parser$1 = engine_ioParser;
+var parser$1 = lib;
 
 lib$2.parser = parser$1;
 
@@ -10963,6 +12418,7 @@ var socket$2 = createCommonjsModule(function (module, exports) {
 var debug = src('socket.io-client:socket');
 
 
+
 /**
  * Module exports.
  */
@@ -11014,6 +12470,7 @@ function Socket (io, nsp, opts) {
   this.sendBuffer = [];
   this.connected = false;
   this.disconnected = true;
+  this.flags = {};
   if (opts && opts.query) {
     this.query = opts.query;
   }
@@ -11090,7 +12547,10 @@ Socket.prototype.emit = function (ev) {
   }
 
   var args = toArray_1(arguments);
-  var packet = { type: socket_ioParser.EVENT, data: args };
+  var packet = {
+    type: (this.flags.binary !== undefined ? this.flags.binary : hasBinary2(args)) ? socket_ioParser.BINARY_EVENT : socket_ioParser.EVENT,
+    data: args
+  };
 
   packet.options = {};
   packet.options.compress = !this.flags || false !== this.flags.compress;
@@ -11108,7 +12568,7 @@ Socket.prototype.emit = function (ev) {
     this.sendBuffer.push(packet);
   }
 
-  delete this.flags;
+  this.flags = {};
 
   return this;
 };
@@ -11242,7 +12702,7 @@ Socket.prototype.ack = function (id) {
     debug('sending ack %j', args);
 
     self.packet({
-      type: socket_ioParser.ACK,
+      type: hasBinary2(args) ? socket_ioParser.BINARY_ACK : socket_ioParser.ACK,
       id: id,
       data: args
     });
@@ -11364,8 +12824,20 @@ Socket.prototype.disconnect = function () {
  */
 
 Socket.prototype.compress = function (compress) {
-  this.flags = this.flags || {};
   this.flags.compress = compress;
+  return this;
+};
+
+/**
+ * Sets the binary flag
+ *
+ * @param {Boolean} whether the emitted data contains binary
+ * @return {Socket} self
+ * @api public
+ */
+
+Socket.prototype.binary = function (binary) {
+  this.flags.binary = binary;
   return this;
 };
 });
@@ -11464,7 +12936,7 @@ Backoff.prototype.setJitter = function(jitter){
 
 
 
-var debug$7 = src('socket.io-client:manager');
+var debug$11 = src('socket.io-client:manager');
 
 
 
@@ -11674,10 +13146,10 @@ Manager.prototype.maybeReconnectOnOpen = function () {
 
 Manager.prototype.open =
 Manager.prototype.connect = function (fn, opts) {
-  debug$7('readyState %s', this.readyState);
+  debug$11('readyState %s', this.readyState);
   if (~this.readyState.indexOf('open')) return this;
 
-  debug$7('opening %s', this.uri);
+  debug$11('opening %s', this.uri);
   this.engine = lib$2(this.uri, this.opts);
   var socket = this.engine;
   var self = this;
@@ -11692,7 +13164,7 @@ Manager.prototype.connect = function (fn, opts) {
 
   // emit `connect_error`
   var errorSub = on_1(socket, 'error', function (data) {
-    debug$7('connect_error');
+    debug$11('connect_error');
     self.cleanup();
     self.readyState = 'closed';
     self.emitAll('connect_error', data);
@@ -11709,11 +13181,11 @@ Manager.prototype.connect = function (fn, opts) {
   // emit `connect_timeout`
   if (false !== this._timeout) {
     var timeout = this._timeout;
-    debug$7('connect attempt will timeout after %d', timeout);
+    debug$11('connect attempt will timeout after %d', timeout);
 
     // set timer
     var timer = setTimeout(function () {
-      debug$7('connect attempt timed out after %d', timeout);
+      debug$11('connect attempt timed out after %d', timeout);
       openSub.destroy();
       socket.close();
       socket.emit('error', 'timeout');
@@ -11740,7 +13212,7 @@ Manager.prototype.connect = function (fn, opts) {
  */
 
 Manager.prototype.onopen = function () {
-  debug$7('open');
+  debug$11('open');
 
   // clear old subs
   this.cleanup();
@@ -11807,7 +13279,7 @@ Manager.prototype.ondecoded = function (packet) {
  */
 
 Manager.prototype.onerror = function (err) {
-  debug$7('error', err);
+  debug$11('error', err);
   this.emitAll('error', err);
 };
 
@@ -11866,7 +13338,7 @@ Manager.prototype.destroy = function (socket) {
  */
 
 Manager.prototype.packet = function (packet) {
-  debug$7('writing packet %j', packet);
+  debug$11('writing packet %j', packet);
   var self = this;
   if (packet.query && packet.type === 0) packet.nsp += '?' + packet.query;
 
@@ -11906,7 +13378,7 @@ Manager.prototype.processPacketQueue = function () {
  */
 
 Manager.prototype.cleanup = function () {
-  debug$7('cleanup');
+  debug$11('cleanup');
 
   var subsLength = this.subs.length;
   for (var i = 0; i < subsLength; i++) {
@@ -11929,7 +13401,7 @@ Manager.prototype.cleanup = function () {
 
 Manager.prototype.close =
 Manager.prototype.disconnect = function () {
-  debug$7('disconnect');
+  debug$11('disconnect');
   this.skipReconnect = true;
   this.reconnecting = false;
   if ('opening' === this.readyState) {
@@ -11949,7 +13421,7 @@ Manager.prototype.disconnect = function () {
  */
 
 Manager.prototype.onclose = function (reason) {
-  debug$7('onclose');
+  debug$11('onclose');
 
   this.cleanup();
   this.backoff.reset();
@@ -11973,19 +13445,19 @@ Manager.prototype.reconnect = function () {
   var self = this;
 
   if (this.backoff.attempts >= this._reconnectionAttempts) {
-    debug$7('reconnect failed');
+    debug$11('reconnect failed');
     this.backoff.reset();
     this.emitAll('reconnect_failed');
     this.reconnecting = false;
   } else {
     var delay = this.backoff.duration();
-    debug$7('will wait %dms before reconnect attempt', delay);
+    debug$11('will wait %dms before reconnect attempt', delay);
 
     this.reconnecting = true;
     var timer = setTimeout(function () {
       if (self.skipReconnect) return;
 
-      debug$7('attempting reconnect');
+      debug$11('attempting reconnect');
       self.emitAll('reconnect_attempt', self.backoff.attempts);
       self.emitAll('reconnecting', self.backoff.attempts);
 
@@ -11994,12 +13466,12 @@ Manager.prototype.reconnect = function () {
 
       self.open(function (err) {
         if (err) {
-          debug$7('reconnect attempt error');
+          debug$11('reconnect attempt error');
           self.reconnecting = false;
           self.reconnect();
           self.emitAll('reconnect_error', err.data);
         } else {
-          debug$7('reconnect success');
+          debug$11('reconnect success');
           self.onreconnect();
         }
       });
@@ -12165,7 +13637,7 @@ function isSlowBuffer (obj) {
 
 // utils is a library of generic helper functions non-specific to axios
 
-var toString$4 = Object.prototype.toString;
+var toString$5 = Object.prototype.toString;
 
 /**
  * Determine if a value is an Array
@@ -12173,8 +13645,8 @@ var toString$4 = Object.prototype.toString;
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an Array, otherwise false
  */
-function isArray$1(val) {
-  return toString$4.call(val) === '[object Array]';
+function isArray$2(val) {
+  return toString$5.call(val) === '[object Array]';
 }
 
 /**
@@ -12184,7 +13656,7 @@ function isArray$1(val) {
  * @returns {boolean} True if value is an ArrayBuffer, otherwise false
  */
 function isArrayBuffer(val) {
-  return toString$4.call(val) === '[object ArrayBuffer]';
+  return toString$5.call(val) === '[object ArrayBuffer]';
 }
 
 /**
@@ -12260,7 +13732,7 @@ function isObject$1(val) {
  * @returns {boolean} True if value is a Date, otherwise false
  */
 function isDate(val) {
-  return toString$4.call(val) === '[object Date]';
+  return toString$5.call(val) === '[object Date]';
 }
 
 /**
@@ -12270,7 +13742,7 @@ function isDate(val) {
  * @returns {boolean} True if value is a File, otherwise false
  */
 function isFile(val) {
-  return toString$4.call(val) === '[object File]';
+  return toString$5.call(val) === '[object File]';
 }
 
 /**
@@ -12280,7 +13752,7 @@ function isFile(val) {
  * @returns {boolean} True if value is a Blob, otherwise false
  */
 function isBlob(val) {
-  return toString$4.call(val) === '[object Blob]';
+  return toString$5.call(val) === '[object Blob]';
 }
 
 /**
@@ -12290,7 +13762,7 @@ function isBlob(val) {
  * @returns {boolean} True if value is a Function, otherwise false
  */
 function isFunction(val) {
-  return toString$4.call(val) === '[object Function]';
+  return toString$5.call(val) === '[object Function]';
 }
 
 /**
@@ -12370,7 +13842,7 @@ function forEach(obj, fn) {
     obj = [obj];
   }
 
-  if (isArray$1(obj)) {
+  if (isArray$2(obj)) {
     // Iterate over array values
     for (var i = 0, l = obj.length; i < l; i++) {
       fn.call(null, obj[i], i, obj);
@@ -12438,7 +13910,7 @@ function extend(a, b, thisArg) {
 }
 
 var utils = {
-  isArray: isArray$1,
+  isArray: isArray$2,
   isArrayBuffer: isArrayBuffer,
   isBuffer: isBuffer_1,
   isFormData: isFormData,
@@ -12965,7 +14437,7 @@ var xhr = function xhrAdapter(config) {
   });
 };
 
-var debug$8 = createCommonjsModule(function (module, exports) {
+var debug$12 = createCommonjsModule(function (module, exports) {
 /**
  * This is the common logic for both the Node.js and web browser
  * implementations of `debug()`.
@@ -13192,24 +14664,24 @@ function coerce(val) {
 }
 });
 
-var debug_1$1 = debug$8.coerce;
-var debug_2$1 = debug$8.disable;
-var debug_3$1 = debug$8.enable;
-var debug_4$1 = debug$8.enabled;
-var debug_5$1 = debug$8.humanize;
-var debug_6$1 = debug$8.instances;
-var debug_7$1 = debug$8.names;
-var debug_8$1 = debug$8.skips;
-var debug_9 = debug$8.formatters;
+var debug_1$3 = debug$12.coerce;
+var debug_2$3 = debug$12.disable;
+var debug_3$3 = debug$12.enable;
+var debug_4$3 = debug$12.enabled;
+var debug_5$3 = debug$12.humanize;
+var debug_6$3 = debug$12.instances;
+var debug_7$3 = debug$12.names;
+var debug_8$3 = debug$12.skips;
+var debug_9$3 = debug$12.formatters;
 
-var browser$2 = createCommonjsModule(function (module, exports) {
+var browser$6 = createCommonjsModule(function (module, exports) {
 /**
  * This is the web browser implementation of `debug()`.
  *
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = debug$8;
+exports = module.exports = debug$12;
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -13400,139 +14872,15 @@ function localstorage() {
 }
 });
 
-var browser_1$1 = browser$2.log;
-var browser_2$1 = browser$2.formatArgs;
-var browser_3$1 = browser$2.save;
-var browser_4$1 = browser$2.load;
-var browser_5$1 = browser$2.useColors;
-var browser_6$1 = browser$2.storage;
-var browser_7$1 = browser$2.colors;
+var browser_1$3 = browser$6.log;
+var browser_2$3 = browser$6.formatArgs;
+var browser_3$3 = browser$6.save;
+var browser_4$3 = browser$6.load;
+var browser_5$3 = browser$6.useColors;
+var browser_6$3 = browser$6.storage;
+var browser_7$3 = browser$6.colors;
 
-var hasFlag = function (flag, argv) {
-	argv = argv || process.argv;
-
-	var terminatorPos = argv.indexOf('--');
-	var prefix = /^-{1,2}/.test(flag) ? '' : '--';
-	var pos = argv.indexOf(prefix + flag);
-
-	return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
-};
-
-var supportsColor = createCommonjsModule(function (module) {
-const env = process.env;
-
-const support = level => {
-	if (level === 0) {
-		return false;
-	}
-
-	return {
-		level,
-		hasBasic: true,
-		has256: level >= 2,
-		has16m: level >= 3
-	};
-};
-
-let supportLevel = (() => {
-	if (hasFlag('no-color') ||
-		hasFlag('no-colors') ||
-		hasFlag('color=false')) {
-		return 0;
-	}
-
-	if (hasFlag('color=16m') ||
-		hasFlag('color=full') ||
-		hasFlag('color=truecolor')) {
-		return 3;
-	}
-
-	if (hasFlag('color=256')) {
-		return 2;
-	}
-
-	if (hasFlag('color') ||
-		hasFlag('colors') ||
-		hasFlag('color=true') ||
-		hasFlag('color=always')) {
-		return 1;
-	}
-
-	if (process.stdout && !process.stdout.isTTY) {
-		return 0;
-	}
-
-	if (process.platform === 'win32') {
-		// Node.js 7.5.0 is the first version of Node.js to include a patch to
-		// libuv that enables 256 color output on Windows. Anything earlier and it
-		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
-		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
-		// release that supports 256 colors.
-		const osRelease = os.release().split('.');
-		if (
-			Number(process.versions.node.split('.')[0]) >= 8 &&
-			Number(osRelease[0]) >= 10 &&
-			Number(osRelease[2]) >= 10586
-		) {
-			return 2;
-		}
-
-		return 1;
-	}
-
-	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
-			return 1;
-		}
-
-		return 0;
-	}
-
-	if ('TEAMCITY_VERSION' in env) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-	}
-
-	if ('TERM_PROGRAM' in env) {
-		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
-				return version >= 3 ? 3 : 2;
-			case 'Hyper':
-				return 3;
-			case 'Apple_Terminal':
-				return 2;
-			// No default
-		}
-	}
-
-	if (/-256(color)?$/i.test(env.TERM)) {
-		return 2;
-	}
-
-	if (/^screen|^xterm|^vt100|color|ansi|cygwin|linux/i.test(env.TERM)) {
-		return 1;
-	}
-
-	if ('COLORTERM' in env) {
-		return 1;
-	}
-
-	if (env.TERM === 'dumb') {
-		return 0;
-	}
-
-	return 0;
-})();
-
-if ('FORCE_COLOR' in env) {
-	supportLevel = parseInt(env.FORCE_COLOR, 10) === 0 ? 0 : (supportLevel || 1);
-}
-
-module.exports = process && support(supportLevel);
-});
-
-var node$2 = createCommonjsModule(function (module, exports) {
+var node$6 = createCommonjsModule(function (module, exports) {
 /**
  * Module dependencies.
  */
@@ -13546,7 +14894,7 @@ var node$2 = createCommonjsModule(function (module, exports) {
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = debug$8;
+exports = module.exports = debug$12;
 exports.init = init;
 exports.log = log;
 exports.formatArgs = formatArgs;
@@ -13721,31 +15069,31 @@ function init (debug) {
 exports.enable(load());
 });
 
-var node_1$1 = node$2.init;
-var node_2$1 = node$2.log;
-var node_3$1 = node$2.formatArgs;
-var node_4$1 = node$2.save;
-var node_5$1 = node$2.load;
-var node_6$1 = node$2.useColors;
-var node_7$1 = node$2.colors;
-var node_8$1 = node$2.inspectOpts;
+var node_1$3 = node$6.init;
+var node_2$3 = node$6.log;
+var node_3$3 = node$6.formatArgs;
+var node_4$3 = node$6.save;
+var node_5$3 = node$6.load;
+var node_6$3 = node$6.useColors;
+var node_7$3 = node$6.colors;
+var node_8$3 = node$6.inspectOpts;
 
-var src$2 = createCommonjsModule(function (module) {
+var src$6 = createCommonjsModule(function (module) {
 /**
  * Detect Electron renderer process, which is node, but we should
  * treat as a browser.
  */
 
 if (typeof process === 'undefined' || process.type === 'renderer') {
-  module.exports = browser$2;
+  module.exports = browser$6;
 } else {
-  module.exports = node$2;
+  module.exports = node$6;
 }
 });
 
 var followRedirects = createCommonjsModule(function (module) {
 var Writable = require$$0.Writable;
-var debug = src$2('follow-redirects');
+var debug = src$6('follow-redirects');
 
 var nativeProtocols = {'http:': http, 'https:': https};
 var schemes = {};
@@ -13994,7 +15342,7 @@ var _shasum = "2d8e3e5d0bdbd7327f91bc814f5c57660f81824d";
 var _spec = "axios";
 var _where = "/home/tang/projects/ZD-SWAG-SDK";
 var author = {"name":"Matt Zabriskie"};
-var browser$4 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
+var browser$8 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
 var bugs = {"url":"https://github.com/axios/axios/issues"};
 var bundleDependencies = false;
 var bundlesize = [{"path":"./dist/axios.min.js","threshold":"5kB"}];
@@ -14025,7 +15373,7 @@ var _package = {
 	_spec: _spec,
 	_where: _where,
 	author: author,
-	browser: browser$4,
+	browser: browser$8,
 	bugs: bugs,
 	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
@@ -14058,7 +15406,7 @@ var _package$1 = Object.freeze({
 	_spec: _spec,
 	_where: _where,
 	author: author,
-	browser: browser$4,
+	browser: browser$8,
 	bugs: bugs,
 	bundleDependencies: bundleDependencies,
 	bundlesize: bundlesize,
@@ -16839,6 +18187,65 @@ var Simulation = function () {
   return Simulation;
 }();
 
+var f$2 = Object.getOwnPropertySymbols;
+
+var _objectGops = {
+	f: f$2
+};
+
+var f$3 = {}.propertyIsEnumerable;
+
+var _objectPie = {
+	f: f$3
+};
+
+// 19.1.2.1 Object.assign(target, source, ...)
+
+
+
+
+
+var $assign = Object.assign;
+
+// should work with symbols and should have deterministic property order (V8 bug)
+var _objectAssign = !$assign || _fails(function () {
+  var A = {};
+  var B = {};
+  // eslint-disable-next-line no-undef
+  var S = Symbol();
+  var K = 'abcdefghijklmnopqrst';
+  A[S] = 7;
+  K.split('').forEach(function (k) { B[k] = k; });
+  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
+}) ? function assign(target, source) { // eslint-disable-line no-unused-vars
+  var T = _toObject(target);
+  var aLen = arguments.length;
+  var index = 1;
+  var getSymbols = _objectGops.f;
+  var isEnum = _objectPie.f;
+  while (aLen > index) {
+    var S = _iobject(arguments[index++]);
+    var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
+    var length = keys.length;
+    var j = 0;
+    var key;
+    while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
+  } return T;
+} : $assign;
+
+// 19.1.3.1 Object.assign(target, source)
+
+
+_export(_export.S + _export.F, 'Object', { assign: _objectAssign });
+
+var assign = _core.Object.assign;
+
+var assign$2 = createCommonjsModule(function (module) {
+module.exports = { "default": assign, __esModule: true };
+});
+
+var _Object$assign = unwrapExports(assign$2);
+
 var Stream = require$$0.Stream;
 
 
@@ -19186,7 +20593,7 @@ var db$1 = Object.freeze({
 	default: db
 });
 
-var require$$0$38 = ( db$1 && db ) || db$1;
+var require$$0$46 = ( db$1 && db ) || db$1;
 
 /*!
  * mime-db
@@ -19198,7 +20605,7 @@ var require$$0$38 = ( db$1 && db ) || db$1;
  * Module exports.
  */
 
-var mimeDb = require$$0$38;
+var mimeDb = require$$0$46;
 
 var mimeTypes = createCommonjsModule(function (module, exports) {
 /*!
@@ -20688,14 +22095,14 @@ var TestService = function () {
 
     /**
      * 
-     * @param {Buffer} caseFile test case file as a buffer object
+     * @param {stream.Readable} caseFile test case file as a buffer object
      */
 
   }, {
     key: 'uploadTestcase',
     value: function () {
       var _ref12 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee12(dirname, filename, caseFile) {
-        var form, res;
+        var form, getHeaders, res;
         return regenerator.wrap(function _callee12$(_context12) {
           while (1) {
             switch (_context12.prev = _context12.next) {
@@ -20710,18 +22117,39 @@ var TestService = function () {
               case 2:
                 form = new form_data();
 
-                form.append('type', 'application/json');
-                form.append('media', caseFile, filename);
-                _context12.next = 7;
-                return axios$1.post('http://' + this.host + ':8080/api/filemanage/upload?dirname=' + dirname, form, {
-                  headers: form.getHeaders()
-                });
+                form.append('file', caseFile, filename);
 
-              case 7:
+                getHeaders = function getHeaders(form) {
+                  return new _Promise(function (resolve, reject) {
+                    form.getLength(function (err, length) {
+                      if (err) reject(err);
+                      var headers = _Object$assign({
+                        'Content-Length': length
+                      }, form.getHeaders());
+                      resolve(headers);
+                    });
+                  });
+                };
+
+                _context12.t0 = axios$1;
+                _context12.t1 = 'http://' + this.host + ':8080/api/filemanage/upload?dirname=' + dirname;
+                _context12.t2 = form;
+                _context12.next = 10;
+                return getHeaders();
+
+              case 10:
+                _context12.t3 = _context12.sent;
+                _context12.t4 = {
+                  headers: _context12.t3
+                };
+                _context12.next = 14;
+                return _context12.t0.post.call(_context12.t0, _context12.t1, _context12.t2, _context12.t4);
+
+              case 14:
                 res = _context12.sent;
                 return _context12.abrupt('return', res.data);
 
-              case 9:
+              case 16:
               case 'end':
                 return _context12.stop();
             }

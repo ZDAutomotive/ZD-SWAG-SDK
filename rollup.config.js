@@ -14,7 +14,7 @@ export default [
         format: 'cjs'
       }
     ],
-    external: ['bufferutil', 'utf-8-validate', 'tty', 'util', 'fs', 'net', 'url', 'child_process', 'http', 'https', 'events', 'crypto', 'buffer', 'zlib', 'assert', 'stream', 'os'],
+    external: ['bufferutil', 'utf-8-validate', 'tty', 'util', 'fs', 'net', 'url', 'child_process', 'http', 'https', 'events', 'crypto', 'buffer', 'zlib', 'assert', 'stream', 'os', 'path'],
     plugins: [
       resolve({
         preferBuiltins: true

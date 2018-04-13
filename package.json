@@ -21,10 +21,10 @@
   "homepage": "https://github.com/ZDAutomotive/ZD-SWAG-SDK#readme",
   "dependencies": {
     "axios": "^0.17.1",
-    "bufferutil": "^3.0.3",
+    "bufferutil": "^3.0.4",
     "form-data": "^2.3.2",
-    "socket.io-client": "^2.0.4",
-    "utf-8-validate": "^4.0.0"
+    "socket.io-client": "^2.1.0",
+    "utf-8-validate": "^4.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -39,7 +39,7 @@
     "rollup-plugin-commonjs": "^8.4.1",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^3.2.0"
+    "rollup-plugin-node-resolve": "^3.3.0"
   },
   "typings": "./index.d.ts"
 }

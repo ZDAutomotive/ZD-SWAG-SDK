@@ -1,7 +1,6 @@
 import ioClient from 'socket.io-client';
 import axios from 'axios';
 import FormData from 'form-data';
-import { promisify } from 'util'
 
 export default class TestService {
   constructor(option) {
@@ -42,13 +41,13 @@ export default class TestService {
    * get current test script list
    */
   async getTestCaseList() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/testcase`)
     return res.data
   }
 
   async getTestCaseByID(ID) {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/testcase/${ID}`)
     return res.data
   }
@@ -57,51 +56,51 @@ export default class TestService {
    * delete test script by ID
    */
   async deleteTestCase(ID) {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase?id=${ID}`)
     return res.data
   }
-  
+
   /**
    * delete all test script
    */
   async deleteAllTestCases() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase`);
     return res.data;
   }
 
   async start() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/start`);
     return res.data;
   }
 
   async stop() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/stop`);
     return res.data;
   }
 
   async pause() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/pause`);
     return res.data;
   }
 
   async resume() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/resume`);
     return res.data;
   }
   //{softwareVersion : ''}
   async setBenchConfig(benchConfig) {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/benchconfig`, benchConfig);
     return res.data;
   }
   async getBenchConfig() {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/benchconfig`);
     return res.data;
   }
@@ -111,15 +110,22 @@ export default class TestService {
    * @param {stream.Readable} caseFile test case file as a buffer object
    */
   async uploadTestcase(dirname, filename, caseFile) {
-    if(!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Service not ready')
     const form = new FormData()
     form.append('file', caseFile, filename)
-    const getLength = promisify(form.getLength)
-    const fileLength = await getLength()
+    let getHeaders = form => {
+      return new Promise((resolve, reject) => {
+        form.getLength((err, length) => {
+          if (err) reject(err)
+          let headers = Object.assign({
+            'Content-Length': length
+          }, form.getHeaders())
+          resolve(headers)
+        })
+      })
+    }
     let res = await axios.post(`http://${this.host}:8080/api/filemanage/upload?dirname=${dirname}`, form, {
-      headers: Object.assign({
-        'Content-Length':fileLength
-      }, form.getHeaders())
+      headers: await getHeaders()
     });
     return res.data;
   }
