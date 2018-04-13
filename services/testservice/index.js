@@ -1,6 +1,7 @@
 import ioClient from 'socket.io-client';
 import axios from 'axios';
 import FormData from 'form-data';
+import { promisify } from 'util'
 
 export default class TestService {
   constructor(option) {
@@ -107,15 +108,18 @@ export default class TestService {
 
   /**
    * 
-   * @param {Buffer} caseFile test case file as a buffer object
+   * @param {stream.Readable} caseFile test case file as a buffer object
    */
   async uploadTestcase(dirname, filename, caseFile) {
     if(!this.socket) throw new Error('Service not ready')
     const form = new FormData()
-    form.append('type', 'application/json')
-    form.append('media', caseFile, filename)
+    form.append('file', caseFile, filename)
+    const getLength = promisify(form.getLength)
+    const fileLength = await getLength()
     let res = await axios.post(`http://${this.host}:8080/api/filemanage/upload?dirname=${dirname}`, form, {
-      headers: form.getHeaders()
+      headers: Object.assign({
+        'Content-Length':fileLength
+      }, form.getHeaders())
     });
     return res.data;
   }
