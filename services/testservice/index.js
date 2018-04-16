@@ -33,7 +33,7 @@ export default class TestService {
    */
   async loadTestCase(tasklist) {
     if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase`, tasklist);
+    let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase`, { tasklist });
     return res.data;
   }
 
@@ -125,7 +125,7 @@ export default class TestService {
       })
     }
     let res = await axios.post(`http://${this.host}:8080/api/filemanage/upload?dirname=${dirname}`, form, {
-      headers: await getHeaders()
+      headers: await getHeaders(form)
     });
     return res.data;
   }
