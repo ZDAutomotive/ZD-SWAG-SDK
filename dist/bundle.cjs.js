@@ -21675,7 +21675,7 @@ var TestService = function () {
 
               case 2:
                 _context.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/testcase', tasklist);
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/testcase', { tasklist: tasklist });
 
               case 4:
                 res = _context.sent;
@@ -22135,7 +22135,7 @@ var TestService = function () {
                 _context12.t1 = 'http://' + this.host + ':8080/api/filemanage/upload?dirname=' + dirname;
                 _context12.t2 = form;
                 _context12.next = 10;
-                return getHeaders();
+                return getHeaders(form);
 
               case 10:
                 _context12.t3 = _context12.sent;
