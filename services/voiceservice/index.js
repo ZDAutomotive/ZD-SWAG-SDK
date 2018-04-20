@@ -1,10 +1,10 @@
 import ioClient from 'socket.io-client';
 import axios from 'axios';
 
-export default class MainUnit {
+export default class VoiceService {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6010;
+    this.port = option.port || 6015;
     this.host = option.host || 'localhost'
   }
 

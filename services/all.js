@@ -6,6 +6,7 @@ import CANTrace from './can-trace'
 import Simulation from './simulation/index'
 import TestService from './testservice/index'
 import PowerSwitch from './power-switch/index'
+import VoiceService from './voiceservice/index'
 
 export default {
   AndroidProberProxy,
@@ -15,5 +16,6 @@ export default {
   CANTrace,
   Simulation,
   TestService,
-  PowerSwitch
+  PowerSwitch,
+  VoiceService
 };
