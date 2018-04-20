@@ -5,6 +5,7 @@ import MainUnit from './audi-mainunit/index'
 import CANTrace from './can-trace'
 import Simulation from './simulation/index'
 import TestService from './testservice/index'
+import PowerSwitch from './power-switch/index'
 
 export default {
   AndroidProberProxy,
@@ -13,5 +14,6 @@ export default {
   AudiMainUnit: MainUnit,
   CANTrace,
   Simulation,
-  TestService
+  TestService,
+  PowerSwitch
 };
