@@ -31,7 +31,7 @@ export default class VoiceService {
    */
   async play(db, text) {
     if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.get(`http://${this.host}:${this.port}/voiceDB/local/play`, {
+    let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/play`, {
       db,
       text
     })
@@ -66,7 +66,7 @@ export default class VoiceService {
    */
   async checkVoice(db, text) {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.get(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
+    let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
       db, text
     });
     return res.data;
