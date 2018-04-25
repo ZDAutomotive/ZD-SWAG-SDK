@@ -36,7 +36,6 @@ using v8::String;
 using v8::Value;
 
 #include "blf-converter.h"
-#include "test.hpp"
 
 Vector::BLF::ObjectType getModule(const std::string &moduleStr)
 {
@@ -61,28 +60,25 @@ void NODE_CONVERT_BLF_read(const v8::FunctionCallbackInfo<v8::Value> &args)
     v8::Local<Function> cb = v8::Local<Function>::Cast(args[2]);
 
     Vector::BLF::ObjectType module = getModule(std::string(*moduleStr));
-    if (module == Vector::BLF::ObjectType::CAN_MESSAGE || module == Vector::BLF::ObjectType::LIN_MESSAGE)
-    {
-        BLF_CANLIN_RECORDS records;
-        if (BLF_read_canlin(module, std::string(*blf_filepath).c_str(), records) > 0)
-        {
-            v8::Local<Value> ret[] = {v8::Null(isolate), v8::String::NewFromUtf8(isolate, records.toJSON().dump().c_str())};
-            cb->Call(v8::Null(isolate), 2, ret);
-        }
-        else
-        {
-            std::string res("unable to read");
-            v8::Local<Value> ret[] = {v8::String::NewFromUtf8(isolate, res.c_str()), v8::Null(isolate)};
-            cb->Call(v8::Null(isolate), 2, ret);
-        }
-        return;
-    }
-    else
+    if (module == Vector::BLF::ObjectType::UNKNOWN)
     {
         std::string res("unrecognized MODULE type");
         v8::Local<Value> ret[] = {v8::String::NewFromUtf8(isolate, res.c_str()), v8::Null(isolate)};
         cb->Call(v8::Null(isolate), 2, ret);
         return;
+    }
+
+    json records;
+    if (BLF_read(module, std::string(*blf_filepath).c_str(), records) > 0)
+    {
+        v8::Local<Value> ret[] = {v8::Null(isolate), v8::String::NewFromUtf8(isolate, records.dump().c_str())};
+        cb->Call(v8::Null(isolate), 2, ret);
+    }
+    else
+    {
+        std::string res("unable to read");
+        v8::Local<Value> ret[] = {v8::String::NewFromUtf8(isolate, res.c_str()), v8::Null(isolate)};
+        cb->Call(v8::Null(isolate), 2, ret);
     }
 }
 
@@ -95,9 +91,7 @@ void NODE_CONVERT_BLF_write(const v8::FunctionCallbackInfo<v8::Value> &args)
     v8::String::Utf8Value blf_records(v8::Local<v8::Value>::Cast(args[2]));
     v8::Local<Function> cb = v8::Local<Function>::Cast(args[3]);
 
-    json records = json::parse(std::string(*blf_records).c_str());
     Vector::BLF::ObjectType module = getModule(std::string(*moduleStr));
-
     if (module == Vector::BLF::ObjectType::UNKNOWN)
     {
         std::string res("unrecognized MODULE type");
@@ -106,6 +100,7 @@ void NODE_CONVERT_BLF_write(const v8::FunctionCallbackInfo<v8::Value> &args)
         return;
     }
 
+    json records = json::parse(std::string(*blf_records).c_str());
     if (BLF_write(module, std::string(*blf_filepath).c_str(), records))
     {
         v8::Local<Value> ret[] = {v8::Boolean::New(isolate, true)};

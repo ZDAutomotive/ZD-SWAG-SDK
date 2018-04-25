@@ -2046,14 +2046,6 @@ bool handleCanMessage(Vector::BLF::CanMessage *message, CAN_LIN_RECORD_T &record
     record.channel = message->channel;
     record.delay = message->objectFlags == Vector::BLF::ObjectHeader::ObjectFlags::TimeOneNans ? (double)message->objectTimeStamp / 100000.0 : message->objectTimeStamp;
     record.dir = message->flags & 0x1 ? "Tx" : "Rx";
-    // if (message->flags & 0x1)
-    // {
-    //     record.dir = "Tx";
-    // }
-    // else
-    // {
-    //     record.dir = "Rx";
-    // }
 
     record.msg.ID = message->id & 0x1FFFFFFF;
     record.msg.LEN = message->dlc;
@@ -2069,14 +2061,6 @@ bool handleLinMessage(Vector::BLF::LinMessage *message, CAN_LIN_RECORD_T &record
     record.channel = message->channel;
     record.delay = message->objectFlags == Vector::BLF::ObjectHeader::ObjectFlags::TimeOneNans ? (double)message->objectTimeStamp / 100000.0 : message->objectTimeStamp;
     record.dir = message->dir == 0 ? "Rx" : "Tx";
-    // if (message->dir == 0)
-    // {
-    //     record.dir = "Rx";
-    // }
-    // else
-    // {
-    //     record.dir = "Tx";
-    // }
 
     record.msg.ID = message->id;
     record.msg.LEN = message->dlc;
@@ -2087,7 +2071,7 @@ bool handleLinMessage(Vector::BLF::LinMessage *message, CAN_LIN_RECORD_T &record
     return true;
 }
 
-int BLF_read_canlin(Vector::BLF::ObjectType module, const char *filepath, BLF_CANLIN_RECORDS &records)
+int BLF_read(Vector::BLF::ObjectType module, const char *filepath, json &records)
 {
     Vector::BLF::File file;
 
@@ -2101,8 +2085,6 @@ int BLF_read_canlin(Vector::BLF::ObjectType module, const char *filepath, BLF_CA
     show(&file.fileStatistics);
 
     int count = 0;
-    CAN_LIN_RECORD_T record;
-
     while (file.good())
     {
         Vector::BLF::ObjectHeaderBase *ohb = nullptr;
@@ -2162,13 +2144,16 @@ int BLF_read_canlin(Vector::BLF::ObjectType module, const char *filepath, BLF_CA
             break;
 
         case Vector::BLF::ObjectType::CAN_MESSAGE:
+        {
             //show(reinterpret_cast<Vector::BLF::CanMessage *>(ohb));
+            CAN_LIN_RECORD_T record;
             if (module == Vector::BLF::ObjectType::CAN_MESSAGE && handleCanMessage(reinterpret_cast<Vector::BLF::CanMessage *>(ohb), record))
             {
-                records.addRecord(record);
+                records.push_back(record.toJSON());
                 count++;
             }
             break;
+        }
 
             // case Vector::BLF::ObjectType::CAN_ERROR:
             //     show(reinterpret_cast<Vector::BLF::CanErrorFrame *>(ohb));
@@ -2198,446 +2183,451 @@ int BLF_read_canlin(Vector::BLF::ObjectType module, const char *filepath, BLF_CA
             //     break;
 
         case Vector::BLF::ObjectType::LIN_MESSAGE:
+        {
+            CAN_LIN_RECORD_T record;
             //show(reinterpret_cast<Vector::BLF::LinMessage *>(ohb));
             if (module == Vector::BLF::ObjectType::LIN_MESSAGE && handleLinMessage(reinterpret_cast<Vector::BLF::LinMessage *>(ohb), record))
             {
-                records.addRecord(record);
+                records.push_back(record.toJSON());
                 count++;
             }
             break;
-
-            // case Vector::BLF::ObjectType::LIN_CRC_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::LinCrcError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_DLC_INFO:
-            //     show(reinterpret_cast<Vector::BLF::LinDlcInfo *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_RCV_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::LinReceiveError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SND_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::LinSendError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SLV_TIMEOUT:
-            //     show(reinterpret_cast<Vector::BLF::LinSlaveTimeout *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SCHED_MODCH:
-            //     show(reinterpret_cast<Vector::BLF::LinSchedulerModeChange *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SYN_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::LinSyncError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_BAUDRATE:
-            //     show(reinterpret_cast<Vector::BLF::LinBaudrateEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SLEEP:
-            //     show(reinterpret_cast<Vector::BLF::LinSleepModeEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_WAKEUP:
-            //     show(reinterpret_cast<Vector::BLF::LinWakeupEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_SPY:
-            //     show(reinterpret_cast<Vector::BLF::MostSpy *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_CTRL:
-            //     show(reinterpret_cast<Vector::BLF::MostCtrl *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_LIGHTLOCK:
-            //     show(reinterpret_cast<Vector::BLF::MostLightLock *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::MostStatistic *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::Reserved26:
-            // case Vector::BLF::ObjectType::Reserved27:
-            // case Vector::BLF::ObjectType::Reserved28:
-            //     /* do nothing */
-            //     break;
-
-            // case Vector::BLF::ObjectType::FLEXRAY_DATA:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayData *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FLEXRAY_SYNC:
-            //     show(reinterpret_cast<Vector::BLF::FlexRaySync *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_DRIVER_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::CanDriverError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_PKT:
-            //     show(reinterpret_cast<Vector::BLF::MostPkt *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_PKT2:
-            //     show(reinterpret_cast<Vector::BLF::MostPkt2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_HWMODE:
-            //     show(reinterpret_cast<Vector::BLF::MostHwMode *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_REG:
-            //     show(reinterpret_cast<Vector::BLF::MostReg *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_GENREG:
-            //     show(reinterpret_cast<Vector::BLF::MostGenReg *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_NETSTATE:
-            //     show(reinterpret_cast<Vector::BLF::MostNetState *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_DATALOST:
-            //     show(reinterpret_cast<Vector::BLF::MostDataLost *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_TRIGGER:
-            //     show(reinterpret_cast<Vector::BLF::MostTrigger *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FLEXRAY_CYCLE:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayV6StartCycleEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FLEXRAY_MESSAGE:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayV6Message *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_CHECKSUM_INFO:
-            //     show(reinterpret_cast<Vector::BLF::LinChecksumInfo *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SPIKE_EVENT:
-            //     show(reinterpret_cast<Vector::BLF::LinSpikeEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_DRIVER_SYNC:
-            //     show(reinterpret_cast<Vector::BLF::CanDriverHwSync *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FLEXRAY_STATUS:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayStatusEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::GPS_EVENT:
-            //     show(reinterpret_cast<Vector::BLF::GpsEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FR_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayVFrError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FR_STATUS:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayVFrStatus *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FR_STARTCYCLE:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayVFrStartCycle *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FR_RCVMESSAGE:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayVFrReceiveMsg *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::REALTIMECLOCK:
-            //     show(reinterpret_cast<Vector::BLF::RealtimeClock *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::Reserved52:
-            // case Vector::BLF::ObjectType::Reserved53:
-            //     /* do nothing */
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::LinStatisticEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::J1708_MESSAGE:
-            // case Vector::BLF::ObjectType::J1708_VIRTUAL_MSG:
-            //     show(reinterpret_cast<Vector::BLF::J1708Message *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_MESSAGE2:
-            //     show(reinterpret_cast<Vector::BLF::LinMessage2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SND_ERROR2:
-            //     show(reinterpret_cast<Vector::BLF::LinSendError2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SYN_ERROR2:
-            //     show(reinterpret_cast<Vector::BLF::LinSyncError2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_CRC_ERROR2:
-            //     show(reinterpret_cast<Vector::BLF::LinCrcError2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_RCV_ERROR2:
-            //     show(reinterpret_cast<Vector::BLF::LinReceiveError2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_WAKEUP2:
-            //     show(reinterpret_cast<Vector::BLF::LinWakeupEvent2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SPIKE_EVENT2:
-            //     show(reinterpret_cast<Vector::BLF::LinSpikeEvent2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_LONG_DOM_SIG:
-            //     show(reinterpret_cast<Vector::BLF::LinLongDomSignalEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::APP_TEXT:
-            //     show(reinterpret_cast<Vector::BLF::AppText *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::FR_RCVMESSAGE_EX:
-            //     show(reinterpret_cast<Vector::BLF::FlexRayVFrReceiveMsgEx *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_STATISTICEX:
-            //     show(reinterpret_cast<Vector::BLF::MostStatisticEx *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_TXLIGHT:
-            //     show(reinterpret_cast<Vector::BLF::MostTxLight *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_ALLOCTAB:
-            //     show(reinterpret_cast<Vector::BLF::MostAllocTab *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_STRESS:
-            //     show(reinterpret_cast<Vector::BLF::MostStress *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_FRAME:
-            //     show(reinterpret_cast<Vector::BLF::EthernetFrame *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::SYS_VARIABLE:
-            //     show(reinterpret_cast<Vector::BLF::SystemVariable *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_ERROR_EXT:
-            //     show(reinterpret_cast<Vector::BLF::CanErrorFrameExt *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_DRIVER_ERROR_EXT:
-            //     show(reinterpret_cast<Vector::BLF::CanDriverErrorExt *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_LONG_DOM_SIG2:
-            //     show(reinterpret_cast<Vector::BLF::LinLongDomSignalEvent2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_150_MESSAGE:
-            //     show(reinterpret_cast<Vector::BLF::Most150Message *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_150_PKT:
-            //     show(reinterpret_cast<Vector::BLF::Most150Pkt *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_ETHERNET_PKT:
-            //     show(reinterpret_cast<Vector::BLF::MostEthernetPkt *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_150_MESSAGE_FRAGMENT:
-            //     show(reinterpret_cast<Vector::BLF::Most150MessageFragment *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_150_PKT_FRAGMENT:
-            //     show(reinterpret_cast<Vector::BLF::Most150PktFragment *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_ETHERNET_PKT_FRAGMENT:
-            //     show(reinterpret_cast<Vector::BLF::MostEthernetPktFragment *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_SYSTEM_EVENT:
-            //     show(reinterpret_cast<Vector::BLF::MostSystemEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_150_ALLOCTAB:
-            //     show(reinterpret_cast<Vector::BLF::Most150AllocTab *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_50_MESSAGE:
-            //     show(reinterpret_cast<Vector::BLF::Most50Message *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_50_PKT:
-            //     show(reinterpret_cast<Vector::BLF::Most50Pkt *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_MESSAGE2:
-            //     show(reinterpret_cast<Vector::BLF::CanMessage2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_UNEXPECTED_WAKEUP:
-            //     show(reinterpret_cast<Vector::BLF::LinUnexpectedWakeup *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SHORT_OR_SLOW_RESPONSE:
-            //     show(reinterpret_cast<Vector::BLF::LinShortOrSlowResponse *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_DISTURBANCE_EVENT:
-            //     show(reinterpret_cast<Vector::BLF::LinDisturbanceEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::SERIAL_EVENT:
-            //     show(reinterpret_cast<Vector::BLF::SerialEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::OVERRUN_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::DriverOverrun *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::EVENT_COMMENT:
-            //     show(reinterpret_cast<Vector::BLF::EventComment *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::WLAN_FRAME:
-            //     show(reinterpret_cast<Vector::BLF::WlanFrame *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::WLAN_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::WlanStatistic *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::MOST_ECL:
-            //     show(reinterpret_cast<Vector::BLF::MostEcl *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::GLOBAL_MARKER:
-            //     show(reinterpret_cast<Vector::BLF::GlobalMarker *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::AFDX_FRAME:
-            //     show(reinterpret_cast<Vector::BLF::AfdxFrame *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::AFDX_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::AfdxStatistic *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::KLINE_STATUSEVENT:
-            //     show(reinterpret_cast<Vector::BLF::KLineStatusEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_FD_MESSAGE:
-            //     show(reinterpret_cast<Vector::BLF::CanFdMessage *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_FD_MESSAGE_64:
-            //     show(reinterpret_cast<Vector::BLF::CanFdMessage64 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_RX_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::EthernetRxError *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_STATUS:
-            //     show(reinterpret_cast<Vector::BLF::EthernetStatus *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::CAN_FD_ERROR_64:
-            //     show(reinterpret_cast<Vector::BLF::CanFdErrorFrame64 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::LIN_SHORT_OR_SLOW_RESPONSE2:
-            //     show(reinterpret_cast<Vector::BLF::LinShortOrSlowResponse2 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::AFDX_STATUS:
-            //     show(reinterpret_cast<Vector::BLF::AfdxStatus *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::AFDX_BUS_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::AfdxBusStatistic *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::Reserved108:
-            //     /* do nothing */
-            //     break;
-
-            // case Vector::BLF::ObjectType::AFDX_ERROR_EVENT:
-            //     show(reinterpret_cast<Vector::BLF::AfdxErrorEvent *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::A429_ERROR:
-            //     show(reinterpret_cast<Vector::BLF::A429Error *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::A429_STATUS:
-            //     show(reinterpret_cast<Vector::BLF::A429Status *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::A429_BUS_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::A429BusStatistic *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::A429_MESSAGE:
-            //     show(reinterpret_cast<Vector::BLF::A429Message *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_STATISTIC:
-            //     show(reinterpret_cast<Vector::BLF::EthernetStatistic *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::Unknown115:
-            //     show(reinterpret_cast<Vector::BLF::Unknown115 *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::Reserved116:
-            // case Vector::BLF::ObjectType::Reserved117:
-            //     /* do nothing */
-            //     break;
-
-            // case Vector::BLF::ObjectType::TEST_STRUCTURE:
-            //     show(reinterpret_cast<Vector::BLF::TestStructure *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::DIAG_REQUEST_INTERPRETATION:
-            //     show(reinterpret_cast<Vector::BLF::DiagRequestInterpretation *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_FRAME_EX:
-            //     show(reinterpret_cast<Vector::BLF::EthernetFrameEx *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_FRAME_FORWARDED:
-            //     show(reinterpret_cast<Vector::BLF::EthernetFrameForwarded *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_ERROR_EX:
-            //     show(reinterpret_cast<Vector::BLF::EthernetErrorEx *>(ohb));
-            //     break;
-
-            // case Vector::BLF::ObjectType::ETHERNET_ERROR_FORWARDED:
-            //     show(reinterpret_cast<Vector::BLF::EthernetErrorForwarded *>(ohb));
-            //     break;
+        }
+        // case Vector::BLF::ObjectType::LIN_CRC_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::LinCrcError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_DLC_INFO:
+        //     show(reinterpret_cast<Vector::BLF::LinDlcInfo *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_RCV_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::LinReceiveError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SND_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::LinSendError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SLV_TIMEOUT:
+        //     show(reinterpret_cast<Vector::BLF::LinSlaveTimeout *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SCHED_MODCH:
+        //     show(reinterpret_cast<Vector::BLF::LinSchedulerModeChange *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SYN_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::LinSyncError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_BAUDRATE:
+        //     show(reinterpret_cast<Vector::BLF::LinBaudrateEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SLEEP:
+        //     show(reinterpret_cast<Vector::BLF::LinSleepModeEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_WAKEUP:
+        //     show(reinterpret_cast<Vector::BLF::LinWakeupEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_SPY:
+        //     show(reinterpret_cast<Vector::BLF::MostSpy *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_CTRL:
+        //     show(reinterpret_cast<Vector::BLF::MostCtrl *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_LIGHTLOCK:
+        //     show(reinterpret_cast<Vector::BLF::MostLightLock *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::MostStatistic *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::Reserved26:
+        // case Vector::BLF::ObjectType::Reserved27:
+        // case Vector::BLF::ObjectType::Reserved28:
+        //     /* do nothing */
+        //     break;
+
+        // case Vector::BLF::ObjectType::FLEXRAY_DATA:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayData *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FLEXRAY_SYNC:
+        //     show(reinterpret_cast<Vector::BLF::FlexRaySync *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_DRIVER_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::CanDriverError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_PKT:
+        //     show(reinterpret_cast<Vector::BLF::MostPkt *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_PKT2:
+        //     show(reinterpret_cast<Vector::BLF::MostPkt2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_HWMODE:
+        //     show(reinterpret_cast<Vector::BLF::MostHwMode *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_REG:
+        //     show(reinterpret_cast<Vector::BLF::MostReg *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_GENREG:
+        //     show(reinterpret_cast<Vector::BLF::MostGenReg *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_NETSTATE:
+        //     show(reinterpret_cast<Vector::BLF::MostNetState *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_DATALOST:
+        //     show(reinterpret_cast<Vector::BLF::MostDataLost *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_TRIGGER:
+        //     show(reinterpret_cast<Vector::BLF::MostTrigger *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FLEXRAY_CYCLE:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayV6StartCycleEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FLEXRAY_MESSAGE:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayV6Message *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_CHECKSUM_INFO:
+        //     show(reinterpret_cast<Vector::BLF::LinChecksumInfo *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SPIKE_EVENT:
+        //     show(reinterpret_cast<Vector::BLF::LinSpikeEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_DRIVER_SYNC:
+        //     show(reinterpret_cast<Vector::BLF::CanDriverHwSync *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FLEXRAY_STATUS:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayStatusEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::GPS_EVENT:
+        //     show(reinterpret_cast<Vector::BLF::GpsEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FR_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayVFrError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FR_STATUS:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayVFrStatus *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FR_STARTCYCLE:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayVFrStartCycle *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FR_RCVMESSAGE:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayVFrReceiveMsg *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::REALTIMECLOCK:
+        //     show(reinterpret_cast<Vector::BLF::RealtimeClock *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::Reserved52:
+        // case Vector::BLF::ObjectType::Reserved53:
+        //     /* do nothing */
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::LinStatisticEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::J1708_MESSAGE:
+        // case Vector::BLF::ObjectType::J1708_VIRTUAL_MSG:
+        //     show(reinterpret_cast<Vector::BLF::J1708Message *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_MESSAGE2:
+        //     show(reinterpret_cast<Vector::BLF::LinMessage2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SND_ERROR2:
+        //     show(reinterpret_cast<Vector::BLF::LinSendError2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SYN_ERROR2:
+        //     show(reinterpret_cast<Vector::BLF::LinSyncError2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_CRC_ERROR2:
+        //     show(reinterpret_cast<Vector::BLF::LinCrcError2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_RCV_ERROR2:
+        //     show(reinterpret_cast<Vector::BLF::LinReceiveError2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_WAKEUP2:
+        //     show(reinterpret_cast<Vector::BLF::LinWakeupEvent2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SPIKE_EVENT2:
+        //     show(reinterpret_cast<Vector::BLF::LinSpikeEvent2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_LONG_DOM_SIG:
+        //     show(reinterpret_cast<Vector::BLF::LinLongDomSignalEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::APP_TEXT:
+        //     show(reinterpret_cast<Vector::BLF::AppText *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::FR_RCVMESSAGE_EX:
+        //     show(reinterpret_cast<Vector::BLF::FlexRayVFrReceiveMsgEx *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_STATISTICEX:
+        //     show(reinterpret_cast<Vector::BLF::MostStatisticEx *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_TXLIGHT:
+        //     show(reinterpret_cast<Vector::BLF::MostTxLight *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_ALLOCTAB:
+        //     show(reinterpret_cast<Vector::BLF::MostAllocTab *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_STRESS:
+        //     show(reinterpret_cast<Vector::BLF::MostStress *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_FRAME:
+        //     show(reinterpret_cast<Vector::BLF::EthernetFrame *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::SYS_VARIABLE:
+        //     show(reinterpret_cast<Vector::BLF::SystemVariable *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_ERROR_EXT:
+        //     show(reinterpret_cast<Vector::BLF::CanErrorFrameExt *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_DRIVER_ERROR_EXT:
+        //     show(reinterpret_cast<Vector::BLF::CanDriverErrorExt *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_LONG_DOM_SIG2:
+        //     show(reinterpret_cast<Vector::BLF::LinLongDomSignalEvent2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_150_MESSAGE:
+        //     show(reinterpret_cast<Vector::BLF::Most150Message *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_150_PKT:
+        //     show(reinterpret_cast<Vector::BLF::Most150Pkt *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_ETHERNET_PKT:
+        //     show(reinterpret_cast<Vector::BLF::MostEthernetPkt *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_150_MESSAGE_FRAGMENT:
+        //     show(reinterpret_cast<Vector::BLF::Most150MessageFragment *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_150_PKT_FRAGMENT:
+        //     show(reinterpret_cast<Vector::BLF::Most150PktFragment *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_ETHERNET_PKT_FRAGMENT:
+        //     show(reinterpret_cast<Vector::BLF::MostEthernetPktFragment *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_SYSTEM_EVENT:
+        //     show(reinterpret_cast<Vector::BLF::MostSystemEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_150_ALLOCTAB:
+        //     show(reinterpret_cast<Vector::BLF::Most150AllocTab *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_50_MESSAGE:
+        //     show(reinterpret_cast<Vector::BLF::Most50Message *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_50_PKT:
+        //     show(reinterpret_cast<Vector::BLF::Most50Pkt *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_MESSAGE2:
+        //     show(reinterpret_cast<Vector::BLF::CanMessage2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_UNEXPECTED_WAKEUP:
+        //     show(reinterpret_cast<Vector::BLF::LinUnexpectedWakeup *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SHORT_OR_SLOW_RESPONSE:
+        //     show(reinterpret_cast<Vector::BLF::LinShortOrSlowResponse *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_DISTURBANCE_EVENT:
+        //     show(reinterpret_cast<Vector::BLF::LinDisturbanceEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::SERIAL_EVENT:
+        //     show(reinterpret_cast<Vector::BLF::SerialEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::OVERRUN_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::DriverOverrun *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::EVENT_COMMENT:
+        //     show(reinterpret_cast<Vector::BLF::EventComment *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::WLAN_FRAME:
+        //     show(reinterpret_cast<Vector::BLF::WlanFrame *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::WLAN_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::WlanStatistic *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::MOST_ECL:
+        //     show(reinterpret_cast<Vector::BLF::MostEcl *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::GLOBAL_MARKER:
+        //     show(reinterpret_cast<Vector::BLF::GlobalMarker *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::AFDX_FRAME:
+        //     show(reinterpret_cast<Vector::BLF::AfdxFrame *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::AFDX_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::AfdxStatistic *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::KLINE_STATUSEVENT:
+        //     show(reinterpret_cast<Vector::BLF::KLineStatusEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_FD_MESSAGE:
+        //     show(reinterpret_cast<Vector::BLF::CanFdMessage *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_FD_MESSAGE_64:
+        //     show(reinterpret_cast<Vector::BLF::CanFdMessage64 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_RX_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::EthernetRxError *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_STATUS:
+        //     show(reinterpret_cast<Vector::BLF::EthernetStatus *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::CAN_FD_ERROR_64:
+        //     show(reinterpret_cast<Vector::BLF::CanFdErrorFrame64 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::LIN_SHORT_OR_SLOW_RESPONSE2:
+        //     show(reinterpret_cast<Vector::BLF::LinShortOrSlowResponse2 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::AFDX_STATUS:
+        //     show(reinterpret_cast<Vector::BLF::AfdxStatus *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::AFDX_BUS_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::AfdxBusStatistic *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::Reserved108:
+        //     /* do nothing */
+        //     break;
+
+        // case Vector::BLF::ObjectType::AFDX_ERROR_EVENT:
+        //     show(reinterpret_cast<Vector::BLF::AfdxErrorEvent *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::A429_ERROR:
+        //     show(reinterpret_cast<Vector::BLF::A429Error *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::A429_STATUS:
+        //     show(reinterpret_cast<Vector::BLF::A429Status *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::A429_BUS_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::A429BusStatistic *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::A429_MESSAGE:
+        //     show(reinterpret_cast<Vector::BLF::A429Message *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_STATISTIC:
+        //     show(reinterpret_cast<Vector::BLF::EthernetStatistic *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::Unknown115:
+        //     show(reinterpret_cast<Vector::BLF::Unknown115 *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::Reserved116:
+        // case Vector::BLF::ObjectType::Reserved117:
+        //     /* do nothing */
+        //     break;
+
+        // case Vector::BLF::ObjectType::TEST_STRUCTURE:
+        //     show(reinterpret_cast<Vector::BLF::TestStructure *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::DIAG_REQUEST_INTERPRETATION:
+        //     show(reinterpret_cast<Vector::BLF::DiagRequestInterpretation *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_FRAME_EX:
+        //     show(reinterpret_cast<Vector::BLF::EthernetFrameEx *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_FRAME_FORWARDED:
+        //     show(reinterpret_cast<Vector::BLF::EthernetFrameForwarded *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_ERROR_EX:
+        //     show(reinterpret_cast<Vector::BLF::EthernetErrorEx *>(ohb));
+        //     break;
+
+        // case Vector::BLF::ObjectType::ETHERNET_ERROR_FORWARDED:
+        //     show(reinterpret_cast<Vector::BLF::EthernetErrorForwarded *>(ohb));
+        //     break;
+        
+        default:
+            break;
         }
 
         /* check objectSize */

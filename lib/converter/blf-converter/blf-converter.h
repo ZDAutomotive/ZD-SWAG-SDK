@@ -53,35 +53,8 @@ struct CAN_LIN_RECORD_T
     }
 };
 
-struct BLF_CANLIN_RECORDS
-{
-    BLF_CANLIN_RECORDS() : records() {}
-    ~BLF_CANLIN_RECORDS() {}
 
-    void addRecord(const CAN_LIN_RECORD_T &record)
-    {
-        this->records.push_back(record);
-    }
-
-    json toJSON() const
-    {
-        json j;
-        // for (BLF_CANLIN_RECORDS::value_type::const_iterator iter = this->records.begin(); iter != this->records.end(); ++iter)
-        // {
-        //     j.push_back(iter->toJSON());
-        // }
-        std::for_each(this->records.begin(),this->records.end(), [&](const CAN_LIN_RECORD_T& record){
-            j.push_back(record.toJSON());
-        });
-        return j;
-    }
-
-    typedef std::vector<CAN_LIN_RECORD_T> value_type;
-    BLF_CANLIN_RECORDS::value_type records;
-};
-
-int BLF_read_canlin(Vector::BLF::ObjectType module, const char *filepath, BLF_CANLIN_RECORDS& records);
-
+int BLF_read(Vector::BLF::ObjectType module, const char *filepath, json& records);
 bool BLF_write(Vector::BLF::ObjectType module, const char *filepath, const json& records);
 
 #endif
