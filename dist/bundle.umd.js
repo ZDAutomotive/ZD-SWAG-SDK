@@ -29505,18 +29505,18 @@ Object.keys(nativeProtocols).forEach(function (protocol) {
 
 var followRedirects_1 = followRedirects.maxRedirects;
 
-var _from = "axios@^0.17.1";
+var _from = "axios";
 var _id = "axios@0.17.1";
 var _inBundle = false;
 var _integrity = "sha1-LY4+XQvb1zJ/kbyBT1xXZg+Bgk0=";
 var _location = "/axios";
 var _phantomChildren = {};
-var _requested = {"type":"range","registry":true,"raw":"axios@^0.17.1","name":"axios","escapedName":"axios","rawSpec":"^0.17.1","saveSpec":null,"fetchSpec":"^0.17.1"};
-var _requiredBy = ["/"];
+var _requested = {"type":"tag","registry":true,"raw":"axios","name":"axios","escapedName":"axios","rawSpec":"","saveSpec":null,"fetchSpec":"latest"};
+var _requiredBy = ["#USER","/"];
 var _resolved = "https://registry.npmjs.org/axios/-/axios-0.17.1.tgz";
 var _shasum = "2d8e3e5d0bdbd7327f91bc814f5c57660f81824d";
-var _spec = "axios@^0.17.1";
-var _where = "/home/chao/project/ZD-SWAG-SDK";
+var _spec = "axios";
+var _where = "/home/tang/projects/ZD-SWAG-SDK";
 var author = {"name":"Matt Zabriskie"};
 var browser$9 = {"./lib/adapters/http.js":"./lib/adapters/xhr.js"};
 var bugs = {"url":"https://github.com/axios/axios/issues"};
@@ -30524,7 +30524,7 @@ var TraceServer = function () {
   }, {
     key: 'hook',
     value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(eventName, filterString) {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(eventName, type, filterString) {
         return regenerator.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -30541,7 +30541,8 @@ var TraceServer = function () {
                 return axios$1.post('http://' + this.host + ':' + this.port + '/hook', {
                   id: this.socketId,
                   eventName: eventName,
-                  filterString: filterString
+                  filterString: filterString,
+                  type: type
                 });
 
               case 4:
@@ -30555,7 +30556,7 @@ var TraceServer = function () {
         }, _callee2, this);
       }));
 
-      function hook(_x4, _x5) {
+      function hook(_x4, _x5, _x6) {
         return _ref2.apply(this, arguments);
       }
 
@@ -30596,7 +30597,7 @@ var TraceServer = function () {
         }, _callee3, this);
       }));
 
-      function removeHook(_x6) {
+      function removeHook(_x7) {
         return _ref3.apply(this, arguments);
       }
 
@@ -30687,7 +30688,7 @@ var TraceServer = function () {
           }, _callee4, _this2);
         }));
 
-        return function (_x7, _x8) {
+        return function (_x8, _x9) {
           return _ref4.apply(this, arguments);
         };
       }());
@@ -30736,7 +30737,7 @@ var TraceServer = function () {
                   // set a hook
 
                   _context5.next = 7;
-                  return _this3.hook(hookName, '{"protocol" == "ESO"} && {"esotext"=="' + option.keyword + '"}');
+                  return _this3.hook(hookName, 'ESO', '{"esotext"=="' + option.keyword + '"}');
 
                 case 7:
                   // && {"esoclid"=="${option.channelID}"}`)
@@ -30794,7 +30795,7 @@ var TraceServer = function () {
           }, _callee5, _this3);
         }));
 
-        return function (_x9, _x10) {
+        return function (_x10, _x11) {
           return _ref5.apply(this, arguments);
         };
       }());
@@ -30812,8 +30813,6 @@ var TraceServer = function () {
     key: 'subscribe',
     value: function () {
       var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(name, type, filterStr) {
-        var str, _str, _str2, _str3;
-
         return regenerator.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
@@ -30826,66 +30825,22 @@ var TraceServer = function () {
                 throw new Error('Service not ready');
 
               case 2:
-                _context6.t0 = type;
-                _context6.next = _context6.t0 === 'CAN' ? 5 : _context6.t0 === 'BAP' ? 10 : _context6.t0 === 'ESO' ? 15 : _context6.t0 === 'SERIAL' ? 20 : 25;
-                break;
-
-              case 5:
-                str = '{"protocol" == "CAN"}';
-
                 if (filterStr) {
-                  str += ' && (' + filterStr + ')';
+                  _context6.next = 4;
+                  break;
                 }
-                _context6.next = 9;
-                return this.hook(name, str);
 
-              case 9:
-                return _context6.abrupt('break', 26);
+                throw new Error('Missing filter string');
 
-              case 10:
-                _str = '{"protocol" == "BAP"}';
+              case 4:
+                _context6.next = 6;
+                return this.hook(name, type.toUpperCase(), filterStr);
 
-                if (filterStr) {
-                  _str += ' && (' + filterStr + ')';
-                }
-                _context6.next = 14;
-                return this.hook(name, _str);
-
-              case 14:
-                return _context6.abrupt('break', 26);
-
-              case 15:
-                _str2 = '{"protocol" == "ESO"}';
-
-                if (filterStr) {
-                  _str2 += ' && (' + filterStr + ')';
-                }
-                _context6.next = 19;
-                return this.hook(name, _str2);
-
-              case 19:
-                return _context6.abrupt('break', 26);
-
-              case 20:
-                _str3 = '{"protocol" == "SERIAL"}';
-
-                if (filterStr) {
-                  _str3 += ' && (' + filterStr + ')';
-                }
-                _context6.next = 24;
-                return this.hook(name, _str3);
-
-              case 24:
-                return _context6.abrupt('break', 26);
-
-              case 25:
-                throw new Error('unsupported subscribe type');
-
-              case 26:
+              case 6:
                 this.subscribeMap[name] = type;
                 return _context6.abrupt('return', true);
 
-              case 28:
+              case 8:
               case 'end':
                 return _context6.stop();
             }
@@ -30893,7 +30848,7 @@ var TraceServer = function () {
         }, _callee6, this);
       }));
 
-      function subscribe(_x11, _x12, _x13) {
+      function subscribe(_x12, _x13, _x14) {
         return _ref6.apply(this, arguments);
       }
 
@@ -30943,7 +30898,7 @@ var TraceServer = function () {
         }, _callee7, this);
       }));
 
-      function unsubscribe(_x14) {
+      function unsubscribe(_x15) {
         return _ref7.apply(this, arguments);
       }
 
@@ -31044,7 +30999,7 @@ var TraceServer = function () {
         }, _callee8, this, [[7, 18, 22, 30], [23,, 25, 29]]);
       }));
 
-      function unsubscribeType(_x15) {
+      function unsubscribeType(_x16) {
         return _ref8.apply(this, arguments);
       }
 
@@ -31080,7 +31035,7 @@ var TraceServer = function () {
         }, _callee9, this);
       }));
 
-      function setFilter(_x16) {
+      function setFilter(_x17) {
         return _ref9.apply(this, arguments);
       }
 
