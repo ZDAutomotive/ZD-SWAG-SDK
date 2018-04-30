@@ -41,12 +41,13 @@ export default class TraceServer {
     })).data
   }
 
-  async hook(eventName, filterString) {
+  async hook(eventName, type, filterString) {
     if (!this.socket) throw new Error('Service not ready')
     return await axios.post(`http://${this.host}:${this.port}/hook`, {
       id: this.socketId,
       eventName,
-      filterString
+      filterString,
+      type
     })
   }
 
@@ -141,7 +142,7 @@ export default class TraceServer {
       }, option.timeout || 20000);
 
       // set a hook
-      await this.hook(hookName, `{"protocol" == "ESO"} && {"esotext"=="${option.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
+      await this.hook(hookName, 'ESO', `{"esotext"=="${option.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
       //console.log('waiting for hook')
       this.socket.on(hookName, (trace) => {
         //data.data.msgData
@@ -241,7 +242,7 @@ export default class TraceServer {
           this.removeHook(hookName)
         }, option.timeout || 20000);
         // set a hook
-        await this.hook(hookName, `{"protocol" == "ESO"} && {"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
+        await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
         //console.log('waiting for hook')
         this.socket.on(hookName, (trace) => { 
           expectedList[hookName].onMessage = true;
@@ -335,47 +336,9 @@ export default class TraceServer {
    */
   async subscribe(name, type, filterStr) {
     if (!this.socket) throw new Error('Service not ready')
+    if (!filterStr) throw new Error('Missing filter string')
 
-    switch (type) {
-      case 'CAN':
-        {
-          let str = '{"protocol" == "CAN"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
-        }
-      case 'BAP':
-        {
-          let str = '{"protocol" == "BAP"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
-        }
-      case 'ESO':
-        {
-          let str = '{"protocol" == "ESO"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
-        }
-      case 'SERIAL':
-        {
-          let str = '{"protocol" == "SERIAL"}'
-          if (filterStr) {
-            str += ' && (' + filterStr + ')'
-          }
-          await this.hook(name, str)
-          break;
-        }
-      default:
-        throw new Error('unsupported subscribe type')
-    }
+    await this.hook(name, type.toUpperCase(), filterStr)
     this.subscribeMap[name] = type
     return true
   }
