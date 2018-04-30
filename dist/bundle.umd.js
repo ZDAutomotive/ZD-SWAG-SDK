@@ -28672,7 +28672,7 @@ var TraceServer = function () {
                   //trace.data.data.channel === eso trace port
                   foundBeforeESO = beforeESOs.find(function (trace) {
                     // (trace.data.data.msgData.data.channelId === option.channelID) &&
-                    trace.data.data.msgData.data.msgData && trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1;
+                    trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1;
                   });
 
                   if (!foundBeforeESO) {
@@ -28768,6 +28768,7 @@ var TraceServer = function () {
 
                               expectedList[hookName] = {
                                 onMessage: false,
+                                keyword: elem.keyword,
                                 trace: ''
                               };
                               // set time out event
@@ -28784,6 +28785,7 @@ var TraceServer = function () {
                               // && {"esoclid"=="${option.channelID}"}`)
                               //console.log('waiting for hook')
                               _this4.socket.on(hookName, function (trace) {
+                                console.log(trace);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace;
                                 //data.data.msgData
@@ -28842,7 +28844,7 @@ var TraceServer = function () {
                               //trace.data.data.channel === eso trace port
                               foundBeforeESO = beforeESOs.find(function (trace) {
                                 // (trace.data.data.msgData.data.channelId === option.channelID) &&
-                                trace.data.data.msgData.data.msgData && trace.data.data.msgData.data.msgData.indexOf(elem.keyword) !== -1;
+                                trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.indexOf(elem.keyword) !== -1;
                               });
 
                               if (!foundBeforeESO) {

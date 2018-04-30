@@ -176,8 +176,8 @@ export default class TraceServer {
       const foundBeforeESO = beforeESOs.find(
         trace => {
           // (trace.data.data.msgData.data.channelId === option.channelID) &&
-          trace.data.data.msgData.data.msgData &&
-            (trace.data.data.msgData.data.msgData.indexOf(option.keyword) !== -1)
+          trace.data.data.msgData.data.msgData.data &&
+            (trace.data.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
         })
       if (foundBeforeESO) {
         // found a matching CAN msg
@@ -234,6 +234,7 @@ export default class TraceServer {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
         expectedList[hookName] = {
           onMessage: false,
+          keyword: elem.keyword,
           trace: ''
         };
         // set time out event
@@ -245,6 +246,7 @@ export default class TraceServer {
         await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
         //console.log('waiting for hook')
         this.socket.on(hookName, (trace) => { 
+          console.log(trace);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace
           //data.data.msgData
@@ -299,8 +301,8 @@ export default class TraceServer {
         const foundBeforeESO = beforeESOs.find(
           trace => {
             // (trace.data.data.msgData.data.channelId === option.channelID) &&
-            trace.data.data.msgData.data.msgData &&
-              (trace.data.data.msgData.data.msgData.indexOf(elem.keyword) !== -1)
+            trace.data.data.msgData.data.msgData.data &&
+              (trace.data.data.msgData.data.msgData.data.indexOf(elem.keyword) !== -1)
           })
         if (foundBeforeESO) {
           expectedList[hookName].onMessage = true;
