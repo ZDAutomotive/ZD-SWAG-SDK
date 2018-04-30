@@ -230,7 +230,7 @@ export default class TraceServer {
         })
       }, option.timeout || 20000);
 
-      assertionList.forEach(elem => {
+      assertionList.forEach(async (elem) => {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
         expectedList[hookName] = {
           onMessage: false,
