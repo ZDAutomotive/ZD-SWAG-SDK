@@ -7,20 +7,6 @@ const tspSimulator = leopaard.newTspSimulator()
 
 var context = {}
 
-const Simulation = require('../../../services/simulation').default
-const simulation = new Simulation()
-
-// CAUTION: run the below CLI command under ZD-SWAG-SDK folder
-// npx cross-env BABEL_ENV=test mocha -re babel-core/register ./test/services/leopaard/test.js
-
-simulation.connect()
-    .then(() => {
-        context.cansim = simulation.CANSim
-        console.log('connected to Simulation')
-    }).catch(err => {
-        console.log('failed to call CAN Simulation', err)
-    })
-
 let unlockMessage = {
     startDelimiter: 11822,
     command: 130,
@@ -88,7 +74,7 @@ setTimeout(leopaard.finish.bind(leopaard), 3000, () => {
 tboxSimulator.listen().on('message', async message => {
     console.log('TBOX RECV:', message)
 
-    let response = await tboxFsm.messageProcess(message, context)
+    let response = await tboxFsm.evMessageProcess(message, context)
     if (response) {
         setTimestamp(response.data.timestamp)
         tboxSimulator.send(response, (flag, result) => {
@@ -104,4 +90,3 @@ tboxSimulator.listen().on('message', async message => {
 tspSimulator.listen().on('message', message => {
     console.log('TSP RECV:', message)
 })
-

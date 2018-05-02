@@ -1,5 +1,4 @@
-module.exports.messageProcess = async function (message, context) {
-    console.log(message)
+module.exports.fvMessageProcess = async function (message, context) {
     switch (message.command) {
         case 0x02://实时信息上报 上行
         case 0x04://心跳 上行
@@ -12,7 +11,7 @@ module.exports.messageProcess = async function (message, context) {
             break
 
         case 0x82://车载终端控制命令 下行
-            return await handleTerminalControlMessage(message, context)
+            return await fvHandleTerminalControlMessage(message, context)
 
         case 0x83://链路连接 上行
         case 0x84://信息绑定 上行
@@ -23,7 +22,7 @@ module.exports.messageProcess = async function (message, context) {
     return null
 }
 
-async function handleTerminalControlMessage(message, context) {
+async function fvHandleTerminalControlMessage(message, context) {
     let response = message
     switch (message.data.command) {
         case 1:
