@@ -130,8 +130,14 @@ export default class TraceServer {
       const timer = setTimeout(() => {
         this.socket.removeAllListeners(hookName)
         this.removeHook(hookName).then(() => {
-          if (!option.onFailed) resolve({res:false, trace:''})
-          else resolve({res:true, trace:''})
+          if (!option.onFailed) resolve({
+            res: false,
+            trace: ''
+          })
+          else resolve({
+            res: true,
+            trace: ''
+          })
         })
       }, option.timeout || 20000);
 
@@ -151,8 +157,13 @@ export default class TraceServer {
         //      msgType: 'STRING_UTF8',
         //      size: 70,
         //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
-        if (!option.onFailed) resolve({res: true, trace})
-        else resolve({res:false})
+        if (!option.onFailed) resolve({
+          res: true,
+          trace
+        })
+        else resolve({
+          res: false
+        })
         clearTimeout(timer)
         this.removeHook(hookName)
       })
@@ -165,17 +176,156 @@ export default class TraceServer {
       const foundBeforeESO = beforeESOs.find(
         trace => {
           // (trace.data.data.msgData.data.channelId === option.channelID) &&
-          trace.data.data.msgData.data.msgData &&
-          (trace.data.data.msgData.data.msgData.indexOf(option.keyword)!== -1)})
+          trace.data.data.msgData.data.msgData.data &&
+            (trace.data.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
+        })
       if (foundBeforeESO) {
         // found a matching CAN msg
-        if (!option.onFailed) resolve({res:true, trace: foundBeforeESO[0]});
-        else resolve({res:false, trace:foundBeforeESO[0]});
+        if (!option.onFailed) resolve({
+          res: true,
+          trace: foundBeforeESO[0]
+        });
+        else resolve({
+          res: false,
+          trace: foundBeforeESO[0]
+        });
         this.socket.removeAllListeners(hookName)
         clearTimeout(timer)
         this.removeHook(hookName)
         return
       }
+    })
+  }
+
+  /**
+   * assert multi eso keyword on success
+   * @param {Array} optionList  contain a list of assertion
+   * @param {Object} option
+   * @param {number} option.timeout default 20000, max waiting time for matching can msg
+   * @param {string} assertion.channelID
+   * @param {String} assertion.keyword
+   * @param {boolean} assertion.singleReturn default false, will be resolve true, when singleReturn eso keyword exist. 
+   */
+  assertMultiESOTraces(option, assertionList) {
+    return new Promise(async (resolve, reject) => {
+      if (!this.socket) {
+        reject('connect_error')
+        return
+      }
+      let expectedList = {};
+      const timerMultiESO = setTimeout(() => {
+        //let result = true;
+        for(let i = 0; i < Object.keys(expectedList).length; i++) {
+          if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
+            resolve({
+              res: false,
+              traces: expectedList
+            })
+            return
+          }
+        }
+        resolve({
+          res: true,
+          traces: expectedList
+        })
+      }, option.timeout || 20000);
+
+      assertionList.forEach(async (elem) => {
+        const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
+        expectedList[hookName] = {
+          onMessage: false,
+          keyword: elem.keyword,
+          trace: ''
+        };
+        // set time out event
+        const timer = setTimeout(() => {
+          this.socket.removeAllListeners(hookName)
+          this.removeHook(hookName)
+        }, option.timeout || 20000);
+        // set a hook
+        await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
+        //console.log('waiting for hook')
+        this.socket.on(hookName, (trace) => { 
+          console.log(trace);
+          expectedList[hookName].onMessage = true;
+          expectedList[hookName].trace = trace
+          //data.data.msgData
+          // { size: 97,
+          //   id: 4,
+          //   data: 
+          //    { timeStamp: 4660142,
+          //      modifiers: 0,
+          //      channelId: 10847,
+          //      threadId: 7939,
+          //      level: 'INFO',
+          //      msgType: 'STRING_UTF8',
+          //      size: 70,
+          //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
+          // if (!option.onFailed) resolve({
+          //   res: true,
+          //   trace
+          // })
+          // else resolve({
+          //   res: false
+          // })
+          clearTimeout(timer)
+          this.removeHook(hookName)
+          if(elem.singleReturn) {
+            resolve({
+              res: true,
+              traces: expectedList
+            })
+            clearTimeout(timerMultiESO);
+          } else {
+            let result = true
+            for(let i = 0; i < Object.keys(expectedList).length; i++) {
+              if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
+                result = false 
+                break;
+              }
+            }
+            if(result) {
+              resolve({
+                res: true,
+                traces: expectedList
+              })
+              clearTimeout(timerMultiESO);
+            } 
+          }
+        })
+        const now = Date.now()
+        const checkBeginTime = now - 5000 // check from 5000ms before now
+
+        const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
+        //trace.data.data.channel === eso trace port
+        const foundBeforeESO = beforeESOs.find(
+          trace => {
+            // (trace.data.data.msgData.data.channelId === option.channelID) &&
+            trace.data.data.msgData.data.msgData.data &&
+              (trace.data.data.msgData.data.msgData.data.indexOf(elem.keyword) !== -1)
+          })
+        if (foundBeforeESO) {
+          expectedList[hookName].onMessage = true;
+          expectedList[hookName].trace = trace
+          this.socket.removeAllListeners(hookName)
+          clearTimeout(timer)
+          this.removeHook(hookName)
+          let result = true
+          for(let i = 0; i < Object.keys(expectedList).length; i++) {
+            if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
+              result = false 
+              break;
+            }
+          }
+          if(result) {
+            resolve({
+              res: true,
+              traces: expectedList
+            })
+            clearTimeout(timerMultiESO);
+          }
+        }
+      });
     })
   }
 
