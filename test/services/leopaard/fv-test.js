@@ -77,7 +77,6 @@ async function unlockRun() {
         console.log('leopaard.finish() called!')
     })
 
-    let result = null
     let response = null
     try {
         response = await tspSimulator.start({ hostname: 'localhost', port: 8888 })
@@ -92,27 +91,24 @@ async function unlockRun() {
     }
 
     try {
-        result = await tboxSimulator.connect({ hostname: 'localhost', port: 8888 })
-        console.log(result)
+        response = await tboxSimulator.connect({ hostname: 'localhost', port: 8888 })
+        console.log(response.data)
         setTimeout(tboxSimulator.disconnect.bind(tboxSimulator), 2000, (flag, result) => {
             console.log('tboxSimulator.disconnect() called!')
         })
     } catch (err) {
-        console.log(err)
         console.error('TBOX: failed to connect to TSP')
+        console.log(err)
         return
     }
 
     try {
         setTimestamp(unlockMessage.data.timestamp)
-        await tspSimulator.send(unlockMessage, (flag, result) => {
-            if (flag) {
-                console.log('TSP: sent UNLOCK request to TBOX')
-            } else {
-                console.log('TSP: failed to send UNLOCK request to TBOX')
-            }
-        })
+        response = await tspSimulator.send(unlockMessage)
+        console.log('TSP: sent UNLOCK request to TBOX')
+
     } catch (err) {
+        console.log('TSP: failed to send UNLOCK request to TBOX')
         console.log(err)
         return
     }
@@ -121,7 +117,6 @@ async function unlockRun() {
     // send response message
     tboxSimulator.listen().on('message', async message => {
         console.log('TBOX RECV:', message)
-
         let response = await tboxFsm.fvMessageProcess(message, context)
         if (response) {
             try {

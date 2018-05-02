@@ -1,5 +1,4 @@
 module.exports.fvMessageProcess = async function (message, context) {
-    console.log(message)
     switch (message.command) {
         case 0x02://实时信息上报 上行
         case 0x04://心跳 上行
