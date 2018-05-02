@@ -54,18 +54,58 @@ let ts = new swag.TraceServer({
 
 // })();
 
+//test subscribe eso trace
+// (async () => {
+//   try {
+//     let conn = await ts.connect();
+//     console.log(conn);
+//     let res = await ts.subscribe('testesoss', 'eso', '{"esotext"=="M"}');
+//     ts.socket.on('testesoss', data => {
+//       console.log(data)
+//       let msg = data.data.msgData.data.msgData.data;
+//       console.log(msg);
+//     });
+//     setTimeout(async () => {let res = await ts.unsubscribe('testesoss');
+//     console.log(res);
+//     await ts.unsubscribe('testesoss')}, 3000, null);
+//     console.log(res);
+//   } catch (error) {
+//     console.log(error)   
+//   }
+
+// })();
+
+// (async () => {
+//   try {
+//     let conn = await ts.connect();
+//     console.log(conn);
+//     let res = await ts.assertMultiESOTraces({
+//       timeout: 20000
+//     }, [{
+//       keyword: 'M'
+//     }, {
+//       keyword: 'B'
+//     }])
+//     console.log(res);
+//   } catch (error) {
+//     console.log(error)
+//   }
+
+// })();
+
 (async () => {
   try {
     let conn = await ts.connect();
     console.log(conn);
-    let res = await ts.assertMultiESOTraces({timeout: 20000}, [{
+    let res = await ts.assertMultiESOTraces({
+      timeout: 20000
+    }, [{
       keyword: 'beep_start.wav',
     }, {
       keyword: 'READY_FOR_INPUT'
     }])
     console.log(res);
   } catch (error) {
-    console.log(error)   
+    console.log(error)
   }
-
 })();

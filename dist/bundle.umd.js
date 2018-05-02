@@ -28785,28 +28785,9 @@ var TraceServer = function () {
                               // && {"esoclid"=="${option.channelID}"}`)
                               //console.log('waiting for hook')
                               _this4.socket.on(hookName, function (trace) {
-                                console.log(trace);
+                                //console.log(trace.data.msgData.data.msgData.data);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace;
-                                //data.data.msgData
-                                // { size: 97,
-                                //   id: 4,
-                                //   data: 
-                                //    { timeStamp: 4660142,
-                                //      modifiers: 0,
-                                //      channelId: 10847,
-                                //      threadId: 7939,
-                                //      level: 'INFO',
-                                //      msgType: 'STRING_UTF8',
-                                //      size: 70,
-                                //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
-                                // if (!option.onFailed) resolve({
-                                //   res: true,
-                                //   trace
-                                // })
-                                // else resolve({
-                                //   res: false
-                                // })
                                 clearTimeout(timer);
                                 _this4.removeHook(hookName);
                                 if (elem.singleReturn) {
