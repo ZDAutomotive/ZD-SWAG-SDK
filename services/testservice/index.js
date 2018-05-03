@@ -36,7 +36,11 @@ export default class TestService {
     let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase`, { tasklist });
     return res.data;
   }
-
+  async loadTestCaseData(tasklist) {
+    if (!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase/data`, { tasklist });
+    return res.data;
+  }
   /**
    * get current test script list
    */
