@@ -218,7 +218,7 @@ export default class TraceServer {
         for(let i = 0; i < Object.keys(expectedList).length; i++) {
           if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
             resolve({
-              res: false,
+              res: false,            
               traces: expectedList
             })
             return
@@ -226,9 +226,10 @@ export default class TraceServer {
         }
         resolve({
           res: true,
+          successReason: 'all',  
           traces: expectedList
         })
-      }, option.timeout || 20000);
+      }, option.timeout || 21000);
 
       assertionList.forEach(async (elem) => {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
@@ -248,12 +249,13 @@ export default class TraceServer {
         this.socket.on(hookName, (trace) => { 
           //console.log(trace.data.msgData.data.msgData.data);
           expectedList[hookName].onMessage = true;
-          expectedList[hookName].trace = trace
+          expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           clearTimeout(timer)
           this.removeHook(hookName)
           if(elem.singleReturn) {
             resolve({
               res: true,
+              successReason: 'single',
               traces: expectedList
             })
             clearTimeout(timerMultiESO);
@@ -268,6 +270,7 @@ export default class TraceServer {
             if(result) {
               resolve({
                 res: true,
+                successReason: 'all',  
                 traces: expectedList
               })
               clearTimeout(timerMultiESO);
@@ -277,7 +280,7 @@ export default class TraceServer {
         const now = Date.now()
         const checkBeginTime = now - 5000 // check from 5000ms before now
 
-        const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
+        const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
         //trace.data.data.channel === eso trace port
         const foundBeforeESO = beforeESOs.find(
           trace => {
@@ -287,7 +290,7 @@ export default class TraceServer {
           })
         if (foundBeforeESO) {
           expectedList[hookName].onMessage = true;
-          expectedList[hookName].trace = trace
+          expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           this.socket.removeAllListeners(hookName)
           clearTimeout(timer)
           this.removeHook(hookName)
@@ -301,6 +304,7 @@ export default class TraceServer {
           if(result) {
             resolve({
               res: true,
+              successReason: 'all',
               traces: expectedList
             })
             clearTimeout(timerMultiESO);

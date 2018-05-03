@@ -14712,9 +14712,10 @@ var TraceServer = function () {
                     }
                     resolve({
                       res: true,
+                      successReason: 'all',
                       traces: expectedList
                     });
-                  }, option.timeout || 20000);
+                  }, option.timeout || 21000);
 
 
                   assertionList.forEach(function () {
@@ -14747,12 +14748,13 @@ var TraceServer = function () {
                               _this4.socket.on(hookName, function (trace) {
                                 //console.log(trace.data.msgData.data.msgData.data);
                                 expectedList[hookName].onMessage = true;
-                                expectedList[hookName].trace = trace;
+                                expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
                                 clearTimeout(timer);
                                 _this4.removeHook(hookName);
                                 if (elem.singleReturn) {
                                   resolve({
                                     res: true,
+                                    successReason: 'single',
                                     traces: expectedList
                                   });
                                   clearTimeout(timerMultiESO);
@@ -14767,6 +14769,7 @@ var TraceServer = function () {
                                   if (result) {
                                     resolve({
                                       res: true,
+                                      successReason: 'all',
                                       traces: expectedList
                                     });
                                     clearTimeout(timerMultiESO);
@@ -14777,7 +14780,7 @@ var TraceServer = function () {
                               checkBeginTime = now - 5000; // check from 5000ms before now
 
                               _context6.next = 10;
-                              return _this4.pull(checkBeginTime, now, ['eso']);
+                              return _this4.pull(checkBeginTime, now, ['ESO']);
 
                             case 10:
                               beforeESOs = _context6.sent;
@@ -14794,7 +14797,7 @@ var TraceServer = function () {
                               }
 
                               expectedList[hookName].onMessage = true;
-                              expectedList[hookName].trace = trace;
+                              expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
                               _this4.socket.removeAllListeners(hookName);
                               clearTimeout(timer);
                               _this4.removeHook(hookName);
@@ -14824,6 +14827,7 @@ var TraceServer = function () {
                               if (result) {
                                 resolve({
                                   res: true,
+                                  successReason: 'all',
                                   traces: expectedList
                                 });
                                 clearTimeout(timerMultiESO);
