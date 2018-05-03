@@ -1,0 +1,93 @@
+{
+  "headInfo": {
+    "type": "sds-daimler"
+  },
+  "sequenceLib": [{
+      "id": "sequence.send-voice-input#RequestTask_Hello",
+      "type": "sequence",
+      "placeHolders": [{
+        "id": "send-voice-input#RequestTask_Hello",
+        "type": "send-voice-input",
+        "phraseID": "RequestTask_Hello",
+        "phraseText": "你好奔驰"
+      }]
+    },
+    {
+      "id": "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_Hello",
+      "type": "parallel",
+      "placeHolders": [{
+          "id": "sequence.MapPrompts#ReportOnTask_Hello1",
+          "type": "sequence",
+          "placeHolders": [{
+            "id": "MapPrompts#ReportOnTask_BackHome",
+            "type": "match-voice-output",
+            "promptID": "beep_start.wav",
+            "promptRawInfo": ""
+          }]
+        },
+        {
+          "id": "sequence.MapPrompts#ReportOnTask_Hello2",
+          "type": "sequence",
+          "placeHolders": [{
+            "id": "MapPrompts#ReportOnTask_BackHome",
+            "type": "match-voice-output",
+            "promptID": "READY_FOR_INPUT",
+            "promptRawInfo": ""
+          }]
+        }
+      ]
+    },
+    {
+      "id": "sequence.send-voice-input#RequestTask_BackHome",
+      "type": "sequence",
+      "placeHolders": [{
+        "id": "send-voice-input#RequestTask_DayMap",
+        "type": "send-voice-input",
+        "phraseID": "RequestTask_DayMap",
+        "phraseText": "回家"
+      }]
+    },
+    {
+      "id": "sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_BackHome",
+      "type": "sequence",
+      "placeHolders": [{
+        "id": "sequence.MapPrompts#ReportOnTask_BackHome",
+        "type": "sequence",
+        "placeHolders": [{
+          "id": "MapPrompts#ReportOnTask_BackHome",
+          "type": "match-voice-output",
+          "promptID": "navi_ask_enter_home_address_VP_PROMPT",
+          "promptRawInfo": ""
+        }]
+      }]
+    },
+    {
+      "id": "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#DialogEnd",
+      "placeHolders": [{
+          "id": "sequence.MapPrompts#ReportOnTask_DialogEnd",
+          "type": "sequence",
+          "placeHolders": [{
+            "id": "MapPrompts#ReportOnTask_DialogEnd",
+            "type": "match-voice-output",
+            "promptID": "beep_cancel.wav",
+            "promptRawInfo": ""
+          }]
+        },
+        {
+          "id": "DialogEnd",
+          "type": "DIALOG_END"
+        }
+      ]
+    }
+  ],
+  "testcases": [{
+    "id": "MapSettings.Demo.Navi.Home",
+    "sequenceList": [
+      "sequence.send-voice-input#RequestTask_Hello",
+      "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_Hello",
+      "sequence.send-voice-input#RequestTask_BackHome",
+      "sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_BackHome",
+      "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#DialogEnd"
+    ]
+  }]
+}

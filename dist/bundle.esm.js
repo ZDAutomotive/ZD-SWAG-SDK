@@ -28779,28 +28779,9 @@ var TraceServer = function () {
                               // && {"esoclid"=="${option.channelID}"}`)
                               //console.log('waiting for hook')
                               _this4.socket.on(hookName, function (trace) {
-                                console.log(trace);
+                                //console.log(trace.data.msgData.data.msgData.data);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace;
-                                //data.data.msgData
-                                // { size: 97,
-                                //   id: 4,
-                                //   data: 
-                                //    { timeStamp: 4660142,
-                                //      modifiers: 0,
-                                //      channelId: 10847,
-                                //      threadId: 7939,
-                                //      level: 'INFO',
-                                //      msgType: 'STRING_UTF8',
-                                //      size: 70,
-                                //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
-                                // if (!option.onFailed) resolve({
-                                //   res: true,
-                                //   trace
-                                // })
-                                // else resolve({
-                                //   res: false
-                                // })
                                 clearTimeout(timer);
                                 _this4.removeHook(hookName);
                                 if (elem.singleReturn) {
@@ -34185,15 +34166,10 @@ var TestService = function () {
 
       return loadTestCase;
     }()
-
-    /**
-     * get current test script list
-     */
-
   }, {
-    key: 'getTestCaseList',
+    key: 'loadTestCaseData',
     value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2() {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(tasklist) {
         var res;
         return regenerator.wrap(function _callee2$(_context2) {
           while (1) {
@@ -34208,7 +34184,7 @@ var TestService = function () {
 
               case 2:
                 _context2.next = 4;
-                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/testcase');
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/testcase/data', { tasklist: tasklist });
 
               case 4:
                 res = _context2.sent;
@@ -34222,16 +34198,20 @@ var TestService = function () {
         }, _callee2, this);
       }));
 
-      function getTestCaseList() {
+      function loadTestCaseData(_x2) {
         return _ref2.apply(this, arguments);
       }
 
-      return getTestCaseList;
+      return loadTestCaseData;
     }()
+    /**
+     * get current test script list
+     */
+
   }, {
-    key: 'getTestCaseByID',
+    key: 'getTestCaseList',
     value: function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(ID) {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3() {
         var res;
         return regenerator.wrap(function _callee3$(_context3) {
           while (1) {
@@ -34246,7 +34226,7 @@ var TestService = function () {
 
               case 2:
                 _context3.next = 4;
-                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/testcase/' + ID);
+                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/testcase');
 
               case 4:
                 res = _context3.sent;
@@ -34260,19 +34240,14 @@ var TestService = function () {
         }, _callee3, this);
       }));
 
-      function getTestCaseByID(_x2) {
+      function getTestCaseList() {
         return _ref3.apply(this, arguments);
       }
 
-      return getTestCaseByID;
+      return getTestCaseList;
     }()
-
-    /**
-     * delete test script by ID
-     */
-
   }, {
-    key: 'deleteTestCase',
+    key: 'getTestCaseByID',
     value: function () {
       var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(ID) {
         var res;
@@ -34289,7 +34264,7 @@ var TestService = function () {
 
               case 2:
                 _context4.next = 4;
-                return axios$1.delete('http://' + this.host + ':' + this.port + '/ts/testcase?id=' + ID);
+                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/testcase/' + ID);
 
               case 4:
                 res = _context4.sent;
@@ -34303,21 +34278,21 @@ var TestService = function () {
         }, _callee4, this);
       }));
 
-      function deleteTestCase(_x3) {
+      function getTestCaseByID(_x3) {
         return _ref4.apply(this, arguments);
       }
 
-      return deleteTestCase;
+      return getTestCaseByID;
     }()
 
     /**
-     * delete all test script
+     * delete test script by ID
      */
 
   }, {
-    key: 'deleteAllTestCases',
+    key: 'deleteTestCase',
     value: function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5() {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(ID) {
         var res;
         return regenerator.wrap(function _callee5$(_context5) {
           while (1) {
@@ -34332,7 +34307,7 @@ var TestService = function () {
 
               case 2:
                 _context5.next = 4;
-                return axios$1.delete('http://' + this.host + ':' + this.port + '/ts/testcase');
+                return axios$1.delete('http://' + this.host + ':' + this.port + '/ts/testcase?id=' + ID);
 
               case 4:
                 res = _context5.sent;
@@ -34346,14 +34321,19 @@ var TestService = function () {
         }, _callee5, this);
       }));
 
-      function deleteAllTestCases() {
+      function deleteTestCase(_x4) {
         return _ref5.apply(this, arguments);
       }
 
-      return deleteAllTestCases;
+      return deleteTestCase;
     }()
+
+    /**
+     * delete all test script
+     */
+
   }, {
-    key: 'start',
+    key: 'deleteAllTestCases',
     value: function () {
       var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6() {
         var res;
@@ -34370,7 +34350,7 @@ var TestService = function () {
 
               case 2:
                 _context6.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/start');
+                return axios$1.delete('http://' + this.host + ':' + this.port + '/ts/testcase');
 
               case 4:
                 res = _context6.sent;
@@ -34384,14 +34364,14 @@ var TestService = function () {
         }, _callee6, this);
       }));
 
-      function start() {
+      function deleteAllTestCases() {
         return _ref6.apply(this, arguments);
       }
 
-      return start;
+      return deleteAllTestCases;
     }()
   }, {
-    key: 'stop',
+    key: 'start',
     value: function () {
       var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7() {
         var res;
@@ -34408,7 +34388,7 @@ var TestService = function () {
 
               case 2:
                 _context7.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/stop');
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/start');
 
               case 4:
                 res = _context7.sent;
@@ -34422,14 +34402,14 @@ var TestService = function () {
         }, _callee7, this);
       }));
 
-      function stop() {
+      function start() {
         return _ref7.apply(this, arguments);
       }
 
-      return stop;
+      return start;
     }()
   }, {
-    key: 'pause',
+    key: 'stop',
     value: function () {
       var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8() {
         var res;
@@ -34446,7 +34426,7 @@ var TestService = function () {
 
               case 2:
                 _context8.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/pause');
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/stop');
 
               case 4:
                 res = _context8.sent;
@@ -34460,14 +34440,14 @@ var TestService = function () {
         }, _callee8, this);
       }));
 
-      function pause() {
+      function stop() {
         return _ref8.apply(this, arguments);
       }
 
-      return pause;
+      return stop;
     }()
   }, {
-    key: 'resume',
+    key: 'pause',
     value: function () {
       var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9() {
         var res;
@@ -34484,7 +34464,7 @@ var TestService = function () {
 
               case 2:
                 _context9.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/resume');
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/pause');
 
               case 4:
                 res = _context9.sent;
@@ -34498,18 +34478,16 @@ var TestService = function () {
         }, _callee9, this);
       }));
 
-      function resume() {
+      function pause() {
         return _ref9.apply(this, arguments);
       }
 
-      return resume;
+      return pause;
     }()
-    //{softwareVersion : ''}
-
   }, {
-    key: 'setBenchConfig',
+    key: 'resume',
     value: function () {
-      var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10(benchConfig) {
+      var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10() {
         var res;
         return regenerator.wrap(function _callee10$(_context10) {
           while (1) {
@@ -34524,7 +34502,7 @@ var TestService = function () {
 
               case 2:
                 _context10.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/benchconfig', benchConfig);
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/resume');
 
               case 4:
                 res = _context10.sent;
@@ -34538,16 +34516,18 @@ var TestService = function () {
         }, _callee10, this);
       }));
 
-      function setBenchConfig(_x4) {
+      function resume() {
         return _ref10.apply(this, arguments);
       }
 
-      return setBenchConfig;
+      return resume;
     }()
+    //{softwareVersion : ''}
+
   }, {
-    key: 'getBenchConfig',
+    key: 'setBenchConfig',
     value: function () {
-      var _ref11 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee11() {
+      var _ref11 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee11(benchConfig) {
         var res;
         return regenerator.wrap(function _callee11$(_context11) {
           while (1) {
@@ -34562,7 +34542,7 @@ var TestService = function () {
 
               case 2:
                 _context11.next = 4;
-                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/benchconfig');
+                return axios$1.post('http://' + this.host + ':' + this.port + '/ts/benchconfig', benchConfig);
 
               case 4:
                 res = _context11.sent;
@@ -34576,8 +34556,46 @@ var TestService = function () {
         }, _callee11, this);
       }));
 
-      function getBenchConfig() {
+      function setBenchConfig(_x5) {
         return _ref11.apply(this, arguments);
+      }
+
+      return setBenchConfig;
+    }()
+  }, {
+    key: 'getBenchConfig',
+    value: function () {
+      var _ref12 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee12() {
+        var res;
+        return regenerator.wrap(function _callee12$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                if (this.socket) {
+                  _context12.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context12.next = 4;
+                return axios$1.get('http://' + this.host + ':' + this.port + '/ts/benchconfig');
+
+              case 4:
+                res = _context12.sent;
+                return _context12.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context12.stop();
+            }
+          }
+        }, _callee12, this);
+      }));
+
+      function getBenchConfig() {
+        return _ref12.apply(this, arguments);
       }
 
       return getBenchConfig;
@@ -34591,14 +34609,14 @@ var TestService = function () {
   }, {
     key: 'uploadTestcase',
     value: function () {
-      var _ref12 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee12(dirname, filename, caseFile) {
+      var _ref13 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee13(dirname, filename, caseFile) {
         var form, getHeaders, res;
-        return regenerator.wrap(function _callee12$(_context12) {
+        return regenerator.wrap(function _callee13$(_context13) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context13.prev = _context13.next) {
               case 0:
                 if (this.socket) {
-                  _context12.next = 2;
+                  _context13.next = 2;
                   break;
                 }
 
@@ -34621,34 +34639,34 @@ var TestService = function () {
                   });
                 };
 
-                _context12.t0 = axios$1;
-                _context12.t1 = 'http://' + this.host + ':8080/api/filemanage/upload?dirname=' + dirname;
-                _context12.t2 = form;
-                _context12.next = 10;
+                _context13.t0 = axios$1;
+                _context13.t1 = 'http://' + this.host + ':8080/api/filemanage/upload?dirname=' + dirname;
+                _context13.t2 = form;
+                _context13.next = 10;
                 return getHeaders(form);
 
               case 10:
-                _context12.t3 = _context12.sent;
-                _context12.t4 = {
-                  headers: _context12.t3
+                _context13.t3 = _context13.sent;
+                _context13.t4 = {
+                  headers: _context13.t3
                 };
-                _context12.next = 14;
-                return _context12.t0.post.call(_context12.t0, _context12.t1, _context12.t2, _context12.t4);
+                _context13.next = 14;
+                return _context13.t0.post.call(_context13.t0, _context13.t1, _context13.t2, _context13.t4);
 
               case 14:
-                res = _context12.sent;
-                return _context12.abrupt('return', res.data);
+                res = _context13.sent;
+                return _context13.abrupt('return', res.data);
 
               case 16:
               case 'end':
-                return _context12.stop();
+                return _context13.stop();
             }
           }
-        }, _callee12, this);
+        }, _callee13, this);
       }));
 
-      function uploadTestcase(_x5, _x6, _x7) {
-        return _ref12.apply(this, arguments);
+      function uploadTestcase(_x6, _x7, _x8) {
+        return _ref13.apply(this, arguments);
       }
 
       return uploadTestcase;
