@@ -31,6 +31,11 @@ export default class TraceServer {
     })
   }
 
+  async getDuration() {
+    if (!this.socket) throw new Error('Service not ready')
+    return (await axios.get(`http://${this.host}:${this.port}/duration`)).data
+  }
+
   async pull(start, end, modules) {
     if (!this.socket) throw new Error('Service not ready')
     return (await axios.get(`http://${this.host}:${this.port}/trace`, {
@@ -168,7 +173,8 @@ export default class TraceServer {
         this.removeHook(hookName)
       })
 
-      const now = Date.now()
+      const duration = await this.getDuration()
+      const now = duration.end
       const checkBeginTime = now - 5000 // check from 5000ms before now
 
       const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
