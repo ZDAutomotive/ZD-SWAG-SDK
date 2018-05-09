@@ -183,7 +183,7 @@ export default class TraceServer {
       const foundBeforeESO = beforeESOs.find(
         trace => {
           // (trace.data.data.msgData.data.channelId === option.channelID) &&
-          trace.data.data.msgData.data.msgData.data &&
+          return trace.data.data.msgData.data.msgData.data &&
             (trace.data.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
         })
       if (foundBeforeESO) {
@@ -294,9 +294,10 @@ export default class TraceServer {
         const foundBeforeESO = beforeESOs.find(
           trace => {
             // (trace.data.data.msgData.data.channelId === option.channelID) &&
-            trace.data.data.msgData.data.msgData.data &&
+            return trace.data.data.msgData.data.msgData.data &&
               (trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(elem.keyword.toUpperCase()) !== -1)
           })
+        console.log(foundBeforeESO)
         if (foundBeforeESO) {
           //console.log(foundBeforeESO);
           expectedList[hookName].onMessage = true;
