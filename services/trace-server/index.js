@@ -230,6 +230,8 @@ export default class TraceServer {
           traces: expectedList
         })
       }, option.timeout || 21000);
+      const now = Date.now()
+      const checkBeginTime = now - 5000 // check from 5000ms before now
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
       assertionList.forEach(async (elem) => {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
@@ -279,9 +281,6 @@ export default class TraceServer {
             } 
           }
         })
-        const now = Date.now()
-        const checkBeginTime = now - 5000 // check from 5000ms before now
-
         //trace.data.data.channel === eso trace port
         const foundBeforeESO = beforeESOs.find(
           trace => {

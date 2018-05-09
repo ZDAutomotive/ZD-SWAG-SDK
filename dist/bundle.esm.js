@@ -28718,7 +28718,7 @@ var TraceServer = function () {
 
       return new _Promise(function () {
         var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(resolve, reject) {
-          var expectedList, timerMultiESO, beforeESOs;
+          var expectedList, timerMultiESO, now, checkBeginTime, beforeESOs;
           return regenerator.wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
@@ -28750,15 +28750,18 @@ var TraceServer = function () {
                       traces: expectedList
                     });
                   }, option.timeout || 21000);
-                  _context7.next = 7;
+                  now = Date.now();
+                  checkBeginTime = now - 5000; // check from 5000ms before now
+
+                  _context7.next = 9;
                   return _this4.pull(checkBeginTime, now, ['ESO']);
 
-                case 7:
+                case 9:
                   beforeESOs = _context7.sent;
 
                   assertionList.forEach(function () {
                     var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(elem) {
-                      var hookName, timer, now, checkBeginTime, foundBeforeESO, result, i;
+                      var hookName, timer, foundBeforeESO, result, i;
                       return regenerator.wrap(function _callee6$(_context6) {
                         while (1) {
                           switch (_context6.prev = _context6.next) {
@@ -28815,18 +28818,14 @@ var TraceServer = function () {
                                   }
                                 }
                               });
-                              
-                               // check from 5000ms before now
-
                               //trace.data.data.channel === eso trace port
-
                               foundBeforeESO = beforeESOs.find(function (trace) {
                                 // (trace.data.data.msgData.data.channelId === option.channelID) &&
                                 trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(elem.keyword.toUpperCase()) !== -1;
                               });
 
                               if (!foundBeforeESO) {
-                                _context6.next = 27;
+                                _context6.next = 25;
                                 break;
                               }
 
@@ -28840,14 +28839,14 @@ var TraceServer = function () {
                               result = true;
                               i = 0;
 
-                            case 16:
+                            case 14:
                               if (!(i < _Object$keys(expectedList).length)) {
-                                _context6.next = 26;
+                                _context6.next = 24;
                                 break;
                               }
 
                               if (!(elem.singleReturn && expectedList[_Object$keys(expectedList)[i]].onMessage === true)) {
-                                _context6.next = 20;
+                                _context6.next = 18;
                                 break;
                               }
 
@@ -28858,21 +28857,21 @@ var TraceServer = function () {
                               });
                               return _context6.abrupt('return');
 
-                            case 20:
+                            case 18:
                               if (!(expectedList[_Object$keys(expectedList)[i]].onMessage === false)) {
-                                _context6.next = 23;
+                                _context6.next = 21;
                                 break;
                               }
 
                               result = false;
-                              return _context6.abrupt('break', 26);
+                              return _context6.abrupt('break', 24);
 
-                            case 23:
+                            case 21:
                               i++;
-                              _context6.next = 16;
+                              _context6.next = 14;
                               break;
 
-                            case 26:
+                            case 24:
                               if (result) {
                                 resolve({
                                   res: true,
@@ -28882,7 +28881,7 @@ var TraceServer = function () {
                                 clearTimeout(timerMultiESO);
                               }
 
-                            case 27:
+                            case 25:
                             case 'end':
                               return _context6.stop();
                           }
@@ -28895,7 +28894,7 @@ var TraceServer = function () {
                     };
                   }());
 
-                case 9:
+                case 11:
                 case 'end':
                   return _context7.stop();
               }
