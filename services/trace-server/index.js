@@ -99,7 +99,8 @@ export default class TraceServer {
         }
       })
 
-      const now = Date.now()
+      const duration = await this.getDuration()
+      const now = duration.end
       const checkBeginTime = now - 5000 // check from 5000ms before now
 
       const beforeCANs = await this.pull(checkBeginTime, now, ['can'])
@@ -236,7 +237,9 @@ export default class TraceServer {
           traces: expectedList
         })
       }, option.timeout || 21000);
-      const now = Date.now()
+
+      const duration = await this.getDuration()
+      const now = duration.end
       const checkBeginTime = now - 5000 // check from 5000ms before now
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
       assertionList.forEach(async (elem) => {

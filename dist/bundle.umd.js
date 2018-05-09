@@ -30655,7 +30655,7 @@ var TraceServer = function () {
 
       return new _Promise(function () {
         var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(resolve, reject) {
-          var hookName, timer, now, checkBeginTime, beforeCANs, foundBeforeCAN;
+          var hookName, timer, duration, now, checkBeginTime, beforeCANs, foundBeforeCAN;
           return regenerator.wrap(function _callee5$(_context5) {
             while (1) {
               switch (_context5.prev = _context5.next) {
@@ -30692,20 +30692,25 @@ var TraceServer = function () {
                     }
                   });
 
-                  now = Date.now();
+                  _context5.next = 10;
+                  return _this2.getDuration();
+
+                case 10:
+                  duration = _context5.sent;
+                  now = duration.end;
                   checkBeginTime = now - 5000; // check from 5000ms before now
 
-                  _context5.next = 12;
+                  _context5.next = 15;
                   return _this2.pull(checkBeginTime, now, ['can']);
 
-                case 12:
+                case 15:
                   beforeCANs = _context5.sent;
                   foundBeforeCAN = beforeCANs.find(function (can) {
                     return canDPI.verify(can.data.canmsg, option.signature);
                   });
 
                   if (!foundBeforeCAN) {
-                    _context5.next = 20;
+                    _context5.next = 23;
                     break;
                   }
 
@@ -30716,7 +30721,7 @@ var TraceServer = function () {
                   _this2.removeHook(hookName);
                   return _context5.abrupt('return');
 
-                case 20:
+                case 23:
                 case 'end':
                   return _context5.stop();
               }
@@ -30876,7 +30881,7 @@ var TraceServer = function () {
 
       return new _Promise(function () {
         var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(resolve, reject) {
-          var expectedList, timerMultiESO, now, checkBeginTime, beforeESOs;
+          var expectedList, timerMultiESO, duration, now, checkBeginTime, beforeESOs;
           return regenerator.wrap(function _callee8$(_context8) {
             while (1) {
               switch (_context8.prev = _context8.next) {
@@ -30908,13 +30913,18 @@ var TraceServer = function () {
                       traces: expectedList
                     });
                   }, option.timeout || 21000);
-                  now = Date.now();
+                  _context8.next = 7;
+                  return _this4.getDuration();
+
+                case 7:
+                  duration = _context8.sent;
+                  now = duration.end;
                   checkBeginTime = now - 5000; // check from 5000ms before now
 
-                  _context8.next = 9;
+                  _context8.next = 12;
                   return _this4.pull(checkBeginTime, now, ['ESO']);
 
-                case 9:
+                case 12:
                   beforeESOs = _context8.sent;
 
                   assertionList.forEach(function () {
@@ -31052,7 +31062,7 @@ var TraceServer = function () {
                     };
                   }());
 
-                case 11:
+                case 14:
                 case 'end':
                   return _context8.stop();
               }
