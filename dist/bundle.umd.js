@@ -28724,7 +28724,7 @@ var TraceServer = function () {
 
       return new _Promise(function () {
         var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(resolve, reject) {
-          var expectedList, timerMultiESO;
+          var expectedList, timerMultiESO, beforeESOs;
           return regenerator.wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
@@ -28756,11 +28756,15 @@ var TraceServer = function () {
                       traces: expectedList
                     });
                   }, option.timeout || 21000);
+                  _context7.next = 7;
+                  return _this4.pull(checkBeginTime, now, ['ESO']);
 
+                case 7:
+                  beforeESOs = _context7.sent;
 
                   assertionList.forEach(function () {
                     var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(elem) {
-                      var hookName, timer, now, checkBeginTime, beforeESOs, foundBeforeESO, result, i;
+                      var hookName, timer, now, checkBeginTime, foundBeforeESO, result, i;
                       return regenerator.wrap(function _callee6$(_context6) {
                         while (1) {
                           switch (_context6.prev = _context6.next) {
@@ -28774,23 +28778,24 @@ var TraceServer = function () {
                               };
                               // set time out event
                               timer = setTimeout(function () {
-                                _this4.socket.removeAllListeners(hookName);
-                                _this4.removeHook(hookName);
+                                _this4.unsubscribe(hookName);
+                                // this.socket.removeAllListeners(hookName)
+                                // this.removeHook(hookName)
                               }, option.timeout || 20000);
                               // set a hook
 
                               _context6.next = 5;
-                              return _this4.hook(hookName, 'ESO', '{"esotext"=="' + elem.keyword + '"}');
+                              return _this4.subscribe(hookName, 'ESO', '{"esotext"=="' + elem.keyword + '"}');
 
                             case 5:
-                              // && {"esoclid"=="${option.channelID}"}`)
+                              //await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
                               //console.log('waiting for hook')
                               _this4.socket.on(hookName, function (trace) {
                                 //console.log(trace.data.msgData.data.msgData.data);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
                                 clearTimeout(timer);
-                                _this4.removeHook(hookName);
+                                _this4.unsubscribe(hookName);
                                 if (elem.singleReturn) {
                                   resolve({
                                     res: true,
@@ -28816,54 +28821,64 @@ var TraceServer = function () {
                                   }
                                 }
                               });
-                              now = Date.now();
-                              checkBeginTime = now - 5000; // check from 5000ms before now
-
-                              _context6.next = 10;
-                              return _this4.pull(checkBeginTime, now, ['ESO']);
-
-                            case 10:
-                              beforeESOs = _context6.sent;
+                              
+                               // check from 5000ms before now
 
                               //trace.data.data.channel === eso trace port
+
                               foundBeforeESO = beforeESOs.find(function (trace) {
                                 // (trace.data.data.msgData.data.channelId === option.channelID) &&
-                                trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.indexOf(elem.keyword) !== -1;
+                                trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(elem.keyword.toUpperCase()) !== -1;
                               });
 
                               if (!foundBeforeESO) {
-                                _context6.next = 28;
-                                break;
-                              }
-
-                              expectedList[hookName].onMessage = true;
-                              expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
-                              _this4.socket.removeAllListeners(hookName);
-                              clearTimeout(timer);
-                              _this4.removeHook(hookName);
-                              result = true;
-                              i = 0;
-
-                            case 20:
-                              if (!(i < _Object$keys(expectedList).length)) {
                                 _context6.next = 27;
                                 break;
                               }
 
+                              //console.log(foundBeforeESO);
+                              expectedList[hookName].onMessage = true;
+                              expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data;
+                              clearTimeout(timer);
+                              _this4.unsubscribe(hookName);
+                              // this.socket.removeAllListeners(hookName)
+                              // this.removeHook(hookName)
+                              result = true;
+                              i = 0;
+
+                            case 16:
+                              if (!(i < _Object$keys(expectedList).length)) {
+                                _context6.next = 26;
+                                break;
+                              }
+
+                              if (!(elem.singleReturn && expectedList[_Object$keys(expectedList)[i]].onMessage === true)) {
+                                _context6.next = 20;
+                                break;
+                              }
+
+                              resolve({
+                                res: true,
+                                successReason: 'single',
+                                traces: expectedList
+                              });
+                              return _context6.abrupt('return');
+
+                            case 20:
                               if (!(expectedList[_Object$keys(expectedList)[i]].onMessage === false)) {
-                                _context6.next = 24;
+                                _context6.next = 23;
                                 break;
                               }
 
                               result = false;
-                              return _context6.abrupt('break', 27);
+                              return _context6.abrupt('break', 26);
 
-                            case 24:
+                            case 23:
                               i++;
-                              _context6.next = 20;
+                              _context6.next = 16;
                               break;
 
-                            case 27:
+                            case 26:
                               if (result) {
                                 resolve({
                                   res: true,
@@ -28873,7 +28888,7 @@ var TraceServer = function () {
                                 clearTimeout(timerMultiESO);
                               }
 
-                            case 28:
+                            case 27:
                             case 'end':
                               return _context6.stop();
                           }
@@ -28886,7 +28901,7 @@ var TraceServer = function () {
                     };
                   }());
 
-                case 6:
+                case 9:
                 case 'end':
                   return _context7.stop();
               }

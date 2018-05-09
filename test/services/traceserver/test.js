@@ -55,43 +55,46 @@ let ts = new swag.TraceServer({
 // })();
 
 //test subscribe eso trace
+// // (async () => {
+// //   try {
+// //     let conn = await ts.connect();
+// //     console.log(conn);
+// //     let res = await ts.subscribe('testesoss', 'eso', '{"esotext"=="ask_global_pardon"}');
+// //     ts.socket.on('testesoss', data => {
+// //       console.log(data)
+// //       let msg = data.data.msgData.data.msgData.data;
+// //       console.log(msg);
+// //     });
+// //     setTimeout(async () => {let res = await ts.unsubscribe('testesoss');
+// //     console.log(res);
+// //     await ts.unsubscribe('testesoss')}, 3000, null);
+// //     console.log(res);
+// //   } catch (error) {
+// //     console.log(error)   
+// //   }
+
+// // })();
+
 (async () => {
   try {
     let conn = await ts.connect();
     console.log(conn);
-    let res = await ts.subscribe('testesoss', 'eso', '{"esotext"=="navi_ask_enter_home_address_VP_PROMPT"}');
-    ts.socket.on('testesoss', data => {
-      console.log(data)
-      let msg = data.data.msgData.data.msgData.data;
-      console.log(msg);
-    });
-    //setTimeout(async () => {let res = await ts.unsubscribe('testesoss');
-    //console.log(res);
-    //await ts.unsubscribe('testesoss')}, 3000, null);
-    //console.log(res);
+    let res = await ts.assertMultiESOTraces({
+      timeout: 20000
+    }, [{
+      keyword: 'ask_global_pardon',
+      singleReturn: true
+    },
+      {
+        singleReturn: true,
+      //keyword: 'navi_ask_enter_home_address_VP_PROMPT'
+      keyword: 'navi_info_route_guidance_to_destination_started_VP_PROMPT'
+    }])
+    console.log(res);
   } catch (error) {
-    console.log(error)   
+    console.log(error)
   }
-
 })();
-
-// (async () => {
-//   try {
-//     let conn = await ts.connect();
-//     console.log(conn);
-//     let res = await ts.assertMultiESOTraces({
-//       timeout: 20000
-//     }, [{
-//       keyword: 'M'
-//     }, {
-//       keyword: 'B'
-//     }])
-//     console.log(res);
-//   } catch (error) {
-//     console.log(error)
-//   }
-
-// })();
 
 // (async () => {
 //   try {

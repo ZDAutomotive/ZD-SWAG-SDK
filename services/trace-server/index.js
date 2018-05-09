@@ -230,7 +230,7 @@ export default class TraceServer {
           traces: expectedList
         })
       }, option.timeout || 21000);
-
+      const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
       assertionList.forEach(async (elem) => {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
         expectedList[hookName] = {
@@ -240,18 +240,20 @@ export default class TraceServer {
         };
         // set time out event
         const timer = setTimeout(() => {
-          this.socket.removeAllListeners(hookName)
-          this.removeHook(hookName)
+          this.unsubscribe(hookName);
+          // this.socket.removeAllListeners(hookName)
+          // this.removeHook(hookName)
         }, option.timeout || 20000);
         // set a hook
-        await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
+        await this.subscribe(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`);
+        //await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
         //console.log('waiting for hook')
         this.socket.on(hookName, (trace) => { 
           //console.log(trace.data.msgData.data.msgData.data);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           clearTimeout(timer)
-          this.removeHook(hookName)
+          this.unsubscribe(hookName);
           if(elem.singleReturn) {
             resolve({
               res: true,
@@ -280,22 +282,31 @@ export default class TraceServer {
         const now = Date.now()
         const checkBeginTime = now - 5000 // check from 5000ms before now
 
-        const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
         //trace.data.data.channel === eso trace port
         const foundBeforeESO = beforeESOs.find(
           trace => {
             // (trace.data.data.msgData.data.channelId === option.channelID) &&
             trace.data.data.msgData.data.msgData.data &&
-              (trace.data.data.msgData.data.msgData.data.indexOf(elem.keyword) !== -1)
+              (trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(elem.keyword.toUpperCase()) !== -1)
           })
         if (foundBeforeESO) {
+          //console.log(foundBeforeESO);
           expectedList[hookName].onMessage = true;
-          expectedList[hookName].trace = trace.data.msgData.data.msgData.data
-          this.socket.removeAllListeners(hookName)
+          expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data
           clearTimeout(timer)
-          this.removeHook(hookName)
+          this.unsubscribe(hookName);
+          // this.socket.removeAllListeners(hookName)
+          // this.removeHook(hookName)
           let result = true
           for(let i = 0; i < Object.keys(expectedList).length; i++) {
+            if(elem.singleReturn && expectedList[Object.keys(expectedList)[i]].onMessage === true) {
+              resolve({
+                res: true,
+                successReason: 'single',
+                traces: expectedList
+              })
+              return;
+            }
             if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
               result = false 
               break;
