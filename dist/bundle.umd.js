@@ -28770,7 +28770,7 @@ var TraceServer = function () {
 
       return new _Promise(function () {
         var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(resolve, reject) {
-          var expectedList, timerMultiESO, duration, now, checkBeginTime, beforeESOs;
+          var expectedList, timerList, timerMultiESO, duration, now, checkBeginTime, beforeESOs;
           return regenerator.wrap(function _callee8$(_context8) {
             while (1) {
               switch (_context8.prev = _context8.next) {
@@ -28785,6 +28785,7 @@ var TraceServer = function () {
 
                 case 3:
                   expectedList = {};
+                  timerList = {};
                   timerMultiESO = setTimeout(function () {
                     //let result = true;
                     for (var i = 0; i < _Object$keys(expectedList).length; i++) {
@@ -28802,32 +28803,16 @@ var TraceServer = function () {
                       traces: expectedList
                     });
                   }, option.timeout || 21000);
-                  _context8.next = 7;
-                  return _this4.getDuration();
 
-                case 7:
-                  duration = _context8.sent;
-                  now = duration.end;
-                  checkBeginTime = now - (option.before || 5000); // check from 5000ms before now
 
-                  console.log(duration);
-                  console.log('start', checkBeginTime, 'end', now);
-                  _context8.next = 14;
-                  return _this4.pull(checkBeginTime, now, ['ESO']);
-
-                case 14:
-                  beforeESOs = _context8.sent;
-
-                  console.log('length', beforeESOs.length);
-                  console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data);
                   assertionList.forEach(function () {
                     var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(elem) {
-                      var hookName, timer, foundBeforeESO, result, i;
+                      var hookName, timer;
                       return regenerator.wrap(function _callee7$(_context7) {
                         while (1) {
                           switch (_context7.prev = _context7.next) {
                             case 0:
-                              hookName = crypto.createHash('md5').update(_JSON$stringify(elem) + now).digest('hex');
+                              hookName = crypto.createHash('md5').update(_JSON$stringify(elem)).digest('hex');
 
                               expectedList[hookName] = {
                                 onMessage: false,
@@ -28838,24 +28823,26 @@ var TraceServer = function () {
                               // set time out event
                               timer = setTimeout(function () {
                                 _this4.unsubscribe(hookName);
-                                // this.socket.removeAllListeners(hookName)
+                                _this4.socket.removeAllListeners(hookName);
                                 // this.removeHook(hookName)
                               }, option.timeout || 20000);
-                              // set a hook
 
-                              _context7.next = 5;
+                              timerList[hookName] = timer;
+                              // set a hook
+                              _context7.next = 6;
                               return _this4.subscribe(hookName, 'ESO', '{"esotext"=="' + elem.keyword + '"}');
 
-                            case 5:
+                            case 6:
                               //await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
                               //console.log('waiting for hook')
-                              _this4.socket.on(hookName, function (trace) {
+                              _this4.socket.once(hookName, function (trace) {
                                 //console.log(trace.data.msgData.data.msgData.data);
                                 console.log('on event', hookName, elem.singleReturn);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
                                 clearTimeout(timer);
                                 _this4.unsubscribe(hookName);
+                                _this4.socket.removeAllListeners(hookName);
                                 if (expectedList[hookName].singleReturn) {
                                   resolve({
                                     res: true,
@@ -28883,68 +28870,7 @@ var TraceServer = function () {
                               });
                               //trace.data.data.channel === eso trace port
 
-                              foundBeforeESO = beforeESOs.find(function (trace) {
-                                // (trace.data.data.msgData.data.channelId === option.channelID) &&
-                                return trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(elem.keyword.toUpperCase()) !== -1;
-                              });
-
-                              console.log(foundBeforeESO);
-
-                              if (!foundBeforeESO) {
-                                _context7.next = 25;
-                                break;
-                              }
-
-                              console.log(foundBeforeESO.data.data.msgData.data.msgData.data);
-                              expectedList[hookName].onMessage = true;
-                              expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data;
-                              clearTimeout(timer);
-                              _this4.unsubscribe(hookName);
-                              // this.socket.removeAllListeners(hookName)
-                              // this.removeHook(hookName)
-                              result = true;
-                              i = 0;
-
-                            case 16:
-                              if (!(i < _Object$keys(expectedList).length)) {
-                                _context7.next = 24;
-                                break;
-                              }
-
-                              if (!(elem.singleReturn && expectedList[_Object$keys(expectedList)[i]].onMessage === true)) {
-                                _context7.next = 20;
-                                break;
-                              }
-
-                              resolve({
-                                res: true,
-                                successReason: 'single',
-                                traces: expectedList
-                              });
-                              return _context7.abrupt('return');
-
-                            case 20:
-                              if (expectedList[_Object$keys(expectedList)[i]].onMessage === false) {
-                                result = false;
-                                //break;
-                              }
-
-                            case 21:
-                              i++;
-                              _context7.next = 16;
-                              break;
-
-                            case 24:
-                              if (result) {
-                                resolve({
-                                  res: true,
-                                  successReason: 'all',
-                                  traces: expectedList
-                                });
-                                clearTimeout(timerMultiESO);
-                              }
-
-                            case 25:
+                            case 7:
                             case 'end':
                               return _context7.stop();
                           }
@@ -28956,8 +28882,67 @@ var TraceServer = function () {
                       return _ref8.apply(this, arguments);
                     };
                   }());
+                  _context8.next = 9;
+                  return _this4.getDuration();
 
-                case 18:
+                case 9:
+                  duration = _context8.sent;
+                  now = duration.end;
+                  checkBeginTime = now - (option.before || 5000); // check from 5000ms before now
+
+                  console.log(duration);
+                  console.log('start', checkBeginTime, 'end', now);
+                  _context8.next = 16;
+                  return _this4.pull(checkBeginTime, now, ['ESO']);
+
+                case 16:
+                  beforeESOs = _context8.sent;
+
+                  console.log('length', beforeESOs.length);
+                  console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data);
+
+                  _Object$keys(expectedList).forEach(function (hookName) {
+                    var foundBeforeESO = beforeESOs.find(function (trace) {
+                      // (trace.data.data.msgData.data.channelId === option.channelID) &&
+                      return trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1;
+                    });
+                    //console.log(foundBeforeESO)
+                    if (foundBeforeESO) {
+                      console.log(foundBeforeESO.data.data.msgData.data.msgData.data);
+                      expectedList[hookName].onMessage = true;
+                      expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data;
+                      clearTimeout(timerList[hookName]);
+                      _this4.unsubscribe(hookName);
+                      _this4.socket.removeAllListeners(hookName);
+                      // this.removeHook(hookName)
+                      var result = true;
+                      for (var i = 0; i < _Object$keys(expectedList).length; i++) {
+                        if (expectedList[hookName].singleReturn && expectedList[_Object$keys(expectedList)[i]].onMessage === true) {
+                          resolve({
+                            res: true,
+                            successReason: 'single',
+                            traces: expectedList
+                          });
+                          clearTimeout(timerMultiESO);
+                          return;
+                        }
+                        if (expectedList[_Object$keys(expectedList)[i]].onMessage === false) {
+                          result = false;
+                          //break;
+                        }
+                      }
+                      if (result) {
+                        resolve({
+                          res: true,
+                          successReason: 'all',
+                          traces: expectedList
+                        });
+                        clearTimeout(timerMultiESO);
+                      }
+                    }
+                  });
+
+                case 20:
                 case 'end':
                   return _context8.stop();
               }
