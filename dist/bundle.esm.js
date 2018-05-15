@@ -28802,14 +28802,17 @@ var TraceServer = function () {
                 case 7:
                   duration = _context8.sent;
                   now = duration.end;
-                  checkBeginTime = now - 5000; // check from 5000ms before now
+                  checkBeginTime = now - (option.before || 5000); // check from 5000ms before now
 
-                  _context8.next = 12;
+                  console.log(duration);
+                  _context8.next = 13;
                   return _this4.pull(checkBeginTime, now, ['ESO']);
 
-                case 12:
+                case 13:
                   beforeESOs = _context8.sent;
 
+                  console.log('length', beforeESOs.length);
+                  console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data);
                   assertionList.forEach(function () {
                     var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(elem) {
                       var hookName, timer, foundBeforeESO, result, i;
@@ -28870,6 +28873,7 @@ var TraceServer = function () {
                                 }
                               });
                               //trace.data.data.channel === eso trace port
+
                               foundBeforeESO = beforeESOs.find(function (trace) {
                                 // (trace.data.data.msgData.data.channelId === option.channelID) &&
                                 return trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(elem.keyword.toUpperCase()) !== -1;
@@ -28878,11 +28882,11 @@ var TraceServer = function () {
                               console.log(foundBeforeESO);
 
                               if (!foundBeforeESO) {
-                                _context7.next = 26;
+                                _context7.next = 25;
                                 break;
                               }
 
-                              //console.log(foundBeforeESO);
+                              console.log(foundBeforeESO.data.data.msgData.data.msgData.data);
                               expectedList[hookName].onMessage = true;
                               expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data;
                               clearTimeout(timer);
@@ -28892,14 +28896,14 @@ var TraceServer = function () {
                               result = true;
                               i = 0;
 
-                            case 15:
+                            case 16:
                               if (!(i < _Object$keys(expectedList).length)) {
-                                _context7.next = 25;
+                                _context7.next = 24;
                                 break;
                               }
 
                               if (!(elem.singleReturn && expectedList[_Object$keys(expectedList)[i]].onMessage === true)) {
-                                _context7.next = 19;
+                                _context7.next = 20;
                                 break;
                               }
 
@@ -28910,21 +28914,18 @@ var TraceServer = function () {
                               });
                               return _context7.abrupt('return');
 
-                            case 19:
-                              if (!(expectedList[_Object$keys(expectedList)[i]].onMessage === false)) {
-                                _context7.next = 22;
-                                break;
+                            case 20:
+                              if (expectedList[_Object$keys(expectedList)[i]].onMessage === false) {
+                                result = false;
+                                //break;
                               }
 
-                              result = false;
-                              return _context7.abrupt('break', 25);
-
-                            case 22:
+                            case 21:
                               i++;
-                              _context7.next = 15;
+                              _context7.next = 16;
                               break;
 
-                            case 25:
+                            case 24:
                               if (result) {
                                 resolve({
                                   res: true,
@@ -28934,7 +28935,7 @@ var TraceServer = function () {
                                 clearTimeout(timerMultiESO);
                               }
 
-                            case 26:
+                            case 25:
                             case 'end':
                               return _context7.stop();
                           }
@@ -28947,7 +28948,7 @@ var TraceServer = function () {
                     };
                   }());
 
-                case 14:
+                case 17:
                 case 'end':
                   return _context8.stop();
               }

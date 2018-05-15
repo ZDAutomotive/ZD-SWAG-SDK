@@ -84,6 +84,9 @@ let ts = new swag.TraceServer({
     }, [{
       keyword: 'ask_global_pardon',
       singleReturn: true
+    },{
+      keyword: 'calcroute',
+      singleReturn: true
     },
       {
         singleReturn: true,

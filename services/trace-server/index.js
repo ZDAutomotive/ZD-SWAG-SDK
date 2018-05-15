@@ -240,8 +240,11 @@ export default class TraceServer {
 
       const duration = await this.getDuration()
       const now = duration.end
-      const checkBeginTime = now - 5000 // check from 5000ms before now
+      const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
+      console.log(duration);
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
+      console.log('length', beforeESOs.length)
+      console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data)
       assertionList.forEach(async (elem) => {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
         expectedList[hookName] = {
@@ -291,6 +294,7 @@ export default class TraceServer {
           }
         })
         //trace.data.data.channel === eso trace port
+
         const foundBeforeESO = beforeESOs.find(
           trace => {
             // (trace.data.data.msgData.data.channelId === option.channelID) &&
@@ -299,7 +303,7 @@ export default class TraceServer {
           })
         console.log(foundBeforeESO)
         if (foundBeforeESO) {
-          //console.log(foundBeforeESO);
+          console.log(foundBeforeESO.data.data.msgData.data.msgData.data);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data
           clearTimeout(timer)
@@ -318,7 +322,7 @@ export default class TraceServer {
             }
             if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
               result = false 
-              break;
+              //break;
             }
           }
           if(result) {
