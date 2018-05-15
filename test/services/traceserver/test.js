@@ -80,12 +80,13 @@ let ts = new swag.TraceServer({
     let conn = await ts.connect();
     console.log(conn);
     let res = await ts.assertMultiESOTraces({
-      timeout: 20000
+      timeout: 200000,
+      before: 2000
     }, [{
       keyword: 'ask_global_pardon',
-      singleReturn: true
+      singleReturn: false
     },{
-      keyword: 'calcroute',
+      keyword: 'FN_NAVI_CALCROUTE_STARTGUIDANCE_CB',
       singleReturn: true
     },
       {

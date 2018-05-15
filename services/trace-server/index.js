@@ -242,6 +242,7 @@ export default class TraceServer {
       const now = duration.end
       const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
       console.log(duration);
+      console.log('start', checkBeginTime, 'end', now);
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
       console.log('length', beforeESOs.length)
       console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data)
@@ -250,7 +251,8 @@ export default class TraceServer {
         expectedList[hookName] = {
           onMessage: false,
           keyword: elem.keyword,
-          trace: ''
+          trace: '',
+          singleReturn: elem.singleReturn
         };
         // set time out event
         const timer = setTimeout(() => {
@@ -264,11 +266,12 @@ export default class TraceServer {
         //console.log('waiting for hook')
         this.socket.on(hookName, (trace) => { 
           //console.log(trace.data.msgData.data.msgData.data);
+          console.log(elem.singleReturn);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           clearTimeout(timer)
           this.unsubscribe(hookName);
-          if(elem.singleReturn) {
+          if(expectedList[hookName].singleReturn) {
             resolve({
               res: true,
               successReason: 'single',

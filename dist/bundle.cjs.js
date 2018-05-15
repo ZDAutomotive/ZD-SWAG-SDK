@@ -14771,10 +14771,11 @@ var TraceServer = function () {
                   checkBeginTime = now - (option.before || 5000); // check from 5000ms before now
 
                   console.log(duration);
-                  _context8.next = 13;
+                  console.log('start', checkBeginTime, 'end', now);
+                  _context8.next = 14;
                   return _this4.pull(checkBeginTime, now, ['ESO']);
 
-                case 13:
+                case 14:
                   beforeESOs = _context8.sent;
 
                   console.log('length', beforeESOs.length);
@@ -14791,7 +14792,8 @@ var TraceServer = function () {
                               expectedList[hookName] = {
                                 onMessage: false,
                                 keyword: elem.keyword,
-                                trace: ''
+                                trace: '',
+                                singleReturn: elem.singleReturn
                               };
                               // set time out event
                               timer = setTimeout(function () {
@@ -14809,11 +14811,12 @@ var TraceServer = function () {
                               //console.log('waiting for hook')
                               _this4.socket.on(hookName, function (trace) {
                                 //console.log(trace.data.msgData.data.msgData.data);
+                                console.log(elem.singleReturn);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
                                 clearTimeout(timer);
                                 _this4.unsubscribe(hookName);
-                                if (elem.singleReturn) {
+                                if (expectedList[hookName].singleReturn) {
                                   resolve({
                                     res: true,
                                     successReason: 'single',
@@ -14914,7 +14917,7 @@ var TraceServer = function () {
                     };
                   }());
 
-                case 17:
+                case 18:
                 case 'end':
                   return _context8.stop();
               }
