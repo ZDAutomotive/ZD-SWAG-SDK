@@ -14787,7 +14787,7 @@ var TraceServer = function () {
                         while (1) {
                           switch (_context7.prev = _context7.next) {
                             case 0:
-                              hookName = crypto.createHash('md5').update(_JSON$stringify(elem)).digest('hex');
+                              hookName = crypto.createHash('md5').update(_JSON$stringify(elem) + now).digest('hex');
 
                               expectedList[hookName] = {
                                 onMessage: false,
@@ -14811,7 +14811,7 @@ var TraceServer = function () {
                               //console.log('waiting for hook')
                               _this4.socket.on(hookName, function (trace) {
                                 //console.log(trace.data.msgData.data.msgData.data);
-                                console.log(elem.singleReturn);
+                                console.log('on event', hookName, elem.singleReturn);
                                 expectedList[hookName].onMessage = true;
                                 expectedList[hookName].trace = trace.data.msgData.data.msgData.data;
                                 clearTimeout(timer);

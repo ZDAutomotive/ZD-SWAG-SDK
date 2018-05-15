@@ -81,7 +81,7 @@ let ts = new swag.TraceServer({
     console.log(conn);
     let res = await ts.assertMultiESOTraces({
       timeout: 200000,
-      before: 2000
+      before: 20000
     }, [{
       keyword: 'ask_global_pardon',
       singleReturn: false

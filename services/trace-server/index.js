@@ -247,7 +247,7 @@ export default class TraceServer {
       console.log('length', beforeESOs.length)
       console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data)
       assertionList.forEach(async (elem) => {
-        const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
+        const hookName = crypto.createHash('md5').update(JSON.stringify(elem) + now).digest('hex');
         expectedList[hookName] = {
           onMessage: false,
           keyword: elem.keyword,
@@ -266,7 +266,7 @@ export default class TraceServer {
         //console.log('waiting for hook')
         this.socket.on(hookName, (trace) => { 
           //console.log(trace.data.msgData.data.msgData.data);
-          console.log(elem.singleReturn);
+          console.log('on event', hookName, elem.singleReturn);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           clearTimeout(timer)
