@@ -18980,6 +18980,8 @@ var Simulation = function () {
           Remotepanel.port = _this.port;
           CANSim.host = _this.host;
           CANSim.port = _this.port;
+          BAPSim.host = _this.host;
+          BAPSim.port = _this.port;
           _this.socket.removeAllListeners('connect');
           _this.socket.removeAllListeners('connect_error');
         });

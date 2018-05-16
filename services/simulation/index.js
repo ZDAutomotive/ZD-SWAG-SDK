@@ -20,6 +20,8 @@ export default class Simulation {
         Remotepanel.port = this.port
         CANSim.host = this.host
         CANSim.port = this.port
+        BAPSim.host = this.host
+        BAPSim.port = this.port
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
       })
