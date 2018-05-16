@@ -22,7 +22,7 @@ declare interface assertCANOption {
 
 export class AndroidProberProxy {
   socket: SocketIOClient;
-  constructor(option: Object);
+  constructor(option?: Object);
 
   listen(): SocketIOClient;
   connect(): void;
@@ -31,14 +31,14 @@ export class AndroidProberProxy {
 export class TraceServer {
   port: number;
   host: string;
-  constructor(option: BasicOption);
+  constructor(option?: BasicOption);
   connect(): Promise<number>;
   pull(start: number, end: number, modules: Array<string>): Promise<Array<Object>>;
-  hook(eventName: string, filterString: string): AxiosPromise;
+  hook(eventName: string, type: string, filterString: string): AxiosPromise;
   removeHook(eventName: string): AxiosPromise;
 
   assertCAN(option: assertCANOption): Promise<any>;
-  subscribe(name: string, type: string): boolean;
+  subscribe(name: string, type: string, filterString: string): boolean;
   unsubscribe(name: string): boolean;
   unsubscribeType(type: string): boolean;
   setFilter(filters: Array<Object>): AxiosPromise;
@@ -47,7 +47,7 @@ export class TraceServer {
 
 export class TTS {
   option: any;
-  constructor(option: any);
+  constructor(option?: any);
   new(data: Object, cb: (isErr: boolean, data: any) => void);
   update(id: any, data: Object, cb: (isErr: boolean, data: any) => void);
   delete(id: any, cb: (isErr: boolean, data: any) => void);
@@ -57,7 +57,7 @@ export class TTS {
 export class AudiMainUnit {
   port: number;
   host: string;
-  constructor(option: BasicOption);
+  constructor(option?: BasicOption);
   connect(): Promise<number>;
   getVIN(): Promise<any>;
   getBackend(): Promise<any>;
@@ -68,10 +68,22 @@ export class AudiMainUnit {
 export class CANTrace {
   port: number;
   host: string;
-  constructor(option: BasicOption);
+  constructor(option?: BasicOption);
   connect(): Promise<number>;
   sendCANMsg(name: string, canmsg: Object): Promise<any>;
   sendMultiCANMsgs(name: string, canmsgs: Array<Object>): boolean;
+}
+
+export class BAPTrace {
+  port: number;
+  host: string;
+  constructor(option?: BasicOption);
+  connect(type?: string): Promise<number>;
+  bap2CAN(CANID: number, LSGID: number, FCTID: number, OPCODE: number, DATA: number[], LEN: number): Promise<object>;
+  initView(fileName: string): Promise<object>;
+  uninitView(): Promise<object>;
+  getViewState(): Promise<object>;
+  parseBAP(bapmsg: object): Promise<object>;
 }
 
 export interface ZDSWAGInstance {

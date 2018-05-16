@@ -1,6 +1,7 @@
 import ioClient from 'socket.io-client';
 import Remotepanel from './remotepanel'
 import CANSim from './cansim'
+import BAPSim from './bapsim'
 
 export default class Simulation {
   constructor(option) {
@@ -10,12 +11,11 @@ export default class Simulation {
     this.subscribeMap = {}
   }
 
-  connect(type) {
+  connect() {
     return new Promise((resolve, reject) => {
       this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
       this.socket.on('connect', () => {
         resolve(1)
-        this.socket.emit('identity', type)
         Remotepanel.host = this.host
         Remotepanel.port = this.port
         CANSim.host = this.host
@@ -33,12 +33,17 @@ export default class Simulation {
   }
 
   get Remotepanel() {
-    if (!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Simualtion service not ready')
     return Remotepanel
   }
 
   get CANSim() {
-    if (!this.socket) throw new Error('Service not ready')
+    if (!this.socket) throw new Error('Simualtion service not ready')
     return CANSim
+  }
+
+  get BAPSim() {
+    if (!this.socket) throw new Error('Simualtion service not ready')
+    return BAPSim
   }
 }
