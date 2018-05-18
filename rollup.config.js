@@ -3,6 +3,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
 import json from 'rollup-plugin-json'
 import builtins from 'rollup-plugin-node-builtins'
+import uglify from 'rollup-plugin-uglify'
 import pkgInfo from './package.json'
 
 export default [
@@ -24,7 +25,8 @@ export default [
       babel({
         exclude: ['node_modules/**'],
         runtimeHelpers: true
-      })
+      }),
+      uglify()
     ]
   },
   {

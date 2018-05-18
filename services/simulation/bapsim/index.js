@@ -59,7 +59,7 @@ export default {
     return res.data
   },
   async loadConfig(fileName) {
-    const res = await axios.post(`http://${host}:${port}/bapsim/data/all`, {
+    const res = await axios.put(`http://${host}:${port}/bapsim/data/all`, {
       fileName
     })
     return res.data

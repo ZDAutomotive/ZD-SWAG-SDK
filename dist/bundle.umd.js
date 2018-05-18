@@ -29267,243 +29267,271 @@ var assert$4 = ( assert$3 && assert$1 ) || assert$3;
 
 var require$$0$36 = ( stream && Stream$1 ) || stream;
 
-var followRedirects = createCommonjsModule(function (module) {
-var Writable = require$$0$36.Writable;
-var debug = src$6('follow-redirects');
+var Writable$2 = require$$0$36.Writable;
+var debug$15 = src$6("follow-redirects");
 
-var nativeProtocols = {'http:': http$2, 'https:': http$2};
-var schemes = {};
-var exports = module.exports = {
-	maxRedirects: 21
-};
 // RFC7231§4.2.1: Of the request methods defined by this specification,
 // the GET, HEAD, OPTIONS, and TRACE methods are defined to be safe.
-var safeMethods = {GET: true, HEAD: true, OPTIONS: true, TRACE: true};
+var SAFE_METHODS = { GET: true, HEAD: true, OPTIONS: true, TRACE: true };
 
 // Create handlers that pass events from native requests
 var eventHandlers = Object.create(null);
-['abort', 'aborted', 'error', 'socket'].forEach(function (event) {
-	eventHandlers[event] = function (arg) {
-		this._redirectable.emit(event, arg);
-	};
+["abort", "aborted", "error", "socket", "timeout"].forEach(function (event) {
+  eventHandlers[event] = function (arg) {
+    this._redirectable.emit(event, arg);
+  };
 });
 
 // An HTTP(S) request that can be redirected
 function RedirectableRequest(options, responseCallback) {
-	// Initialize the request
-	Writable.call(this);
-	this._options = options;
-	this._redirectCount = 0;
-	this._bufferedWrites = [];
+  // Initialize the request
+  Writable$2.call(this);
+  options.headers = options.headers || {};
+  this._options = options;
+  this._redirectCount = 0;
+  this._requestBodyLength = 0;
+  this._requestBodyBuffers = [];
 
-	// Attach a callback if passed
-	if (responseCallback) {
-		this.on('response', responseCallback);
-	}
+  // Attach a callback if passed
+  if (responseCallback) {
+    this.on("response", responseCallback);
+  }
 
-	// React to responses of native requests
-	var self = this;
-	this._onNativeResponse = function (response) {
-		self._processResponse(response);
-	};
+  // React to responses of native requests
+  var self = this;
+  this._onNativeResponse = function (response) {
+    self._processResponse(response);
+  };
 
-	// Complete the URL object when necessary
-	if (!options.pathname && options.path) {
-		var searchPos = options.path.indexOf('?');
-		if (searchPos < 0) {
-			options.pathname = options.path;
-		} else {
-			options.pathname = options.path.substring(0, searchPos);
-			options.search = options.path.substring(searchPos);
-		}
-	}
+  // Complete the URL object when necessary
+  if (!options.pathname && options.path) {
+    var searchPos = options.path.indexOf("?");
+    if (searchPos < 0) {
+      options.pathname = options.path;
+    }
+    else {
+      options.pathname = options.path.substring(0, searchPos);
+      options.search = options.path.substring(searchPos);
+    }
+  }
 
-	// Perform the first request
-	this._performRequest();
+  // Perform the first request
+  this._performRequest();
 }
-RedirectableRequest.prototype = Object.create(Writable.prototype);
-
-// Executes the next native request (initial or redirect)
-RedirectableRequest.prototype._performRequest = function () {
-	// If specified, use the agent corresponding to the protocol
-	// (HTTP and HTTPS use different types of agents)
-	var protocol = this._options.protocol;
-	if (this._options.agents) {
-		this._options.agent = this._options.agents[schemes[protocol]];
-	}
-
-	// Create the native request
-	var nativeProtocol = nativeProtocols[protocol];
-	var request = this._currentRequest =
-				nativeProtocol.request(this._options, this._onNativeResponse);
-	this._currentUrl = require$$0$25.format(this._options);
-
-	// Set up event handlers
-	request._redirectable = this;
-	for (var event in eventHandlers) {
-		/* istanbul ignore else */
-		if (event) {
-			request.on(event, eventHandlers[event]);
-		}
-	}
-
-	// End a redirected request
-	// (The first request must be ended explicitly with RedirectableRequest#end)
-	if (this._isRedirect) {
-		// If the request doesn't have en entity, end directly.
-		var bufferedWrites = this._bufferedWrites;
-		if (bufferedWrites.length === 0) {
-			request.end();
-		// Otherwise, write the request entity and end afterwards.
-		} else {
-			var i = 0;
-			(function writeNext() {
-				if (i < bufferedWrites.length) {
-					var bufferedWrite = bufferedWrites[i++];
-					request.write(bufferedWrite.data, bufferedWrite.encoding, writeNext);
-				} else {
-					request.end();
-				}
-			})();
-		}
-	}
-};
-
-// Processes a response from the current native request
-RedirectableRequest.prototype._processResponse = function (response) {
-	// RFC7231§6.4: The 3xx (Redirection) class of status code indicates
-	// that further action needs to be taken by the user agent in order to
-	// fulfill the request. If a Location header field is provided,
-	// the user agent MAY automatically redirect its request to the URI
-	// referenced by the Location field value,
-	// even if the specific status code is not understood.
-	var location = response.headers.location;
-	if (location && this._options.followRedirects !== false &&
-			response.statusCode >= 300 && response.statusCode < 400) {
-		// RFC7231§6.4: A client SHOULD detect and intervene
-		// in cyclical redirections (i.e., "infinite" redirection loops).
-		if (++this._redirectCount > this._options.maxRedirects) {
-			return this.emit('error', new Error('Max redirects exceeded.'));
-		}
-
-		// RFC7231§6.4: Automatic redirection needs to done with
-		// care for methods not known to be safe […],
-		// since the user might not wish to redirect an unsafe request.
-		// RFC7231§6.4.7: The 307 (Temporary Redirect) status code indicates
-		// that the target resource resides temporarily under a different URI
-		// and the user agent MUST NOT change the request method
-		// if it performs an automatic redirection to that URI.
-		var header;
-		var headers = this._options.headers;
-		if (response.statusCode !== 307 && !(this._options.method in safeMethods)) {
-			this._options.method = 'GET';
-			// Drop a possible entity and headers related to it
-			this._bufferedWrites = [];
-			for (header in headers) {
-				if (/^content-/i.test(header)) {
-					delete headers[header];
-				}
-			}
-		}
-
-		// Drop the Host header, as the redirect might lead to a different host
-		if (!this._isRedirect) {
-			for (header in headers) {
-				if (/^host$/i.test(header)) {
-					delete headers[header];
-				}
-			}
-		}
-
-		// Perform the redirected request
-		var redirectUrl = require$$0$25.resolve(this._currentUrl, location);
-		debug('redirecting to', redirectUrl);
-		Object.assign(this._options, require$$0$25.parse(redirectUrl));
-		this._isRedirect = true;
-		this._performRequest();
-	} else {
-		// The response is not a redirect; return it as-is
-		response.responseUrl = this._currentUrl;
-		this.emit('response', response);
-
-		// Clean up
-		delete this._options;
-		delete this._bufferedWrites;
-	}
-};
-
-// Aborts the current native request
-RedirectableRequest.prototype.abort = function () {
-	this._currentRequest.abort();
-};
-
-// Flushes the headers of the current native request
-RedirectableRequest.prototype.flushHeaders = function () {
-	this._currentRequest.flushHeaders();
-};
-
-// Sets the noDelay option of the current native request
-RedirectableRequest.prototype.setNoDelay = function (noDelay) {
-	this._currentRequest.setNoDelay(noDelay);
-};
-
-// Sets the socketKeepAlive option of the current native request
-RedirectableRequest.prototype.setSocketKeepAlive = function (enable, initialDelay) {
-	this._currentRequest.setSocketKeepAlive(enable, initialDelay);
-};
-
-// Sets the timeout option of the current native request
-RedirectableRequest.prototype.setTimeout = function (timeout, callback) {
-	this._currentRequest.setTimeout(timeout, callback);
-};
+RedirectableRequest.prototype = Object.create(Writable$2.prototype);
 
 // Writes buffered data to the current native request
 RedirectableRequest.prototype.write = function (data, encoding, callback) {
-	this._currentRequest.write(data, encoding, callback);
-	this._bufferedWrites.push({data: data, encoding: encoding});
+  if (this._requestBodyLength + data.length <= this._options.maxBodyLength) {
+    this._requestBodyLength += data.length;
+    this._requestBodyBuffers.push({ data: data, encoding: encoding });
+    this._currentRequest.write(data, encoding, callback);
+  }
+  else {
+    this.emit("error", new Error("Request body larger than maxBodyLength limit"));
+    this.abort();
+  }
 };
 
 // Ends the current native request
 RedirectableRequest.prototype.end = function (data, encoding, callback) {
-	this._currentRequest.end(data, encoding, callback);
-	if (data) {
-		this._bufferedWrites.push({data: data, encoding: encoding});
-	}
+  var currentRequest = this._currentRequest;
+  if (!data) {
+    currentRequest.end(null, null, callback);
+  }
+  else {
+    this.write(data, encoding, function () {
+      currentRequest.end(null, null, callback);
+    });
+  }
 };
 
-// Export a redirecting wrapper for each native protocol
-Object.keys(nativeProtocols).forEach(function (protocol) {
-	var scheme = schemes[protocol] = protocol.substr(0, protocol.length - 1);
-	var nativeProtocol = nativeProtocols[protocol];
-	var wrappedProtocol = exports[scheme] = Object.create(nativeProtocol);
+// Sets a header value on the current native request
+RedirectableRequest.prototype.setHeader = function (name, value) {
+  this._options.headers[name] = value;
+  this._currentRequest.setHeader(name, value);
+};
 
-	// Executes an HTTP request, following redirects
-	wrappedProtocol.request = function (options, callback) {
-		if (typeof options === 'string') {
-			options = require$$0$25.parse(options);
-			options.maxRedirects = exports.maxRedirects;
-		} else {
-			options = Object.assign({
-				maxRedirects: exports.maxRedirects,
-				protocol: protocol
-			}, options);
-		}
-		assert$4.equal(options.protocol, protocol, 'protocol mismatch');
-		debug('options', options);
+// Clears a header value on the current native request
+RedirectableRequest.prototype.removeHeader = function (name) {
+  delete this._options.headers[name];
+  this._currentRequest.removeHeader(name);
+};
 
-		return new RedirectableRequest(options, callback);
-	};
-
-	// Executes a GET request, following redirects
-	wrappedProtocol.get = function (options, callback) {
-		var request = wrappedProtocol.request(options, callback);
-		request.end();
-		return request;
-	};
-});
+// Proxy all other public ClientRequest methods
+[
+  "abort", "flushHeaders", "getHeader",
+  "setNoDelay", "setSocketKeepAlive", "setTimeout",
+].forEach(function (method) {
+  RedirectableRequest.prototype[method] = function (a, b) {
+    return this._currentRequest[method](a, b);
+  };
 });
 
-var followRedirects_1 = followRedirects.maxRedirects;
+// Proxy all public ClientRequest properties
+["aborted", "connection", "socket"].forEach(function (property) {
+  Object.defineProperty(RedirectableRequest.prototype, property, {
+    get: function () { return this._currentRequest[property]; },
+  });
+});
+
+// Executes the next native request (initial or redirect)
+RedirectableRequest.prototype._performRequest = function () {
+  // Load the native protocol
+  var protocol = this._options.protocol;
+  var nativeProtocol = this._options.nativeProtocols[protocol];
+
+  // If specified, use the agent corresponding to the protocol
+  // (HTTP and HTTPS use different types of agents)
+  if (this._options.agents) {
+    var scheme = protocol.substr(0, protocol.length - 1);
+    this._options.agent = this._options.agents[scheme];
+  }
+
+  // Create the native request
+  var request = this._currentRequest =
+        nativeProtocol.request(this._options, this._onNativeResponse);
+  this._currentUrl = require$$0$25.format(this._options);
+
+  // Set up event handlers
+  request._redirectable = this;
+  for (var event in eventHandlers) {
+    /* istanbul ignore else */
+    if (event) {
+      request.on(event, eventHandlers[event]);
+    }
+  }
+
+  // End a redirected request
+  // (The first request must be ended explicitly with RedirectableRequest#end)
+  if (this._isRedirect) {
+    // Write the request entity and end.
+    var requestBodyBuffers = this._requestBodyBuffers;
+    (function writeNext() {
+      if (requestBodyBuffers.length !== 0) {
+        var buffer = requestBodyBuffers.pop();
+        request.write(buffer.data, buffer.encoding, writeNext);
+      }
+      else {
+        request.end();
+      }
+    }());
+  }
+};
+
+// Processes a response from the current native request
+RedirectableRequest.prototype._processResponse = function (response) {
+  // RFC7231§6.4: The 3xx (Redirection) class of status code indicates
+  // that further action needs to be taken by the user agent in order to
+  // fulfill the request. If a Location header field is provided,
+  // the user agent MAY automatically redirect its request to the URI
+  // referenced by the Location field value,
+  // even if the specific status code is not understood.
+  var location = response.headers.location;
+  if (location && this._options.followRedirects !== false &&
+      response.statusCode >= 300 && response.statusCode < 400) {
+    // RFC7231§6.4: A client SHOULD detect and intervene
+    // in cyclical redirections (i.e., "infinite" redirection loops).
+    if (++this._redirectCount > this._options.maxRedirects) {
+      this.emit("error", new Error("Max redirects exceeded."));
+      return;
+    }
+
+    // RFC7231§6.4: Automatic redirection needs to done with
+    // care for methods not known to be safe […],
+    // since the user might not wish to redirect an unsafe request.
+    // RFC7231§6.4.7: The 307 (Temporary Redirect) status code indicates
+    // that the target resource resides temporarily under a different URI
+    // and the user agent MUST NOT change the request method
+    // if it performs an automatic redirection to that URI.
+    var header;
+    var headers = this._options.headers;
+    if (response.statusCode !== 307 && !(this._options.method in SAFE_METHODS)) {
+      this._options.method = "GET";
+      // Drop a possible entity and headers related to it
+      this._requestBodyBuffers = [];
+      for (header in headers) {
+        if (/^content-/i.test(header)) {
+          delete headers[header];
+        }
+      }
+    }
+
+    // Drop the Host header, as the redirect might lead to a different host
+    if (!this._isRedirect) {
+      for (header in headers) {
+        if (/^host$/i.test(header)) {
+          delete headers[header];
+        }
+      }
+    }
+
+    // Perform the redirected request
+    var redirectUrl = require$$0$25.resolve(this._currentUrl, location);
+    debug$15("redirecting to", redirectUrl);
+    Object.assign(this._options, require$$0$25.parse(redirectUrl));
+    this._isRedirect = true;
+    this._performRequest();
+  }
+  else {
+    // The response is not a redirect; return it as-is
+    response.responseUrl = this._currentUrl;
+    this.emit("response", response);
+
+    // Clean up
+    this._requestBodyBuffers = [];
+  }
+};
+
+// Wraps the key/value object of protocols with redirect functionality
+function wrap(protocols) {
+  // Default settings
+  var exports = {
+    maxRedirects: 21,
+    maxBodyLength: 10 * 1024 * 1024,
+  };
+
+  // Wrap each protocol
+  var nativeProtocols = {};
+  Object.keys(protocols).forEach(function (scheme) {
+    var protocol = scheme + ":";
+    var nativeProtocol = nativeProtocols[protocol] = protocols[scheme];
+    var wrappedProtocol = exports[scheme] = Object.create(nativeProtocol);
+
+    // Executes a request, following redirects
+    wrappedProtocol.request = function (options, callback) {
+      if (typeof options === "string") {
+        options = require$$0$25.parse(options);
+        options.maxRedirects = exports.maxRedirects;
+      }
+      else {
+        options = Object.assign({
+          protocol: protocol,
+          maxRedirects: exports.maxRedirects,
+          maxBodyLength: exports.maxBodyLength,
+        }, options);
+      }
+      options.nativeProtocols = nativeProtocols;
+      assert$4.equal(options.protocol, protocol, "protocol mismatch");
+      debug$15("options", options);
+      return new RedirectableRequest(options, callback);
+    };
+
+    // Executes a GET request, following redirects
+    wrappedProtocol.get = function (options, callback) {
+      var request = wrappedProtocol.request(options, callback);
+      request.end();
+      return request;
+    };
+  });
+  return exports;
+}
+
+// Exports
+var followRedirects = wrap({ http: http$2, https: http$2 });
+var wrap_1 = wrap;
+
+followRedirects.wrap = wrap_1;
 
 var _from = "axios";
 var _id = "axios@0.17.1";
@@ -33049,7 +33077,7 @@ var BAPSim = {
           switch (_context10.prev = _context10.next) {
             case 0:
               _context10.next = 2;
-              return axios$1.post('http://' + host$2 + ':' + port$3 + '/bapsim/data/all', {
+              return axios$1.put('http://' + host$2 + ':' + port$3 + '/bapsim/data/all', {
                 fileName: fileName
               });
 
