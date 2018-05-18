@@ -32987,7 +32987,7 @@ var BAPSim = {
           switch (_context7.prev = _context7.next) {
             case 0:
               _context7.next = 2;
-              return axios$1.post('http://' + host$2 + ':' + port$3 + '/bapsim/lsg/' + lsgID + '/' + fctID, {
+              return axios$1.put('http://' + host$2 + ':' + port$3 + '/bapsim/lsg/' + lsgID + '/' + fctID, {
                 data: data
               });
 
