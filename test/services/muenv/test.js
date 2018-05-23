@@ -1,5 +1,5 @@
 const swag = require('../../../dist/bundle.cjs');
-let mu = new swag.AudiMainUnit({host: '192.168.178.71'});
+let mu = new swag.AudiMainUnit({host: '192.168.178.49'});
 (async () => {
   try {
     let conn = await mu.connect();
@@ -10,6 +10,8 @@ let mu = new swag.AudiMainUnit({host: '192.168.178.71'});
       //   timeout: 30000
       // })
     let res = await mu.getCurrentScreenID();
+    console.log(res);
+    res = await mu.cmdSingleSpeak('哈哈哈')
     console.log(res);
   } catch (error) {
     console.log(error)   

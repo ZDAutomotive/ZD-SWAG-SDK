@@ -97,4 +97,10 @@ export default class MainUnit {
     let res = await axios.post(`http://${this.host}:${this.port}/envstatus/resetesotrace`, {token:'resetEsoTraceDefault'})
     return res.data
   }
+
+  async cmdSingleSpeak(text) {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/mu/cmdSingleSpeak`, {text})
+    return res.data
+  } 
 }
