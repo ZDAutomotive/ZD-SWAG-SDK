@@ -27092,8 +27092,13 @@ var assert$4 = ( assert$3 && assert$1 ) || assert$3;
 
 var require$$0$27 = ( stream && Stream$1 ) || stream;
 
+<<<<<<< HEAD
 var Writable$2 = require$$0$27.Writable;
 var debug$9 = src("follow-redirects");
+=======
+var Writable$2 = require$$0$36.Writable;
+var debug$15 = src$6("follow-redirects");
+>>>>>>> origin/master
 
 // RFC7231§4.2.1: Of the request methods defined by this specification,
 // the GET, HEAD, OPTIONS, and TRACE methods are defined to be safe.
@@ -27216,7 +27221,11 @@ RedirectableRequest.prototype._performRequest = function () {
   // Create the native request
   var request = this._currentRequest =
         nativeProtocol.request(this._options, this._onNativeResponse);
+<<<<<<< HEAD
   this._currentUrl = require$$0$21.format(this._options);
+=======
+  this._currentUrl = require$$0$25.format(this._options);
+>>>>>>> origin/master
 
   // Set up event handlers
   request._redirectable = this;
@@ -27292,9 +27301,15 @@ RedirectableRequest.prototype._processResponse = function (response) {
     }
 
     // Perform the redirected request
+<<<<<<< HEAD
     var redirectUrl = require$$0$21.resolve(this._currentUrl, location);
     debug$9("redirecting to", redirectUrl);
     Object.assign(this._options, require$$0$21.parse(redirectUrl));
+=======
+    var redirectUrl = require$$0$25.resolve(this._currentUrl, location);
+    debug$15("redirecting to", redirectUrl);
+    Object.assign(this._options, require$$0$25.parse(redirectUrl));
+>>>>>>> origin/master
     this._isRedirect = true;
     this._performRequest();
   }
@@ -27326,7 +27341,11 @@ function wrap(protocols) {
     // Executes a request, following redirects
     wrappedProtocol.request = function (options, callback) {
       if (typeof options === "string") {
+<<<<<<< HEAD
         options = require$$0$21.parse(options);
+=======
+        options = require$$0$25.parse(options);
+>>>>>>> origin/master
         options.maxRedirects = exports.maxRedirects;
       }
       else {
@@ -27338,7 +27357,11 @@ function wrap(protocols) {
       }
       options.nativeProtocols = nativeProtocols;
       assert$4.equal(options.protocol, protocol, "protocol mismatch");
+<<<<<<< HEAD
       debug$9("options", options);
+=======
+      debug$15("options", options);
+>>>>>>> origin/master
       return new RedirectableRequest(options, callback);
     };
 
@@ -27351,10 +27374,19 @@ function wrap(protocols) {
   });
   return exports;
 }
+<<<<<<< HEAD
 
 // Exports
 var followRedirects = wrap({ http: http$2, https: http$2 });
 var wrap_1 = wrap;
+=======
+
+// Exports
+var followRedirects = wrap({ http: http$2, https: http$2 });
+var wrap_1 = wrap;
+
+followRedirects.wrap = wrap_1;
+>>>>>>> origin/master
 
 followRedirects.wrap = wrap_1;
 
@@ -30880,7 +30912,7 @@ var BAPSim = {
           switch (_context7.prev = _context7.next) {
             case 0:
               _context7.next = 2;
-              return axios$1.post('http://' + host$2 + ':' + port$3 + '/bapsim/lsg/' + lsgID + '/' + fctID, {
+              return axios$1.put('http://' + host$2 + ':' + port$3 + '/bapsim/lsg/' + lsgID + '/' + fctID, {
                 data: data
               });
 
@@ -30970,7 +31002,7 @@ var BAPSim = {
           switch (_context10.prev = _context10.next) {
             case 0:
               _context10.next = 2;
-              return axios$1.post('http://' + host$2 + ':' + port$3 + '/bapsim/data/all', {
+              return axios$1.put('http://' + host$2 + ':' + port$3 + '/bapsim/data/all', {
                 fileName: fileName
               });
 

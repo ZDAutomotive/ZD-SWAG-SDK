@@ -1,6 +1,6 @@
 {
   "name": "zd-swag-sdk",
-  "version": "0.1.53",
+  "version": "0.1.54",
   "description": "SDK for ZD-SWAG",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
@@ -40,7 +40,8 @@
     "rollup-plugin-commonjs": "^8.4.1",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^3.3.0"
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^3.0.0"
   },
   "typings": "./index.d.ts"
 }

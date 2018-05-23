@@ -41,7 +41,7 @@ export default {
     return res.data
   },
   async setData(lsgID, fctID, data) {
-    const res = await axios.post(`http://${host}:${port}/bapsim/lsg/${lsgID}/${fctID}`, {
+    const res = await axios.put(`http://${host}:${port}/bapsim/lsg/${lsgID}/${fctID}`, {
       data
     })
     return res.data
@@ -59,7 +59,7 @@ export default {
     return res.data
   },
   async loadConfig(fileName) {
-    const res = await axios.post(`http://${host}:${port}/bapsim/data/all`, {
+    const res = await axios.put(`http://${host}:${port}/bapsim/data/all`, {
       fileName
     })
     return res.data
