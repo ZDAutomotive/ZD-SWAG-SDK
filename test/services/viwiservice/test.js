@@ -13,7 +13,7 @@ const vs = new swag.ViwiService({host:'192.168.178.24', port: 6088});
       console.log(unsub);
       const post_data = require('postmsg.json')
       let post = await vs.post(post_data)
-      console.log(unsub);
+      console.log(post);
     } catch (error) {
       console.log(error)
     }
