@@ -87,22 +87,22 @@ let ts = new swag.TraceServer({
       singleReturn: false
     }])
     console.log(res);
-    res = await ts.assertMultiESOTraces({
-      timeout: 200000,
-      before: 20000
-    }, [{
-      keyword: 'ask_global_pardon',
-      singleReturn: false
-    },{
-      keyword: 'FN_NAVI_CALCROUTE_STARTGUIDANCE_CB',
-      singleReturn: true
-    },
-      {
-        singleReturn: true,
-      //keyword: 'navi_ask_enter_home_address_VP_PROMPT'
-      keyword: 'navi_info_route_guidance_to_destination_started_VP_PROMPT'
-    }])
-    console.log(res);
+    // res = await ts.assertMultiESOTraces({
+    //   timeout: 200000,
+    //   before: 20000
+    // }, [{
+    //   keyword: 'ask_global_pardon',
+    //   singleReturn: false
+    // },{
+    //   keyword: 'FN_NAVI_CALCROUTE_STARTGUIDANCE_CB',
+    //   singleReturn: true
+    // },
+    //   {
+    //     singleReturn: true,
+    //   //keyword: 'navi_ask_enter_home_address_VP_PROMPT'
+    //   keyword: 'navi_info_route_guidance_to_destination_started_VP_PROMPT'
+    // }])
+    // console.log(res);
   } catch (error) {
     console.log(error)
   }

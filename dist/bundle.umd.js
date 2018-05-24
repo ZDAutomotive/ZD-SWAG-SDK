@@ -31068,12 +31068,17 @@ var TraceServer = function () {
                   beforeESOs = _context8.sent;
 
                   console.log('length', beforeESOs.length);
+                  console.log('first msg', beforeESOs[0]);
                   console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data);
 
                   _Object$keys(expectedList).forEach(function (hookName) {
                     var foundBeforeESO = beforeESOs.find(function (trace) {
-                      // (trace.data.data.msgData.data.channelId === option.channelID) &&
-                      return trace.data.data.msgData.data.msgData.data && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1;
+                      if (trace.data.data.msgData.data.msgData) {
+                        // (trace.data.data.msgData.data.channelId === option.channelID) &&
+                        return typeof trace.data.data.msgData.data.msgData.data === 'string' && trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1;
+                      } else {
+                        return false;
+                      }
                     });
                     //console.log(foundBeforeESO)
                     if (foundBeforeESO) {
@@ -31111,7 +31116,7 @@ var TraceServer = function () {
                     }
                   });
 
-                case 20:
+                case 21:
                 case 'end':
                   return _context8.stop();
               }

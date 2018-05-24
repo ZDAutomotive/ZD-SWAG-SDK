@@ -300,14 +300,19 @@ export default class TraceServer {
       console.log('start', checkBeginTime, 'end', now);
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
       console.log('length', beforeESOs.length)
+      console.log('first msg', beforeESOs[0]);
       console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data)
       
       Object.keys(expectedList).forEach(hookName => {
         const foundBeforeESO = beforeESOs.find(
           trace => {
+            if(trace.data.data.msgData.data.msgData){
             // (trace.data.data.msgData.data.channelId === option.channelID) &&
-            return trace.data.data.msgData.data.msgData.data &&
+            return (typeof trace.data.data.msgData.data.msgData.data === 'string') &&
               (trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
+            } else {
+              return false;
+            }
           })
         //console.log(foundBeforeESO)
         if (foundBeforeESO) {
