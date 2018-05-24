@@ -27,11 +27,20 @@ export default class ViwiService {
   }
 
   /**
-   * update viwi messages
+   * get viwi messages
    */
   async parse() {
     if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/parse`)
+    let res = await axios.get(`http://${this.host}:${this.port}/viwi`)
+    return res.data;
+  }
+
+  /**
+   * update viwi messages
+   */
+  async update() {
+    if (!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/viwi/parse`)
     return res.data;
   }
 
@@ -40,7 +49,7 @@ export default class ViwiService {
    */
   async post(viwimsg) {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/post`, viwimsg)
+    let res = await axios.post(`http://${this.host}:${this.port}/viwi/post`, viwimsg)
     return res.data
   }
 
@@ -49,7 +58,9 @@ export default class ViwiService {
    */
   async subscribe(viwievent) {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, viwievent)
+    console.log(viwievent)
+
+    let res = await axios.post(`http://${this.host}:${this.port}/viwi/subscribe`, viwievent)
     return res.data
   }
   
@@ -58,7 +69,7 @@ export default class ViwiService {
    */
   async unsubscribe(viwievent) {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/unsubscribe`, viwievent);
+    let res = await axios.post(`http://${this.host}:${this.port}/viwi/unsubscribe`, viwievent);
     return res.data;
   }
 }
