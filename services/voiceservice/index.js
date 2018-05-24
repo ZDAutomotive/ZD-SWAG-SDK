@@ -78,7 +78,9 @@ export default class VoiceService {
   async deleteVoice(db, text){
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
+      params:{
       db, text
+      }
     });
     return res.data;
   }
@@ -90,8 +92,10 @@ export default class VoiceService {
   async deleteAllVoice(db) {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/allvoices` ,{
-      db
+      params:{
+        db
+      }
     });
-    return res.data.screenID;
+    return res.data;
   }
 }

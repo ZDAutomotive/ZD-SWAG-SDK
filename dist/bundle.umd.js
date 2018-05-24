@@ -38072,7 +38072,9 @@ var VoiceService = function () {
               case 2:
                 _context5.next = 4;
                 return axios$1.delete('http://' + this.host + ':' + this.port + '/voiceDB/database/checkvoice', {
-                  db: db, text: text
+                  params: {
+                    db: db, text: text
+                  }
                 });
 
               case 4:
@@ -38118,12 +38120,14 @@ var VoiceService = function () {
               case 2:
                 _context6.next = 4;
                 return axios$1.delete('http://' + this.host + ':' + this.port + '/voiceDB/database/allvoices', {
-                  db: db
+                  params: {
+                    db: db
+                  }
                 });
 
               case 4:
                 res = _context6.sent;
-                return _context6.abrupt('return', res.data.screenID);
+                return _context6.abrupt('return', res.data);
 
               case 6:
               case 'end':
