@@ -31750,7 +31750,7 @@ var MainUnit = function () {
       return getCurrentScreenID;
     }()
   }, {
-    key: 'getStartupTestMode',
+    key: 'getCurrentVisiblePopupID',
     value: function () {
       var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7() {
         var res;
@@ -31767,11 +31767,11 @@ var MainUnit = function () {
 
               case 2:
                 _context7.next = 4;
-                return axios$1.get('http://' + this.host + ':' + this.port + '/envstatus/startuptestmode');
+                return axios$1.get('http://' + this.host + ':' + this.port + '/mu/currentvisiblepopupid');
 
               case 4:
                 res = _context7.sent;
-                return _context7.abrupt('return', res.data.state);
+                return _context7.abrupt('return', res.data.popupID);
 
               case 6:
               case 'end':
@@ -31781,16 +31781,16 @@ var MainUnit = function () {
         }, _callee7, this);
       }));
 
-      function getStartupTestMode() {
+      function getCurrentVisiblePopupID() {
         return _ref7.apply(this, arguments);
       }
 
-      return getStartupTestMode;
+      return getCurrentVisiblePopupID;
     }()
   }, {
-    key: 'setStartupTestMode',
+    key: 'getStartupTestMode',
     value: function () {
-      var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(state) {
+      var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8() {
         var res;
         return regenerator.wrap(function _callee8$(_context8) {
           while (1) {
@@ -31805,9 +31805,7 @@ var MainUnit = function () {
 
               case 2:
                 _context8.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/envstatus/startuptestmode', {
-                  enable: state
-                });
+                return axios$1.get('http://' + this.host + ':' + this.port + '/envstatus/startuptestmode');
 
               case 4:
                 res = _context8.sent;
@@ -31821,16 +31819,16 @@ var MainUnit = function () {
         }, _callee8, this);
       }));
 
-      function setStartupTestMode(_x4) {
+      function getStartupTestMode() {
         return _ref8.apply(this, arguments);
       }
 
-      return setStartupTestMode;
+      return getStartupTestMode;
     }()
   }, {
-    key: 'resetEsoToDefault',
+    key: 'setStartupTestMode',
     value: function () {
-      var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9() {
+      var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9(state) {
         var res;
         return regenerator.wrap(function _callee9$(_context9) {
           while (1) {
@@ -31845,11 +31843,13 @@ var MainUnit = function () {
 
               case 2:
                 _context9.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/envstatus/resetesotrace', { token: 'resetEsoTraceDefault' });
+                return axios$1.post('http://' + this.host + ':' + this.port + '/envstatus/startuptestmode', {
+                  enable: state
+                });
 
               case 4:
                 res = _context9.sent;
-                return _context9.abrupt('return', res.data);
+                return _context9.abrupt('return', res.data.state);
 
               case 6:
               case 'end':
@@ -31859,16 +31859,16 @@ var MainUnit = function () {
         }, _callee9, this);
       }));
 
-      function resetEsoToDefault() {
+      function setStartupTestMode(_x4) {
         return _ref9.apply(this, arguments);
       }
 
-      return resetEsoToDefault;
+      return setStartupTestMode;
     }()
   }, {
-    key: 'cmdSingleSpeak',
+    key: 'resetEsoToDefault',
     value: function () {
-      var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10(text) {
+      var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10() {
         var res;
         return regenerator.wrap(function _callee10$(_context10) {
           while (1) {
@@ -31883,7 +31883,7 @@ var MainUnit = function () {
 
               case 2:
                 _context10.next = 4;
-                return axios$1.post('http://' + this.host + ':' + this.port + '/mu/cmdSingleSpeak', { text: text });
+                return axios$1.post('http://' + this.host + ':' + this.port + '/envstatus/resetesotrace', { token: 'resetEsoTraceDefault' });
 
               case 4:
                 res = _context10.sent;
@@ -31897,8 +31897,46 @@ var MainUnit = function () {
         }, _callee10, this);
       }));
 
-      function cmdSingleSpeak(_x5) {
+      function resetEsoToDefault() {
         return _ref10.apply(this, arguments);
+      }
+
+      return resetEsoToDefault;
+    }()
+  }, {
+    key: 'cmdSingleSpeak',
+    value: function () {
+      var _ref11 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee11(text) {
+        var res;
+        return regenerator.wrap(function _callee11$(_context11) {
+          while (1) {
+            switch (_context11.prev = _context11.next) {
+              case 0:
+                if (this.socket) {
+                  _context11.next = 2;
+                  break;
+                }
+
+                throw new Error('Service not ready');
+
+              case 2:
+                _context11.next = 4;
+                return axios$1.post('http://' + this.host + ':' + this.port + '/mu/cmdSingleSpeak', { text: text });
+
+              case 4:
+                res = _context11.sent;
+                return _context11.abrupt('return', res.data);
+
+              case 6:
+              case 'end':
+                return _context11.stop();
+            }
+          }
+        }, _callee11, this);
+      }));
+
+      function cmdSingleSpeak(_x5) {
+        return _ref11.apply(this, arguments);
       }
 
       return cmdSingleSpeak;
