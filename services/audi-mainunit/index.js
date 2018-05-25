@@ -84,6 +84,12 @@ export default class MainUnit {
     return res.data.popupID;
   }
 
+  async getWidgetInfosOfCurrentScreen() {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.get(`http://${this.host}:${this.port}/mu/WidgetInfosOfCurrentScreen`);
+    return res.data.widgetInfos;
+  }
+
   async getStartupTestMode() {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/envstatus/startuptestmode`);
