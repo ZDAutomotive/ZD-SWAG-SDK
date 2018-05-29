@@ -308,7 +308,7 @@ export default class TraceServer {
           trace => {
             if(trace.data.data.msgData.data.msgData){
             // (trace.data.data.msgData.data.channelId === option.channelID) &&
-            return (typeof trace.data.data.msgData.data.msgData.data === 'string') &&
+              return (typeof trace.data.data.msgData.data.msgData.data === 'string') &&
               (trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
             } else {
               return false;
@@ -401,5 +401,27 @@ export default class TraceServer {
   async getFilter() {
     if (!this.socket) throw new Error('Service not ready')
     return (await axios.get(`http://${this.host}:${this.port}/filter`)).data
+  }
+
+  async getPersistenceFileList(start, end) {
+    if (!this.socket) throw new Error('Service not ready')
+    return (await axios.get(`http://${this.host}:${this.port}/persistence/list`, {
+      start,
+      end
+    })).data
+  }
+
+  /**
+   * request downloading a persistence file as a stream
+   * @param {string} filepath 
+   * @returns {Stream}
+   */
+  async downloadPersistenceFile(filepath) {
+    if (!this.socket) throw new Error('Service not ready')
+    return (await axios.get(`http://${this.host}:${this.port}/persistence`, {
+      filepath,
+    }, {
+      responseType: 'stream'
+    })).data
   }
 }

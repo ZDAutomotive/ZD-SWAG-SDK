@@ -1,5 +1,6 @@
 import { AxiosPromise } from 'axios';
 import SocketIOClient from 'socket.io-client';
+import { Stream } from 'stream';
 
 declare interface BasicOption {
   /**
@@ -43,6 +44,8 @@ export class TraceServer {
   unsubscribeType(type: string): boolean;
   setFilter(filters: Array<Object>): AxiosPromise;
   getFilter(): Promise<Array<Object>>;
+  getPersistenceFileList(start: number, end: number): Promise<Array<string>>;
+  downloadPersistenceFile(filepath: string): Promise<Stream>;
 }
 
 export class TTS {
