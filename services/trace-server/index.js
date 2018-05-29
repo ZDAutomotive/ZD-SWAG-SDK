@@ -406,8 +406,10 @@ export default class TraceServer {
   async getPersistenceFileList(start, end) {
     if (!this.socket) throw new Error('Service not ready')
     return (await axios.get(`http://${this.host}:${this.port}/persistence/list`, {
-      start,
-      end
+      params: {
+        start,
+        end
+      }
     })).data
   }
 
@@ -419,8 +421,9 @@ export default class TraceServer {
   async downloadPersistenceFile(filepath) {
     if (!this.socket) throw new Error('Service not ready')
     return (await axios.get(`http://${this.host}:${this.port}/persistence`, {
-      filepath,
-    }, {
+      params: {
+        filepath,
+      },
       responseType: 'stream'
     })).data
   }
