@@ -165,7 +165,7 @@ export default class TraceServer {
         //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
         if (!option.onFailed) resolve({
           res: true,
-          trace
+          trace: trace.data.msgData.data.msgData.data
         })
         else resolve({
           res: false
@@ -179,12 +179,14 @@ export default class TraceServer {
       const checkBeginTime = now - 5000 // check from 5000ms before now
 
       const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
-      //trace.data.data.channel === eso trace port
+      //trace.data.channel === eso trace port
       const foundBeforeESO = beforeESOs.find(
         trace => {
-          // (trace.data.data.msgData.data.channelId === option.channelID) &&
-          return trace.data.data.msgData.data.msgData.data &&
-            (trace.data.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
+          // (trace.data.msgData.data.channelId === option.channelID) &&
+          if (trace.data.msgData.data.msgData && typeof trace.data.msgData.data.msgData.data === 'string') {
+            return trace.data.msgData.data.msgData.data &&
+              (trace.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
+          }
         })
       if (foundBeforeESO) {
         // found a matching CAN msg
@@ -301,15 +303,15 @@ export default class TraceServer {
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
       console.log('length', beforeESOs.length)
       console.log('first msg', beforeESOs[0]);
-      console.log('first msg', beforeESOs[0].data.data.msgData.data.msgData.data)
+      console.log('first msg', beforeESOs[0].data.msgData.data.msgData.data)
       
       Object.keys(expectedList).forEach(hookName => {
         const foundBeforeESO = beforeESOs.find(
           trace => {
-            if(trace.data.data.msgData.data.msgData){
-            // (trace.data.data.msgData.data.channelId === option.channelID) &&
-              return (typeof trace.data.data.msgData.data.msgData.data === 'string') &&
-              (trace.data.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
+            if(trace.data.msgData.data.msgData){
+            // (trace.data.msgData.data.channelId === option.channelID) &&
+              return (typeof trace.data.msgData.data.msgData.data === 'string') &&
+              (trace.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
             } else {
               return false;
             }
