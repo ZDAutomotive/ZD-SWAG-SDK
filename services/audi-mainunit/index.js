@@ -84,6 +84,9 @@ export default class MainUnit {
     return res.data.popupID;
   }
 
+  /**
+   * get widget infos of current screen 
+   */
   async getWidgetInfosOfCurrentScreen() {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/mu/WidgetInfosOfCurrentScreen`);

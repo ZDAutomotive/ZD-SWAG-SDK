@@ -8,6 +8,7 @@ import Simulation from './simulation/index'
 import TestService from './testservice/index'
 import PowerSwitch from './power-switch/index'
 import VoiceService from './voiceservice/index'
+import CANView from './can-view/index'
 
 export default {
   AndroidProberProxy,
@@ -19,5 +20,6 @@ export default {
   Simulation,
   TestService,
   PowerSwitch,
-  VoiceService
+  VoiceService,
+  CANView
 };

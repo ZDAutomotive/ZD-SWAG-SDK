@@ -1,0 +1,201 @@
+{
+    "sequenceLib": [{
+            "id": "Tap_cancelPopup",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 1500,
+                        "y": 700
+                    }
+                }
+            }
+        },
+        {
+            "id": "Tap_Home",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 64,
+                        "y": 148
+                    }
+                }
+            }
+        },
+        {
+            "id": "Tap_Setting",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 372,
+                        "y": 230
+                    }
+                }
+            }
+        }, 
+        {
+            "id": "Tap_Back",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 218,
+                        "y": 126
+                    }
+                }
+            }
+        }, 
+        {
+            "id": "Tap_Language",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 960,
+                        "y": 340
+                    }
+                }
+            }
+        },
+        {
+            "id": "Tap_row1",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 822,
+                        "y": 251
+                    }
+                }
+            }
+        },
+        {
+            "id": "Tap_row2",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 822,
+                        "y": 345
+                    }
+                }
+            }
+        },
+        {
+            "id": "Tap_row3",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 822,
+                        "y": 439
+                    }
+                }
+            }
+        },
+        {
+            "id": "Tap_confirm",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "tap",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 822,
+                        "y": 648
+                    }
+                }
+            }
+        },
+		{
+            "id": "SwipeLeft",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "swipe",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 800,
+                        "y": 500,
+                        "dx": -400,
+                        "dy": 0
+                    }
+                }
+            }
+        },
+        {
+            "id": "SwipeRight1",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "swipe",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 645,
+                        "y": 450,
+                        "dx": 680,
+                        "dy": 0
+                    }
+                }
+            }
+        },
+        {
+            "id": "SwipeDown",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "swipe",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 822,
+                        "y": 205,
+                        "dx": 0,
+                        "dy": 300
+                    }
+
+                }
+            }
+        }
+    ],
+    "testcases": [{
+        "id": "KeyPanelDemo",
+        "sequenceList": [
+            "Tap_cancelPopup",
+            "Tap_Home",
+            "Tap_Home",
+			"SwipeRight1",
+			"Tap_Setting",
+			"Tap_Back",
+			"Tap_Back",
+			"Tap_Back",
+			"Tap_Back",
+			"Tap_Back",
+			"Tap_Back",
+            "SwipeRight1",
+            "SwipeRight1",
+			"Tap_Language",
+			"SwipeDown",
+			"Tap_row1",
+			"Tap_confirm",
+			"Tap_Home"
+        ]
+    }]
+}
