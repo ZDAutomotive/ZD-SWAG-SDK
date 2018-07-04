@@ -261,7 +261,7 @@ export default class TraceServer {
         //await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
         //console.log('waiting for hook')
         this.socket.once(hookName, (trace) => { 
-          //console.log(trace.data.msgData.data.msgData.data);
+          console.log(trace.data.msgData.data.msgData.data);
           console.log('on event', hookName, elem.singleReturn);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace.data.msgData.data.msgData.data

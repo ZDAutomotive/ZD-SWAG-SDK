@@ -26,6 +26,12 @@ export default {
     const res = await axios.post(`http://${host}:${port}/cansim/cycle/${canID}`)
     return res.data
   },
+  async setCycleByCount(canID, count) {
+    const res = await axios.post(`http://${host}:${port}/cansim/cycle/${canID}`, {
+      count
+    })
+    return res.data
+  },
   async delCycle(canID) {
     const res = await axios.delete(`http://${host}:${port}/cansim/cycle/${canID}`)
     return res.data
