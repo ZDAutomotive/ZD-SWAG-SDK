@@ -19,7 +19,7 @@ export default {
     return res.data.isStarted
   },
   async reset() {
-    const res = await axios.post(`http://${host}:${port}/cansim/reset`)
+    const res = await axios.delete(`http://${host}:${port}/cansim/`)
     return res.data
   },
   async setCycle(canID) {
