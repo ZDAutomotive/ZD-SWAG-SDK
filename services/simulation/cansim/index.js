@@ -10,6 +10,12 @@ export default {
   set port(val) {
     port = val
   },
+  async init(fileName) {
+    const res = await axios.post(`http://${host}:${port}/cansim/`, {
+      fileName
+    })
+    return res.data
+  },
   async start() {
     const res = await axios.post(`http://${host}:${port}/cansim/start`)
     return res.data.isStarted
