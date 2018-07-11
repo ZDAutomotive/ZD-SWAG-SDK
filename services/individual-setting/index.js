@@ -1,0 +1,52 @@
+import ioClient from 'socket.io-client';
+import axios from 'axios';
+
+export default class carSetting {
+  constructor(option) {
+    option = option || {}
+    this.port = option.port || 6099;
+    this.host = option.host || 'localhost'
+  }
+
+  connect() {
+    return new Promise((resolve, reject) => {
+      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket.on('connect', () => {
+        resolve(1)
+        this.socket.emit('identity', 'remote')
+        this.socket.removeAllListeners('connect')
+        this.socket.removeAllListeners('connect_error')
+      })
+      this.socket.on('connect_error', () => {
+        reject(1)
+        this.socket.removeAllListeners('connect')
+        this.socket.removeAllListeners('connect_error')
+        delete this.socket
+      })
+    })
+  }
+
+  /**
+   * set driver side temprature 
+   * value range 18 - 26
+   */
+  async setTemperature(value) {
+    if (!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/carservice/ac/temprature`, {
+      temprature: value
+    })
+    return res.data;
+  }
+
+  /**
+   * active interior light profile 
+   * number 1-9
+   */
+  async activeInteriorlightProfile(profileNumber) {
+    if(!this.socket) throw new Error('Service not ready')
+    let res = await axios.post(`http://${this.host}:${this.port}/carservice/interiorlight/profile`, {
+      profileNumber
+    })
+    return res.data
+  }
+}
