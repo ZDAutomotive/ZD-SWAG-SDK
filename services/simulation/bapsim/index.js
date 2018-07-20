@@ -53,7 +53,7 @@ export default {
     return res.data
   },
   async switchLSG(lsgID, state) {
-    const res = await axios.post(`http://${host}:${port}/bapsim/lsg/${lsgID}`, {
+    const res = await axios.put(`http://${host}:${port}/bapsim/lsg/${lsgID}`, {
       state
     })
     return res.data
