@@ -10,6 +10,7 @@ import PowerSwitch from './power-switch/index'
 import VoiceService from './voiceservice/index'
 import CANView from './can-view/index'
 import CARSetting from './individual-setting/index'
+import SeatControl from './seat-control/index'
 
 export default {
   AndroidProberProxy,
@@ -23,5 +24,6 @@ export default {
   PowerSwitch,
   VoiceService,
   CANView,
-  CARSetting
+  CARSetting,
+  SeatControl
 };
