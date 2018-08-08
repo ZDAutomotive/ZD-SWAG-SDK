@@ -44,7 +44,6 @@ export default class seatControl {
 
   /**
    * reset the seat position
-   * 
    */
   async resetPosition() {
     if(!this.socket) throw new Error('Service not ready')

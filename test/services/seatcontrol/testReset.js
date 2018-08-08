@@ -1,5 +1,5 @@
 const swag = require('../../../dist/bundle.cjs');
-const SC = new swag.SeatControl({host:'192.168.1.175'});
+const SC = new swag.SeatControl({host:'192.168.178.114'});
 
 (async () => {
     try {
