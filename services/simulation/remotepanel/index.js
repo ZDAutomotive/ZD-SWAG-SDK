@@ -104,6 +104,52 @@ export default {
     let res = await axios.post(`http://${host}:${port}/remotepanel/touch`, touchevent)
     return res.data;
   },
+  // long press event 
+  // action:'exe'/'ret'(execute remotepanel / return canmsg)
+  // screentype:'top' / 'bottom'
+  // x: 200
+  // y: 200
+  // time: 3000 (unit ms)
+  async longPress(_action, _screentype, _x, _y, time) {
+    let pressevent
+    if (_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret') {
+      switch(_screentype.toLowerCase()) {
+        case 'top':
+          pressevent = {
+            action: _action,
+            event: {
+              screentype: 1,
+              x: _x,
+              y: _y,
+              time
+            }
+          }
+          break
+        case 'upper':
+          pressevent = {
+            action: _action,
+            event: {
+              screentype: 1,
+              x: _x,
+              y: _y,
+              time
+            }
+          }
+          break
+        case 'bottom':
+          console.log('do not support')
+          break
+        case 'lower':
+          console.log('do not support')
+          break
+        default:
+          break      
+      }
+    }
+    if (!pressevent) throw new Error('Unexpected parameters')
+    let res = await axios.post(`http://${host}:${port}/remotepanel/press`, pressevent)
+    return res.data;
+  },
   //swipeevent
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   // screentype:'top' / 'bottom'
