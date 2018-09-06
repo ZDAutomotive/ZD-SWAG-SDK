@@ -69,4 +69,14 @@ export default class seatControl {
     let res = await axios.post(`http://${this.host}:${this.port}/resetposition`, {})
     return res.data
   }
+
+  /**
+   * get the seat adjustment range
+   */
+  async getRange() {
+    if (!this.socket) throw new Error('Seat Control service not ready')
+    const res = await axios.get(`http://${this.host}:${this.port}/getrange/`)
+
+    return res.data
+  }
 }
