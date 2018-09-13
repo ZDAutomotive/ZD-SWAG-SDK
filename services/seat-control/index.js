@@ -79,4 +79,19 @@ export default class seatControl {
 
     return res.data
   }
+
+  /**
+   * get the seat measured position
+   */
+  async getPosition() {
+    if (!this.socket) throw new Error('Seat Control service not ready')
+    const res = await axios.get(`http://${this.host}:${this.port}/status/`)
+
+    return res.data
+  }
+
+
+  
 }
+
+
