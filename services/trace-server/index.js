@@ -429,4 +429,13 @@ export default class TraceServer {
       responseType: 'stream'
     })).data
   }
+
+  async HeadPersistenceFile(filepath) {
+    if (!this.socket) throw new Error('Service not ready')
+    return (await axios.head(`http://${this.host}:${this.port}/persistence`, {
+      params: {
+        filepath,
+      }
+    })).headers
+  }
 }
