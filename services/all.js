@@ -11,6 +11,7 @@ import VoiceService from './voiceservice/index'
 import CANView from './can-view/index'
 import CARSetting from './individual-setting/index'
 import SeatControl from './seat-control/index'
+import CARDiagnose from './car-diagnose/index'
 
 export default {
   AndroidProberProxy,
@@ -25,5 +26,6 @@ export default {
   VoiceService,
   CANView,
   CARSetting,
-  SeatControl
+  SeatControl,
+  CARDiagnose
 };
