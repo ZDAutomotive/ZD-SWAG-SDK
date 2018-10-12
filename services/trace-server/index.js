@@ -183,7 +183,7 @@ export default class TraceServer {
       const foundBeforeESO = beforeESOs.find(
         trace => {
           // (trace.data.msgData.data.channelId === option.channelID) &&
-          if (trace.data.msgData.data.msgData && typeof trace.data.msgData.data.msgData.data === 'string') {
+          if (trace.data.msgData.id === 4 && trace.data.msgData.data.msgData && typeof trace.data.msgData.data.msgData.data === 'string') {
             return trace.data.msgData.data.msgData.data &&
               (trace.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
           }
@@ -192,11 +192,11 @@ export default class TraceServer {
         // found a matching CAN msg
         if (!option.onFailed) resolve({
           res: true,
-          trace: foundBeforeESO[0]
+          trace: foundBeforeESO
         });
         else resolve({
           res: false,
-          trace: foundBeforeESO[0]
+          trace: foundBeforeESO
         });
         this.socket.removeAllListeners(hookName)
         clearTimeout(timer)
@@ -261,8 +261,9 @@ export default class TraceServer {
         //await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
         //console.log('waiting for hook')
         this.socket.once(hookName, (trace) => { 
-          console.log(trace.data.msgData.data.msgData.data);
-          console.log('on event', hookName, elem.singleReturn);
+          // console.log(trace)
+          // console.log(trace.data.msgData.data.msgData.data);
+          // console.log('on event', hookName, elem.singleReturn);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           clearTimeout(timer)
@@ -298,17 +299,19 @@ export default class TraceServer {
       const duration = await this.getDuration()
       const now = duration.end
       const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
-      console.log(duration);
-      console.log('start', checkBeginTime, 'end', now);
+      // console.log(duration);
+      // console.log('start', checkBeginTime, 'end', now);
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
-      console.log('length', beforeESOs.length)
-      console.log('first msg', beforeESOs[0]);
-      console.log('first msg', beforeESOs[0].data.msgData.data.msgData.data)
+      // console.log('length', beforeESOs.length)
+      // console.log('first raw msg', beforeESOs[0]);
+      // if(beforeESOs[0].data.msgData.id === 4){
+      //   console.log('first msg', beforeESOs[0].data.msgData.data.msgData.data)
+      // }
       
       Object.keys(expectedList).forEach(hookName => {
         const foundBeforeESO = beforeESOs.find(
           trace => {
-            if(trace.data.msgData.data.msgData){
+            if(trace.data.msgData.id === 4 && trace.data.msgData.data.msgData){
             // (trace.data.msgData.data.channelId === option.channelID) &&
               return (typeof trace.data.msgData.data.msgData.data === 'string') &&
               (trace.data.msgData.data.msgData.data.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
@@ -318,9 +321,10 @@ export default class TraceServer {
           })
         //console.log(foundBeforeESO)
         if (foundBeforeESO) {
-          console.log(foundBeforeESO.data.data.msgData.data.msgData.data);
+          // console.log(foundBeforeESO);
+          // console.log(foundBeforeESO.data.msgData.data.msgData.data);
           expectedList[hookName].onMessage = true;
-          expectedList[hookName].trace = foundBeforeESO.data.data.msgData.data.msgData.data
+          expectedList[hookName].trace = foundBeforeESO.data.msgData.data.msgData.data
           clearTimeout(timerList[hookName]);
           this.unsubscribe(hookName);
           this.socket.removeAllListeners(hookName)
