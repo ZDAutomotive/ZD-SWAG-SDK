@@ -37,6 +37,21 @@ export default class MainUnit {
   }
 
   /**
+   * get Version Info of MU
+   * {
+   *  APP,
+   *  NavDB,
+   *  HMI,
+   *  SDS-TextToolVersion
+   * }
+   */
+  async getVersionInfo(){
+    if (!this.socket) throw new Error('Service not ready')
+    let res  = await axios.get(`http://${this.host}:${this.port}/envstatus/versioninfo`)
+    return res.data;
+  }
+
+  /**
    * get backend of MU
    */
   async getBackend() {
