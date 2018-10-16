@@ -78,15 +78,21 @@ let ts = new swag.TraceServer({
 (async () => {
   try {
     let conn = await ts.connect();
-    console.log(conn);
+    // console.log(conn);
+    // console.log(ts.socket)
     let res = await ts.assertMultiESOTraces({
-      timeout: 200000,
-      before: 2000
+      timeout: 2000,
+      before: 2000,
+      keyword: 'ready'
     }, [{
-      keyword: 'ready',
+      keyword: 'readdy',
       singleReturn: false
     }])
     console.log(res);
+    // console.log(ts.socket)
+    // ts.socket.removeAllListeners('test')
+    ts.socket.disconnect();
+
     // res = await ts.assertMultiESOTraces({
     //   timeout: 200000,
     //   before: 20000
@@ -104,7 +110,7 @@ let ts = new swag.TraceServer({
     // }])
     // console.log(res);
   } catch (error) {
-    console.log(error)
+    console.log('err', error)
   }
 })();
 

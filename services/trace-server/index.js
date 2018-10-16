@@ -23,10 +23,14 @@ export default class TraceServer {
         this.socket.removeAllListeners('connect_error')
       })
       this.socket.on('connect_error', () => {
+        console.log('conn error')
         reject('connect_error')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
         delete this.socket
+      })
+      this.socket.on('disconnect', (msg) => {
+        console.log(msg)
       })
     })
   }
@@ -239,7 +243,7 @@ export default class TraceServer {
           successReason: 'all',  
           traces: expectedList
         })
-      }, option.timeout || 21000);
+      }, (option.timeout + 1000) || 21000);
 
       assertionList.forEach(async (elem) => {
         const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
@@ -250,8 +254,8 @@ export default class TraceServer {
           singleReturn: elem.singleReturn
         };
         // set time out event
-        let timer = setTimeout(() => {
-          this.unsubscribe(hookName);
+        let timer = setTimeout(async () => {
+          await this.unsubscribe(hookName);
           this.socket.removeAllListeners(hookName)
           // this.removeHook(hookName)
         }, option.timeout || 20000);
@@ -260,15 +264,15 @@ export default class TraceServer {
         await this.subscribe(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`);
         //await this.hook(hookName, 'ESO', `{"esotext"=="${elem.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
         //console.log('waiting for hook')
-        this.socket.once(hookName, (trace) => { 
+        this.socket.once(hookName, async (trace) => { 
           // console.log(trace)
           // console.log(trace.data.msgData.data.msgData.data);
           // console.log('on event', hookName, elem.singleReturn);
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = trace.data.msgData.data.msgData.data
           clearTimeout(timer)
-          this.unsubscribe(hookName);
-          this.socket.removeAllListeners(hookName)
+          await this.unsubscribe(hookName);
+          // this.socket.removeAllListeners(hookName)
           if(expectedList[hookName].singleReturn) {
             resolve({
               res: true,
@@ -308,7 +312,7 @@ export default class TraceServer {
       //   console.log('first msg', beforeESOs[0].data.msgData.data.msgData.data)
       // }
       
-      Object.keys(expectedList).forEach(hookName => {
+      Object.keys(expectedList).forEach(async (hookName) => {
         const foundBeforeESO = beforeESOs.find(
           trace => {
             if(trace.data.msgData.id === 4 && trace.data.msgData.data.msgData){
@@ -326,7 +330,7 @@ export default class TraceServer {
           expectedList[hookName].onMessage = true;
           expectedList[hookName].trace = foundBeforeESO.data.msgData.data.msgData.data
           clearTimeout(timerList[hookName]);
-          this.unsubscribe(hookName);
+          await this.unsubscribe(hookName);
           this.socket.removeAllListeners(hookName)
           // this.removeHook(hookName)
           let result = true
@@ -381,14 +385,16 @@ export default class TraceServer {
   async unsubscribe(name) {
     if (!this.socket) throw new Error('Service not ready')
     if (!this.subscribeMap[name]) throw new Error('name not exists')
-
-    await this.removeHook(name)
+    try {
+      await this.removeHook(name)
+    } catch (error) {
+      console.log('[unsubscribe error] socket io disconnected')
+    }
     return true
   }
 
   async unsubscribeType(type) {
     if (!this.socket) throw new Error('Service not ready')
-
     const foundNames = Object.keys(this.subscribeMap)
       .filter(key => this.subscribeMap[key] === type)
     if (foundNames.length) {
