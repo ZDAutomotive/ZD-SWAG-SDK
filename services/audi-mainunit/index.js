@@ -9,6 +9,9 @@ export default class MainUnit {
     this.subscribeMap = {}
   }
 
+  /**
+   * @deprecated
+   */
   connect() {
     return new Promise((resolve, reject) => {
       this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
@@ -31,7 +34,6 @@ export default class MainUnit {
    * get VIN of MU
    */
   async getVIN() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/envstatus/vin`)
     return res.data;
   }
@@ -46,7 +48,6 @@ export default class MainUnit {
    * }
    */
   async getVersionInfo(){
-    if (!this.socket) throw new Error('Service not ready')
     let res  = await axios.get(`http://${this.host}:${this.port}/envstatus/versioninfo`)
     return res.data;
   }
@@ -55,7 +56,6 @@ export default class MainUnit {
    * get backend of MU
    */
   async getBackend() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/envstatus/backend`)
     return res.data
   }
@@ -64,7 +64,6 @@ export default class MainUnit {
    * trigger MU reset with persistence
    */
   async resetWithPersistence() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/envstatus/resetwithpers`, {token:'resetWithPers'})
     return res.data
   }
@@ -73,7 +72,6 @@ export default class MainUnit {
    * set backend of MU
    */
   async setBackend(backend) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/envstatus/backend`, backend);
     return res.data;
   }
@@ -82,19 +80,16 @@ export default class MainUnit {
    * fetch files from MU to service folder(remote local)
    */
   async fetchFiles(serverFile, remoteFolder){
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/mu/fetchfiles`, {files: serverFile, toPath: remoteFolder});
     return res.data;
   }
 
   async getCurrentScreenID() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/mu/currentscreenid`);
     return res.data.screenID;
   }
 
   async getCurrentVisiblePopupID() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/mu/currentvisiblepopupid`);
     return res.data.popupID;
   }
@@ -103,19 +98,16 @@ export default class MainUnit {
    * get widget infos of current screen 
    */
   async getWidgetInfosOfCurrentScreen() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/mu/WidgetInfosOfCurrentScreen`);
     return res.data.widgetInfos;
   }
 
   async getStartupTestMode() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/envstatus/startuptestmode`);
     return res.data.state;
   }
 
   async setStartupTestMode(state) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/envstatus/startuptestmode`, {
       enable: state
     });
@@ -123,13 +115,11 @@ export default class MainUnit {
   }
 
   async resetEsoToDefault() {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/envstatus/resetesotrace`, {token:'resetEsoTraceDefault'})
     return res.data
   }
 
   async cmdSingleSpeak(text) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/mu/cmdSingleSpeak`, {text})
     return res.data
   } 

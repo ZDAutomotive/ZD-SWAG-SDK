@@ -7,7 +7,6 @@ export default class TestService {
     option = option || {}
     this.port = option.port || 7001;
     this.host = option.host || 'localhost'
-    this.subscribeMap = {}
   }
 
   connect() {
@@ -32,12 +31,10 @@ export default class TestService {
    * load test script
    */
   async loadTestCase(tasklist) {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase`, { tasklist });
     return res.data;
   }
   async loadTestCaseData(tasklist) {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/testcase/data`, { tasklist });
     return res.data;
   }
@@ -45,23 +42,24 @@ export default class TestService {
    * get current test script list
    */
   async getTestCaseList() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/testcase`)
     return res.data
   }
 
-  async getTestCaseByID(ID) {
-    if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.get(`http://${this.host}:${this.port}/ts/testcase/${ID}`)
-    return res.data
-  }
+  // async getTestCaseByID(ID) {
+  //   let res = await axios.get(`http://${this.host}:${this.port}/ts/testcase/${ID}`)
+  //   return res.data
+  // }
 
   /**
    * delete test script by ID
    */
   async deleteTestCase(ID) {
-    if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase?id=${ID}`)
+    let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase`, {
+      params: {
+        id: ID
+      }
+    })
     return res.data
   }
 
@@ -69,64 +67,53 @@ export default class TestService {
    * delete all test script
    */
   async deleteAllTestCases() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.delete(`http://${this.host}:${this.port}/ts/testcase`);
     return res.data;
   }
 
   async start() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/start`);
     return res.data;
   }
 
   async stop() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/stop`);
     return res.data;
   }
 
   async pause() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/pause`);
     return res.data;
   }
 
   async resume() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/resume`);
     return res.data;
   }
   //{softwareVersion : ''}
   async setBenchConfig(benchConfig) {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/benchconfig`, benchConfig);
     return res.data;
   }
   async getBenchConfig() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/benchconfig`);
     return res.data;
   }
   //{testLevel : '',
   // reportLevel: ''}
   async setTestConfig(testConfig) {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/ts/testconfig`, testConfig);
     return res.data;
   }
   async getTestConfig() {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/ts/testconfig`);
     return res.data;
   }
 
   /**
-   * 
    * @param {stream.Readable} caseFile test case file as a buffer object
    */
   async uploadTestcase(dirname, filename, caseFile) {
-    if (!this.socket) throw new Error('Service not ready')
     const form = new FormData()
     form.append('file', caseFile, filename)
     let getHeaders = form => {

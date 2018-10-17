@@ -30,7 +30,6 @@ export default class VoiceService {
    * play voice on ZDBox
    */
   async play(db, text) {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/play`, {
       db,
       text
@@ -42,7 +41,6 @@ export default class VoiceService {
    * record voice
    */
   async record(db, text) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/record`, {
       db,
       text
@@ -54,20 +52,19 @@ export default class VoiceService {
    * record (Audi TTS engine) voice 
    */
   async recordAudiTTS(text) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/recordauditts`, {
       text
     })
     return res.data
   }
-  
+
   /**
    * check if voice aviliable
    */
   async checkVoice(db, text) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
-      db, text
+      db,
+      text
     });
     return res.data;
   }
@@ -75,11 +72,11 @@ export default class VoiceService {
   /**
    * delete voice in db
    */
-  async deleteVoice(db, text){
-    if(!this.socket) throw new Error('Service not ready')
+  async deleteVoice(db, text) {
     let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
-      params:{
-      db, text
+      params: {
+        db,
+        text
       }
     });
     return res.data;
@@ -90,9 +87,8 @@ export default class VoiceService {
    * @param {voice db} db 
    */
   async deleteAllVoice(db) {
-    if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/allvoices` ,{
-      params:{
+    let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/allvoices`, {
+      params: {
         db
       }
     });

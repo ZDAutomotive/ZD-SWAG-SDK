@@ -6,7 +6,6 @@ export default class CANView {
     option = option || {}
     this.port = option.port || 6010;
     this.host = option.host || 'localhost'
-    this.subscribeMap = {}
   }
 
   connect(type) {
@@ -28,7 +27,6 @@ export default class CANView {
   }
 
   async initCANBC(fileName) {
-    if (!this.socket) throw new Error('CAN Trace service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/canbc`, {
       fileName
     })
@@ -36,13 +34,11 @@ export default class CANView {
   }
 
   async getCANBC() {
-    if (!this.socket) throw new Error('CAN Trace service not ready')
     let res = await axios.get(`http://${this.host}:${this.port}/canbc`)
     return res.data;
   }
 
   async deleteCANBC() {
-    if (!this.socket) throw new Error('CAN Trace service not ready')
     let res = await axios.delete(`http://${this.host}:${this.port}/canbc`)
     return res.data;
   }
@@ -51,7 +47,6 @@ export default class CANView {
    * parse a single canmsg
    */
   async parse(canmsg) {
-    if (!this.socket) throw new Error('CAN Trace service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/canbc/parse`, canmsg)
     return res.data;
   }

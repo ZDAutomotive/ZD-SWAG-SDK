@@ -193,14 +193,14 @@ export default class TraceServer {
           }
         })
       if (foundBeforeESO) {
-        // found a matching CAN msg
+        // found a matching ESO msg
         if (!option.onFailed) resolve({
           res: true,
-          trace: foundBeforeESO
+          trace: foundBeforeESO.data.msgData.data.msgData.data
         });
         else resolve({
           res: false,
-          trace: foundBeforeESO
+          trace: foundBeforeESO.data.msgData.data.msgData.data
         });
         this.socket.removeAllListeners(hookName)
         clearTimeout(timer)

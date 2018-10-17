@@ -31,7 +31,6 @@ export default class CANTrace {
    * send a single canmsg
    */
   async sendCANMsg(name, canmsg) {
-    if (!this.socket) throw new Error('CAN Trace service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/send`, {
       name,
       canmsg
@@ -44,7 +43,6 @@ export default class CANTrace {
    * @param {Object[]} canmsgs a group of canmsg
    */
   async sendMultiCANMsgs(canmsgs) {
-    if (!this.socket) throw new Error('CAN Trace service not ready')
     await axios.post(`http://${this.host}:${this.port}/send/multi`, canmsgs)
 
     return true
