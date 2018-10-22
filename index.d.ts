@@ -86,10 +86,10 @@ export class TraceServer extends BaseSocket {
 export class TTS {
   option: any;
   constructor(option?: any);
-  new(data: object, cb: (isErr: boolean, data: any) => void);
-  update(id: any, data: object, cb: (isErr: boolean, data: any) => void);
-  delete(id: any, cb: (isErr: boolean, data: any) => void);
-  get(text: string, cb: (isErr: boolean, data: any) => void);
+  new(data: object, cb: (isErr: boolean, data: any) => void): any;
+  update(id: any, data: object, cb: (isErr: boolean, data: any) => void): any;
+  delete(id: any, cb: (isErr: boolean, data: any) => void): any;
+  get(text: string, cb: (isErr: boolean, data: any) => void): any;
 }
 
 export class AudiMainUnit extends Base {
@@ -331,7 +331,7 @@ export class TestService extends BaseSocket {
     testLevelSDS: string,
     reportLevel: string,
   }>;
-  uploadTestcase(dirname, filename, caseFile: Readable): Promise<any>;
+  uploadTestcase(dirname: string, filename: string, caseFile: Readable): Promise<any>;
 }
 
 export class VoiceService extends Base {
