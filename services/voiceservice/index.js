@@ -53,9 +53,10 @@ export default class VoiceService {
   /**
    * record (Audi TTS engine) voice 
    */
-  async recordAudiTTS(text) {
+  async recordAudiTTS(db, text) {
     if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/recordauditts`, {
+      db,
       text
     })
     return res.data
