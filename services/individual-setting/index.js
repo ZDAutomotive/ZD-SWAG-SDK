@@ -8,6 +8,9 @@ export default class carSetting {
     this.host = option.host || 'localhost'
   }
 
+  /**
+   * @deprecated
+   */
   connect() {
     return new Promise((resolve, reject) => {
       this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
@@ -31,7 +34,6 @@ export default class carSetting {
    * value range 18 - 26
    */
   async setTemperature(value) {
-    if (!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/carservice/ac/temprature`, {
       temprature: value
     })
@@ -43,7 +45,6 @@ export default class carSetting {
    * number 1-9
    */
   async activeInteriorlightProfile(profileNumber) {
-    if(!this.socket) throw new Error('Service not ready')
     let res = await axios.post(`http://${this.host}:${this.port}/carservice/interiorlight/profile`, {
       profileNumber
     })

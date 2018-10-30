@@ -1,15 +1,7 @@
 import axios from 'axios'
+import BaseSimulation from './base'
 
-let host = 'locahost'
-let port = 6006
-
-export default {
-  set host(val) {
-    host = val
-  },
-  set port(val) {
-    port = val
-  },
+export default class RemotePanel extends BaseSimulation {
   /**
     * call remotePanel
     */
@@ -46,7 +38,8 @@ export default {
     if (!keyevent) throw new Error('Unexpected parameters')
     let res = await axios.post(`http://${host}:${port}/remotepanel/key`, keyevent)
     return res.data;
-  },
+  }
+
   //touchevent 
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   // screentype:'top' / 'bottom'
@@ -103,7 +96,8 @@ export default {
     if (!touchevent) throw new Error('Unexpected parameters')
     let res = await axios.post(`http://${host}:${port}/remotepanel/touch`, touchevent)
     return res.data;
-  },
+  }
+
   // long press event 
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   // screentype:'top' / 'bottom'
@@ -149,7 +143,8 @@ export default {
     if (!pressevent) throw new Error('Unexpected parameters')
     let res = await axios.post(`http://${host}:${port}/remotepanel/press`, pressevent)
     return res.data;
-  },
+  }
+
   //swipeevent
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   // screentype:'top' / 'bottom'
@@ -216,7 +211,8 @@ export default {
     if (!swipeevent) throw new Error('Unexpected parameters')
     let res = await axios.post(`http://${host}:${port}/remotepanel/swipe`, swipeevent)
     return res.data;
-  },
+  }
+
   //touchscreenshot {action:'exe'/'ret', event: {x:0, y:0}}
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   async touchscreenshotReq(_action) {
@@ -233,5 +229,5 @@ export default {
     if (!ssevent) throw new Error('Unexpected parameters')
     let res = await axios.post(`http://${host}:${port}/remotepanel/touchscreenshot`, ssevent)
     return res.data;
-  }     
+  }
 }

@@ -1,6 +1,4 @@
-import { AxiosPromise } from 'axios';
-import SocketIOClient from 'socket.io-client';
-import { Stream } from 'stream';
+import { Stream, Readable } from 'stream';
 
 declare interface BasicOption {
   /**
@@ -15,73 +13,120 @@ declare interface BasicOption {
   host?: string;
 }
 
-declare interface assertCANOption {
-  signature: string;
-  timeout: number;
-  onFailed: boolean;
-}
-
 export class AndroidProberProxy {
-  socket: SocketIOClient;
-  constructor(option?: Object);
+  socket: SocketIOClient.Socket;
+  constructor(option?: object);
 
-  listen(): SocketIOClient;
+  listen(): SocketIOClient.Socket;
   connect(): void;
 }
 
-export class TraceServer {
+declare class Base {
   port: number;
   host: string;
   constructor(option?: BasicOption);
+  /**
+   * @deprecated
+   * @returns {Promise<number>}
+   * @memberof Base
+   */
   connect(): Promise<number>;
-  pull(start: number, end: number, modules: Array<string>): Promise<Array<Object>>;
-  hook(eventName: string, type: string, filterString: string): AxiosPromise;
-  removeHook(eventName: string): AxiosPromise;
+}
 
-  assertCAN(option: assertCANOption): Promise<any>;
-  subscribe(name: string, type: string, filterString: string): boolean;
-  unsubscribe(name: string): boolean;
-  unsubscribeType(type: string): boolean;
-  setFilter(filters: Array<Object>): AxiosPromise;
-  getFilter(): Promise<Array<Object>>;
+declare class BaseSocket {
+  port: number;
+  host: string;
+  socket: SocketIOClient.Socket;
+  constructor(option?: BasicOption);
+  connect(): Promise<number>;
+}
+
+export class TraceServer extends BaseSocket {
+  subscribeMap: { [name: string]: string };
+  getDuration(): Promise<{ start: number, end: number }>;
+  pull(start: number, end: number, modules: Array<string>): Promise<Array<object>>;
+  hook(eventName: string, type: string, filterString: string): Promise<{ code: number }>;
+  removeHook(eventName: string): Promise<{ code: number }>;
+
+  assertCAN(option: {
+    signature: string;
+    timeout: number;
+    onFailed: boolean;
+  }): Promise<any>;
+  assertESOTrace(option: {
+    channelID: string;
+    keyword: string;
+    timeout: number;
+    onFailed: boolean;
+  }): Promise<{
+    res: boolean,
+    trace?: string
+  }>;
+  assertMultiESOTraces(option: {
+    timeout: number;
+  }, assertionList: Array<{
+    channelID: string;
+    keyword: string;
+    singleReturn: boolean;
+  }>): Promise<{
+    res: boolean;
+    successReason?: string;
+    traces: object
+  }>;
+  subscribe(name: string, type: string, filterString: string): Promise<boolean>;
+  unsubscribe(name: string): Promise<boolean>;
+  unsubscribeType(type: string): Promise<boolean>;
+  setFilter(filters: Array<object>): Promise<any>;
+  getFilter(): Promise<Array<object>>;
   getPersistenceFileList(start: number, end: number): Promise<Array<string>>;
   downloadPersistenceFile(filepath: string): Promise<Stream>;
+  HeadPersistenceFile(filepath: string): Promise<any>;
 }
 
 export class TTS {
   option: any;
   constructor(option?: any);
-  new(data: Object, cb: (isErr: boolean, data: any) => void);
-  update(id: any, data: Object, cb: (isErr: boolean, data: any) => void);
-  delete(id: any, cb: (isErr: boolean, data: any) => void);
-  get(text: string, cb: (isErr: boolean, data: any) => void);
+  new(data: object, cb: (isErr: boolean, data: any) => void): any;
+  update(id: any, data: object, cb: (isErr: boolean, data: any) => void): any;
+  delete(id: any, cb: (isErr: boolean, data: any) => void): any;
+  get(text: string, cb: (isErr: boolean, data: any) => void): any;
 }
 
-export class AudiMainUnit {
-  port: number;
-  host: string;
-  constructor(option?: BasicOption);
-  connect(): Promise<number>;
-  getVIN(): Promise<any>;
-  getBackend(): Promise<any>;
-  resetWithPersistence(): Promise<any>;
-  setBackend(backend: string): Promise<any>;
+export class AudiMainUnit extends Base {
+  getVIN(): Promise<{
+    VIN: string
+  }>;
+  getVersionInfo(): Promise<{
+    APP: string;
+    NavDB: string;
+    HMI: string;
+    'SDS-TextToolVersion': string;
+  }>;
+  getBackend(): Promise<{
+    backend: string
+  }>;
+  resetWithPersistence(): Promise<object>;
+  setBackend(backend: string): Promise<{
+    backend: string
+  }>;
+  fetchFiles(serverFile: string, remoteFolder: string): Promise<{
+    files: string[]
+  }>;
+  getCurrentScreenID(): Promise<string>;
+  getCurrentVisiblePopupID(): Promise<string>;
+  getWidgetInfosOfCurrentScreen(): Promise<any>;
+  getStartupTestMode(): Promise<boolean>;
+  setStartupTestMode(state: boolean): Promise<boolean>;
+  resetEsoToDefault(): Promise<any>;
+  cmdSingleSpeak(text: string): Promise<any>;
 }
 
-export class CANTrace {
-  port: number;
-  host: string;
-  constructor(option?: BasicOption);
-  connect(): Promise<number>;
-  sendCANMsg(name: string, canmsg: Object): Promise<any>;
-  sendMultiCANMsgs(name: string, canmsgs: Array<Object>): boolean;
+export class CANTrace extends BaseSocket {
+  sendCANMsg(name: string, canmsg: object): Promise<any>;
+  sendMultiCANMsgs(name: string, canmsgs: object[]): boolean;
 }
 
-export class BAPTrace {
-  port: number;
-  host: string;
-  constructor(option?: BasicOption);
-  connect(type?: string): Promise<number>;
+export class BAPTrace extends BaseSocket {
   bap2CAN(CANID: number, LSGID: number, FCTID: number, OPCODE: number, DATA: number[], LEN: number): Promise<object>;
   initView(fileName: string): Promise<object>;
   uninitView(): Promise<object>;
@@ -89,14 +134,225 @@ export class BAPTrace {
   parseBAP(bapmsg: object): Promise<object>;
 }
 
-export interface ZDSWAGInstance {
-  AndroidProberProxy: AndroidProberProxy;
-  TraceServer: TraceServer;
-  TTS: TTS;
-  AudiMainUnit: AudiMainUnit;
-  CANTrace: CANTrace
+export class CANView extends BaseSocket {
+  initCANBC(fileName: string): Promise<{ code: number }>;
+  getCANBC(): Promise<{
+    name: string;
+    template: object;
+  }>;
+  deleteCANBC(): Promise<{ code: number }>;
+  parse(canmsg: {
+    ID: number;
+    LEN: number;
+    DATA: number[];
+  }): Promise<{
+    canID: number;
+    LEN: number;
+    name: any;
+    values: any[];
+  }>;
 }
 
-declare const ZDSWAG: ZDSWAGInstance;
+export interface Simulation {
+  RemotePanel: RemotePanel;
+  CANSim: CANSim;
+  BAPSim: BAPSim;
+}
 
-export default ZDSWAG;
+declare class RemotePanel extends Base {
+  hardkeyReq(_action: string, _keyid: string, _keyboardid: string): Promise<{
+    code: number;
+  } | {
+    canmsg: {
+      ID: number;
+      MSGTYPE: number;
+      LEN: number;
+      DATA: any[];
+    };
+    time: number;
+  }[]>;
+
+  tapReq(_action: string, _screentype: string, _x: number, _y: number): Promise<{
+    code: number;
+  } | {
+    canmsg: {
+      ID: number;
+      MSGTYPE: number;
+      LEN: number;
+      DATA: any[];
+    };
+    time: number;
+  }[]>;
+
+  longPress(_action: string, _screentype: string, _x: number, _y: number, time: number): Promise<{
+    code: number;
+  } | {
+    canmsg: {
+      ID: number;
+      MSGTYPE: number;
+      LEN: number;
+      DATA: any[];
+    };
+    time: number;
+  }[]>;
+
+  swipeReq(_action: string, _screentype: string, _x: number, _y: number, _dx: number, _dy: number): Promise<{
+    code: number;
+  } | {
+    canmsg: {
+      ID: number;
+      MSGTYPE: number;
+      LEN: number;
+      DATA: any[];
+    };
+    time: number;
+  }[]>;
+
+  touchscreenshotReq(_action: string): Promise<{
+    code: number;
+  } | {
+    canmsg: {
+      ID: number;
+      MSGTYPE: number;
+      LEN: number;
+      DATA: any[];
+    };
+    time: number;
+  }[]>;
+}
+
+declare class BAPSim extends Base {
+  start(): Promise<boolean>;
+  stop(): Promise<boolean>;
+  reset(): Promise<boolean>;
+  init(fileName: string): Promise<any[]>
+  getState(): Promise<{
+    Status: boolean;
+    CarModel: string;
+    Config: string;
+    isInited: boolean;
+    LSGParams: object;
+  }>;
+  getLSGList(): Promise<any[]>;
+  setData(lsgID: number, fctID: number, data: number[]): Promise<{ code: number }>;
+  sendReq(lsgID: number, fctID: number, opCode: number, data: number[]): Promise<{ code: number }>;
+  switchLSG(lsgID: number, state: boolean): Promise<{ code: number }>;
+  loadConfig(fileName: string): Promise<any>;
+  startBAPCopy(): Promise<boolean>;
+  stopBAPCopy(): Promise<boolean>;
+}
+
+declare class CANSim extends Base {
+  init(fileName: string): Promise<{
+    dbc: object,
+    control: object,
+    data: object,
+    name: string,
+    favList: any[]
+  }>;
+  start(): Promise<boolean>;
+  stop(): Promise<boolean>;
+  reset(): Promise<{ code: number }>;
+  setCycle(canID: number): Promise<{ code: number }>;
+  setCycleByCount(canID: number, count: number): Promise<{ code: number }>;
+  delCycle(canID: number): Promise<{ code: number }>;
+  setCycleTime(canID: number, time: number): Promise<{ code: number }>;
+  setData(canID: number, data: number[]): Promise<{ code: number }>;
+  setDataByName(canID: number, name: string, value: number): Promise<{ code: number }>;
+}
+
+export class CARDiagnose extends Base {
+  sendRaw(sub: string, dataArr: number[]): Promise<{ raw: number[] }>;
+  getDTC(sub: string, id: number): Promise<{
+    raw: number[],
+    header: number[],
+    payload: number[],
+    isError: boolean
+  }>;
+  getDID(sub: string, id: number): Promise<{
+    raw: number[],
+    header: number[],
+    payload: number[],
+  }>;
+  writeDID(sub: string, id: number, dataArr: number[]): Promise<{
+    raw: number[],
+    header: number[],
+    payload: number[],
+  }>;
+}
+
+export class CARSetting extends Base {
+  setTemperature(value: number): Promise<{ result: object }>;
+  activeInteriorlightProfile(profileNumber: number): Promise<{ result: object }>;
+}
+
+export class TestService extends BaseSocket {
+  loadTestCase(tasklist: { id: string|number, filename: string }[]): Promise<{ index: number }>;
+  loadTestCaseData(tasklist: object[]): Promise<{ index: number }>;
+  getTestCaseList(): Promise<{
+    taskList: object[],
+    currentScriptIndex: number
+  }>;
+  deleteTestCase(ID?: string|number): Promise<{ code: number }>;
+  /**
+   * @deprecated use deleteTestCase()
+   * @returns {Promise<{ code: number }>}
+   * @memberof TestService
+   */
+  deleteAllTestCases(): Promise<{ code: number }>;
+  start(): Promise<{ status: string }>;
+  stop(): Promise<{ status: string }>;
+  /**
+   * @todo implementation
+   * @returns {Promise<any>}
+   * @memberof TestService
+   */
+  pause(): Promise<any>;
+  resume(): Promise<{ status: string }>;
+  setBenchConfig(benchConfig: {
+    softwareVersion: string,
+    leftSteering: string
+  }): Promise<{
+    softwareVersion: string,
+    leftSteering: boolean
+  }>;
+  getBenchConfig(): Promise<{
+    softwareVersion: string,
+    leftSteering: boolean
+  }>;
+  setTestConfig(testConfig: {
+    testLevelSDS: string,
+    reportLevel: string,
+  }): Promise<{
+    testLevelSDS: string,
+    reportLevel: string,
+  }>;
+  getTestConfig(): Promise<{
+    testLevelSDS: string,
+    reportLevel: string,
+  }>;
+  uploadTestcase(dirname: string, filename: string, caseFile: Readable): Promise<any>;
+}
+
+export class VoiceService extends Base {
+  play(db: string, text: string): Promise<{ result: any }>;
+  record(db: string, text: string): Promise<{
+    db: string,
+    text: string,
+    result: any
+  }>;
+  recordAudiTTS(text: string): Promise<{
+    text: string,
+    result: any
+  }>;
+  checkVoice(db: string, text: string): Promise<{ result: any }>;
+  deleteVoice(db: string, text: string): Promise<{
+    db: string,
+    text: string,
+    result: any
+  }>;
+  deleteAllVoice(db: string): Promise<{
+    db: string,
+    result: any
+  }>;
+}

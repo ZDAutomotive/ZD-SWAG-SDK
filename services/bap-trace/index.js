@@ -28,7 +28,6 @@ export default class BAPTrace {
   }
 
   async bap2CAN(CANID, LSGID, FCTID, OPCODE, DATA, LEN) {
-    if (!this.socket) throw new Error('BAP Trace service not ready')
     const res = await axios.post(`http://${this.host}:${this.port}/converter/bap2can`, {
       CANID,
       LSGID,
@@ -41,7 +40,6 @@ export default class BAPTrace {
   }
 
   async initView(fileName) {
-    if (!this.socket) throw new Error('BAP Trace service not ready')
     const res = await axios.post(`http://${this.host}:${this.port}/bapview/`, {
       fileName
     })
@@ -50,21 +48,18 @@ export default class BAPTrace {
   }
 
   async uninitView() {
-    if (!this.socket) throw new Error('BAP Trace service not ready')
     const res = await axios.delete(`http://${this.host}:${this.port}/bapview/`)
 
     return res.data
   }
 
   async getViewState() {
-    if (!this.socket) throw new Error('BAP Trace service not ready')
     const res = await axios.get(`http://${this.host}:${this.port}/bapview/`)
 
     return res.data
   }
 
   async parseBAP(bapmsg) {
-    if (!this.socket) throw new Error('BAP Trace service not ready')
     const res = await axios.get(`http://${this.host}:${this.port}/bapview/parse`, bapmsg)
 
     return res.data
