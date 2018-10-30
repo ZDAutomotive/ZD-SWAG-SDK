@@ -36,7 +36,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!keyevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${host}:${port}/remotepanel/key`, keyevent)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, keyevent)
     return res.data;
   }
 
@@ -94,7 +94,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!touchevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${host}:${port}/remotepanel/touch`, touchevent)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touch`, touchevent)
     return res.data;
   }
 
@@ -141,7 +141,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!pressevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${host}:${port}/remotepanel/press`, pressevent)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/press`, pressevent)
     return res.data;
   }
 
@@ -209,7 +209,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!swipeevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${host}:${port}/remotepanel/swipe`, swipeevent)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/swipe`, swipeevent)
     return res.data;
   }
 
@@ -227,7 +227,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!ssevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${host}:${port}/remotepanel/touchscreenshot`, ssevent)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touchscreenshot`, ssevent)
     return res.data;
   }
 }
