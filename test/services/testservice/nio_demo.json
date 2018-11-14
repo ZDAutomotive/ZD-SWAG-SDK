@@ -1,0 +1,72 @@
+{
+  "headInfo": {
+    "type": "sds-nio"
+  },
+  "sequenceLib": [{
+      "id": "sequence.send-voice-input#RequestTask_Hello",
+      "type": "sequence",
+      "placeHolders": [{
+        "id": "send-voice-input#RequestTask_Hello",
+        "type": "send-voice-input",
+        "phraseID": "RequestTask_Hello",
+        "phraseText": "hi nomi"
+      }]
+    },
+    {
+      "id": "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_Hello",
+      "type": "parallel",
+      "placeHolders": [{
+          "id": "sequence.MapPrompts#ReportOnTask_Hello1",
+          "type": "sequence",
+          "placeHolders": [{
+            "id": "MapPrompts#ReportOnTask_BackHome",
+            "type": "match-voice-output",
+            "promptID": "running",
+            "promptRawInfo": ""
+          }]
+        }]
+    },
+    {
+      "id": "sequence.send-voice-input#RequestTask_BackHome",
+      "type": "sequence",
+      "placeHolders": [{
+        "id": "send-voice-input#RequestTask_DayMap",
+        "type": "send-voice-input",
+        "phraseID": "RequestTask_DayMap",
+        "phraseText": "音量最大"
+      }]
+    },
+    {
+      "id": "sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_BackHome",
+      "type": "sequence",
+      "placeHolders": [{
+        "id": "sequence.MapPrompts#ReportOnTask_BackHome",
+        "type": "sequence",
+        "placeHolders": [{
+          "id": "MapPrompts#ReportOnTask_BackHome",
+          "type": "match-voice-output",
+          "promptID": "调到最大音量",
+          "promptRawInfo": ""
+        }]
+      }]
+    },
+    {
+      "id": "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#DialogEnd",
+      "placeHolders": [{
+          "id": "DialogEnd",
+          "type": "DIALOG_END"
+        }
+      ]
+    }
+  ],
+  "testcases": [{
+    "id": "MapSettings.Demo.Navi.Home",
+    "sequenceList": [
+      "sequence.send-voice-input#RequestTask_Hello",
+      "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_Hello",
+      "sequence.send-voice-input#RequestTask_BackHome",
+      "sequence.MapMainNoGuidance.sequence.MapPrompts#ReportOnTask_BackHome",
+      "parallel.sequence.MapMainNoGuidance.sequence.MapPrompts#DialogEnd"
+    ]
+  }]
+}
