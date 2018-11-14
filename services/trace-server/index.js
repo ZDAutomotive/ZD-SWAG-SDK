@@ -362,138 +362,134 @@ export default class TraceServer {
     })
   }
 
-  // /**
-  //  * assert multi eso keyword on success
-  //  * @param {Array} optionList  contain a list of assertion
-  //  * @param {Object} option
-  //  * @param {number} option.timeout default 20000, max waiting time for matching can msg
-  //  * @param {string} assertion.channelID
-  //  * @param {String} assertion.keyword
-  //  * @param {boolean} assertion.singleReturn default false, will be resolve true, when singleReturn eso keyword exist. 
-  //  */
-  // assertMultiADLTraces(option, assertionList) {
-  //   return new Promise(async (resolve, reject) => {
-  //     if (!this.socket) {
-  //       reject('connect_error')
-  //       return
-  //     }
-  //     let expectedList = {};
-  //     let timerList = {};
-  //     let timerMultiADB = setTimeout(() => {
-  //       //let result = true;
-  //       for(let i = 0; i < Object.keys(expectedList).length; i++) {
-  //         if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
-  //           resolve({
-  //             res: false,            
-  //             traces: expectedList
-  //           })
-  //           return
-  //         }
-  //       }
-  //       resolve({
-  //         res: true,
-  //         successReason: 'all',  
-  //         traces: expectedList
-  //       })
-  //     }, (option.timeout + 1000) || 21000);
+  /**
+   * assert multi eso keyword on success
+   * @param {Array} optionList  contain a list of assertion
+   * @param {Object} option
+   * @param {number} option.timeout default 20000, max waiting time for matching can msg
+   * @param {string} assertion.channelID
+   * @param {String} assertion.keyword
+   * @param {boolean} assertion.singleReturn default false, will be resolve true, when singleReturn eso keyword exist. 
+   */
+  assertMultiADLTraces(option, assertionList) {
+    return new Promise(async (resolve, reject) => {
+      if (!this.socket) {
+        reject('connect_error')
+        return
+      }
+      let expectedList = {};
+      let timerList = {};
+      let timerMultiADB = setTimeout(() => {
+        //let result = true;
+        for(let i = 0; i < Object.keys(expectedList).length; i++) {
+          if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
+            resolve({
+              res: false,            
+              traces: expectedList
+            })
+            return
+          }
+        }
+        resolve({
+          res: true,
+          successReason: 'all',  
+          traces: expectedList
+        })
+      }, (option.timeout + 1000) || 21000);
 
-  //     assertionList.forEach(async (elem) => {
-  //       const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
-  //       expectedList[hookName] = {
-  //         onMessage: false,
-  //         keyword: elem.keyword,
-  //         trace: '',
-  //         singleReturn: elem.singleReturn
-  //       };
-  //       // set time out event
-  //       let timer = setTimeout(async () => {
-  //         await this.unsubscribe(hookName);
-  //         this.socket.removeAllListeners(hookName)
-  //       }, option.timeout || 20000);
-  //       timerList[hookName] = timer;
-  //       // set a hook
-  //       await this.subscribe(hookName, 'ADL', `{"adlmsg"=="${elem.keyword}"}`);
-  //       this.socket.once(hookName, async (trace) => { 
-  //         expectedList[hookName].onMessage = true;
-  //         expectedList[hookName].trace = trace.data.msgData.data.msgData.data
-  //         clearTimeout(timer)
-  //         await this.unsubscribe(hookName);
-  //         // this.socket.removeAllListeners(hookName)
-  //         if(expectedList[hookName].singleReturn) {
-  //           resolve({
-  //             res: true,
-  //             successReason: 'single',
-  //             traces: expectedList
-  //           })
-  //           clearTimeout(timerMultiADB);
-  //         } else {
-  //           let result = true
-  //           for(let i = 0; i < Object.keys(expectedList).length; i++) {
-  //             if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
-  //               result = false 
-  //               break;
-  //             }
-  //           }
-  //           if(result) {
-  //             resolve({
-  //               res: true,
-  //               successReason: 'all',  
-  //               traces: expectedList
-  //             })
-  //             clearTimeout(timerMultiADB);
-  //           } 
-  //         }
-  //       })
-  //     });
-  //     const duration = await this.getDuration()
-  //     const now = duration.end
-  //     const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
-  //     const beforeADBs = await this.pull(checkBeginTime, now, ['ADL'])
-  //     Object.keys(expectedList).forEach(async (hookName) => {
-  //       const foundBeforeADB = beforeADBs.find(
-  //         trace => {
-  //           if(trace.data.msgData.id === 4 && trace.data.msgData.data.msgData){
-  //             return (typeof trace.data.msg === 'string') &&
-  //             (trace.data.msg.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
-  //           } else {
-  //             return false;
-  //           }
-  //         })
-  //       if (foundBeforeADB) {
-  //         expectedList[hookName].onMessage = true;
-  //         expectedList[hookName].trace = foundBeforeADB.data.msg
-  //         clearTimeout(timerList[hookName]);
-  //         await this.unsubscribe(hookName);
-  //         this.socket.removeAllListeners(hookName)
-  //         // this.removeHook(hookName)
-  //         let result = true
-  //         for(let i = 0; i < Object.keys(expectedList).length; i++) {
-  //           if(expectedList[hookName].singleReturn && expectedList[Object.keys(expectedList)[i]].onMessage === true) {
-  //             resolve({
-  //               res: true,
-  //               successReason: 'single',
-  //               traces: expectedList
-  //             })
-  //             clearTimeout(timerMultiADB);
-  //             return;
-  //           }
-  //           if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
-  //             result = false 
-  //             //break;
-  //           }
-  //         }
-  //         if(result) {
-  //           resolve({
-  //             res: true,
-  //             successReason: 'all',
-  //             traces: expectedList
-  //           })
-  //           clearTimeout(timerMultiADB);
-  //         }
-  //       }
-  //     })
-  //   })
-  // }
+      assertionList.forEach(async (elem) => {
+        const hookName = crypto.createHash('md5').update(JSON.stringify(elem)).digest('hex');
+        expectedList[hookName] = {
+          onMessage: false,
+          keyword: elem.keyword,
+          trace: '',
+          singleReturn: elem.singleReturn
+        };
+        // set time out event
+        let timer = setTimeout(async () => {
+          await this.unsubscribe(hookName);
+          this.socket.removeAllListeners(hookName)
+        }, option.timeout || 20000);
+        timerList[hookName] = timer;
+        // set a hook
+        await this.subscribe(hookName, 'ADL', `{"adlmsg"=="${elem.keyword}"}`);
+        this.socket.once(hookName, async (trace) => { 
+          expectedList[hookName].onMessage = true;
+          expectedList[hookName].trace = trace.data.msg
+          clearTimeout(timer)
+          await this.unsubscribe(hookName);
+          // this.socket.removeAllListeners(hookName)
+          if(expectedList[hookName].singleReturn) {
+            resolve({
+              res: true,
+              successReason: 'single',
+              traces: expectedList
+            })
+            clearTimeout(timerMultiADB);
+          } else {
+            let result = true
+            for(let i = 0; i < Object.keys(expectedList).length; i++) {
+              if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
+                result = false 
+                break;
+              }
+            }
+            if(result) {
+              resolve({
+                res: true,
+                successReason: 'all',  
+                traces: expectedList
+              })
+              clearTimeout(timerMultiADB);
+            } 
+          }
+        })
+      });
+      const duration = await this.getDuration()
+      const now = duration.end
+      const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
+      const beforeADBs = await this.pull(checkBeginTime, now, ['ADL'])
+      Object.keys(expectedList).forEach(async (hookName) => {
+        const foundBeforeADB = beforeADBs.find(
+          trace => {
+              return (typeof trace.data.msg === 'string') &&
+              (trace.data.msg.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
+          })
+        if (foundBeforeADB) {
+          expectedList[hookName].onMessage = true;
+          expectedList[hookName].trace = foundBeforeADB.data.msg
+          clearTimeout(timerList[hookName]);
+          await this.unsubscribe(hookName);
+          this.socket.removeAllListeners(hookName)
+          // this.removeHook(hookName)
+          let result = true
+          for(let i = 0; i < Object.keys(expectedList).length; i++) {
+            if(expectedList[hookName].singleReturn && expectedList[Object.keys(expectedList)[i]].onMessage === true) {
+              resolve({
+                res: true,
+                successReason: 'single',
+                traces: expectedList
+              })
+              clearTimeout(timerMultiADB);
+              return;
+            }
+            if(expectedList[Object.keys(expectedList)[i]].onMessage === false) {
+              result = false 
+              //break;
+            }
+          }
+          if(result) {
+            resolve({
+              res: true,
+              successReason: 'all',
+              traces: expectedList
+            })
+            clearTimeout(timerMultiADB);
+          }
+        }
+      })
+    })
+  }
 
   /**
    * Subscribe a type of trace server message with custom event name
