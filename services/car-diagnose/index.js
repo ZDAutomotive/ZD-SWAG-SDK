@@ -8,46 +8,50 @@ export default class BAPTrace {
     this.urlPart = option.urlPart || '/car-diagnose'
   }
 
-  async sendRaw(sub, dataArr) {
+  async sendRaw(sub, dataArr, canID) {
     const res = await axios.post(
       `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/sendraw`,
-      dataArr
+      {
+        data: dataArr,
+        canid: canID
+      }
     )
     return res.data
   }
 
-  async getDTC(sub, id) {
+  async getDTC(sub, id, canID) {
     const res = await axios.get(
       `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/dtc`,
       {
         params: {
-          id
+          id,
+          canid: canID
         }
       }
     )
     return res.data
   }
 
-  async getDID(sub, id) {
+  async getDID(sub, id, canID) {
     const res = await axios.get(
       `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/byidentifier`,
       {
         params: {
-          id
+          id,
+          canid: canID
         }
       }
     )
     return res.data
   }
 
-  async writeDID(sub, id, dataArr) {
+  async writeDID(sub, id, dataArr, canID) {
     const res = await axios.post(
       `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/byidentifier`,
-      dataArr,
       {
-        params: {
-          id
-        }
+        data: dataArr,
+        id,
+        canid: canID
       }
     )
     return res.data

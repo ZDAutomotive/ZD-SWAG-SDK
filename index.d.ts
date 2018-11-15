@@ -262,19 +262,19 @@ declare class CANSim extends Base {
 }
 
 export class CARDiagnose extends Base {
-  sendRaw(sub: string, dataArr: number[]): Promise<{ raw: number[] }>;
-  getDTC(sub: string, id: number): Promise<{
+  sendRaw(sub: string, dataArr: number[], canID: number): Promise<{ raw: number[] }>;
+  getDTC(sub: string, id: number, canID: number): Promise<{
     raw: number[],
     header: number[],
     payload: number[],
     isError: boolean
   }>;
-  getDID(sub: string, id: number): Promise<{
+  getDID(sub: string, id: number, canID: number): Promise<{
     raw: number[],
     header: number[],
     payload: number[],
   }>;
-  writeDID(sub: string, id: number, dataArr: number[]): Promise<{
+  writeDID(sub: string, id: number, dataArr: number[], canID: number): Promise<{
     raw: number[],
     header: number[],
     payload: number[],
