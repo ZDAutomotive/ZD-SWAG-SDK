@@ -11,6 +11,8 @@ declare interface BasicOption {
    * @default 'localhost'
    */
   host?: string;
+
+  urlPart?: string;
 }
 
 export class AndroidProberProxy {

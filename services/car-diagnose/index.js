@@ -5,7 +5,7 @@ export default class BAPTrace {
     option = option || {}
     this.port = option.port || 8081;
     this.host = option.host || 'localhost'
-    this.urlPart = option.urlPart || '/car-diagnose'
+    this.urlPart = option.urlPart || 'car-diagnose'
   }
 
   async sendRaw(sub, dataArr, canID) {
