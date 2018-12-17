@@ -1,4 +1,5 @@
 import { Stream, Readable } from 'stream';
+import { AxiosResponse } from 'axios';
 
 declare interface BasicOption {
   /**
@@ -92,6 +93,15 @@ export class TTS {
   update(id: any, data: object, cb: (isErr: boolean, data: any) => void): any;
   delete(id: any, cb: (isErr: boolean, data: any) => void): any;
   get(text: string, cb: (isErr: boolean, data: any) => void): any;
+}
+
+export class OCR extends Base{
+  uploadImage(): Promise<{
+    res: AxiosResponse;
+  }>;
+  ocrTest(): Promise<{
+    iconPosition: string
+  }>
 }
 
 export class AudiMainUnit extends Base {

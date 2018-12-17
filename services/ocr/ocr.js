@@ -58,6 +58,7 @@ export default class OCR {
     let res = await axios.post(`http://${this.host}:${this.port}/api/filemanage/upload?dirname=${dirname}`, form, {
       headers: await getHeaders(form)
     });
+    return res
   }
 
   async ocrTest(dirname, filename, coord) {
@@ -66,7 +67,8 @@ export default class OCR {
       imagePath,
       coord
     })
-    console.log(ret.data)
-    return ret.data
+    // console.log(ret.data)
+    const iconPosition = ret.data
+    return iconPosition
   }
 }
