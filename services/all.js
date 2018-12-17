@@ -12,6 +12,7 @@ import CANView from './can-view/index'
 import CARSetting from './individual-setting/index'
 import SeatControl from './seat-control/index'
 import CARDiagnose from './car-diagnose/index'
+import OCR from './ocr/ocr'
 
 export default {
   AndroidProberProxy,
@@ -27,5 +28,6 @@ export default {
   CANView,
   CARSetting,
   SeatControl,
-  CARDiagnose
+  CARDiagnose,
+  OCR
 };
