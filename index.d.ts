@@ -96,10 +96,10 @@ export class TTS {
 }
 
 export class OCR extends Base{
-  uploadImage(): Promise<{
+  uploadImage(dirname: string, filename: string, caseFile: string): Promise<{
     res: AxiosResponse;
   }>;
-  ocrTest(): Promise<{
+  ocrTest(dirname: string, filename: string, coord: string): Promise<{
     iconPosition: string
   }>
 }
@@ -171,7 +171,7 @@ export interface Simulation {
   BAPSim: BAPSim;
 }
 
-declare class RemotePanel extends Base {
+export class RemotePanel extends Base {
   hardkeyReq(_action: string, _keyid: string, _keyboardid: string): Promise<{
     code: number;
   } | {
@@ -233,7 +233,7 @@ declare class RemotePanel extends Base {
   }[]>;
 }
 
-declare class BAPSim extends Base {
+export class BAPSim extends Base {
   start(): Promise<boolean>;
   stop(): Promise<boolean>;
   reset(): Promise<boolean>;
@@ -254,7 +254,7 @@ declare class BAPSim extends Base {
   stopBAPCopy(): Promise<boolean>;
 }
 
-declare class CANSim extends Base {
+export class CANSim extends Base {
   init(fileName: string): Promise<{
     dbc: object,
     control: object,

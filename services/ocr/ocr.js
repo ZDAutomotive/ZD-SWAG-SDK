@@ -1,7 +1,8 @@
-const fs = require('fs')
-const axios = require('axios')
-const FormData = require('form-data');
-const path = require("path")
+import axios from 'axios';
+import fs from 'fs';
+import ioClient from 'socket.io-client';
+import FormData from 'form-data';
+import path from 'path';
 // sendItem = {
 //   image,
 //   coord: "1397, 102, 65, 87"
