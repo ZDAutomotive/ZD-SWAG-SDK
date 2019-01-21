@@ -63,7 +63,7 @@ export default class OCR {
   }
 
   async findIcon(dirname, filename) {
-    let imagePath = path.join(dirname, filename)
+    let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/ocr/findElement`, {
       imagePath
     })
