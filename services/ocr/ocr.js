@@ -1,7 +1,8 @@
 const fs = require('fs')
 const axios = require('axios')
 const FormData = require('form-data');
-const path = require("path")
+const path = require('path')
+const request = require('request')
 // sendItem = {
 //   image,
 //   coord: "1397, 102, 65, 87"
@@ -13,7 +14,7 @@ const path = require("path")
 export default class OCR {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6017;
+    this.port = option.port || 6071;
     this.host = option.host || 'localhost'
   }
 
@@ -61,14 +62,29 @@ export default class OCR {
     return res
   }
 
-  async ocrTest(dirname, filename, coord) {
+  async findIcon(dirname, filename) {
     let imagePath = path.join(dirname, filename)
     let ret = await axios.post(`http://${this.host}:${this.port}/ocr/findElement`, {
-      imagePath,
-      coord
+      imagePath
     })
     // console.log(ret.data)
     const iconPosition = ret.data
     return iconPosition
+  }
+
+  async findText(text, coord, lang) {
+    let ret = await axios.post(`http://${this.host}:${this.port}/ocr/ocr`, {
+      text,
+      coord,
+      lang
+    })
+    const textContent = ret.data
+    return textContent
+  }
+
+  async getScreenshot() {
+    let res = await axios.get(`http://${this.host}:${this.port}/ocr/roi`)
+    request(`http://${this.host}:${this.port}/ocr/screenshot`).pipe(fs.createWriteStream('image.png'))
+    return res
   }
 }

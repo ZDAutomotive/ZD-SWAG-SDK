@@ -99,8 +99,20 @@ export class OCR extends Base{
   uploadImage(): Promise<{
     res: AxiosResponse;
   }>;
-  ocrTest(): Promise<{
-    iconPosition: string
+  findIcon(dirname: string, filename: string): Promise<{
+    iconPosition: {
+      code: number,
+      msg: any
+    }
+  }>
+  findText(text: string, coord: object, lang: string): Promise<{
+    textContent: {
+      code: number,
+      msg: any
+    }
+  }>
+  getScreenshot(): Promise<{
+    res: object
   }>
 }
 
