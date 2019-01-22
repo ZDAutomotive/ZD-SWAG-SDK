@@ -21,6 +21,7 @@ export default class CANView {
         reject(1)
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
+        this.socket.close()
         delete this.socket
       })
     })
