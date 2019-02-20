@@ -23,10 +23,11 @@ export default class TraceServer {
         this.socket.removeAllListeners('connect_error')
       })
       this.socket.on('connect_error', () => {
-        console.log('conn error')
+        // console.log('conn error')
         reject('connect_error')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
+        this.socket.close()
         delete this.socket
       })
       this.socket.on('disconnect', (msg) => {
@@ -452,7 +453,7 @@ export default class TraceServer {
       Object.keys(expectedList).forEach(async (hookName) => {
         const foundBeforeADB = beforeADBs.find(
           trace => {
-              return (typeof trace.data.msg === 'string') &&
+            return (typeof trace.data.msg === 'string') &&
               (trace.data.msg.toUpperCase().indexOf(expectedList[hookName].keyword.toUpperCase()) !== -1)
           })
         if (foundBeforeADB) {

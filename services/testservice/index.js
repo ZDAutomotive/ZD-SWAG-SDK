@@ -22,6 +22,7 @@ export default class TestService {
         reject('connect_error')
         this.socket.removeAllListeners('connect')
         this.socket.removeAllListeners('connect_error')
+        this.socket.close()
         delete this.socket
       })
     })
