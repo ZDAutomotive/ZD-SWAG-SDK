@@ -82,6 +82,14 @@ export default class OCR {
     return textContent
   }
 
+  async findColor(color) {
+    let ret = await axios.post(`http://${this.host}:${this.port}/ocr/compareColor`, {
+      color
+    })
+    const isColor = ret.data
+    return isColor
+  }
+
   async getScreenshot() {
     let res = await axios.get(`http://${this.host}:${this.port}/ocr/roi`)
     request(`http://${this.host}:${this.port}/ocr/screenshot`).pipe(fs.createWriteStream('image.png'))

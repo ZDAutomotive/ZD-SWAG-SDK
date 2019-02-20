@@ -100,12 +100,16 @@ export class OCR extends Base{
     res: AxiosResponse;
   }>;
   findIcon(dirname: string, filename: string): Promise<{ 
-      code: number,
-      msg: any
+    code: number,
+    msg: any
   }>
   findText(text: string, coord: object, lang: string): Promise<{
-      code: number,
-      msg: any
+    code: number,
+    msg: any
+  }>
+  findColor(color: string): Promise<{
+    code: number,
+    result: any
   }>
   getScreenshot(): Promise<{
     res: object
