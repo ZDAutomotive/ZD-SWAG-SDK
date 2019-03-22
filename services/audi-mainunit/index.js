@@ -84,6 +84,14 @@ export default class MainUnit {
     return res.data;
   }
 
+  /**
+   * fetch files from MU to service folder(remote local)
+   */
+  async fetchMIB3SYSFiles(serverPath, remoteFolder){
+    let res = await axios.post(`http://${this.host}:${this.port}/mib3sys/fetchfiles`, {files: serverPath, toPath: remoteFolder});
+    return res.data;
+  }
+
   async getCurrentScreenID() {
     let res = await axios.get(`http://${this.host}:${this.port}/mu/currentscreenid`);
     return res.data.screenID;
