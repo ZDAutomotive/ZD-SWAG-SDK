@@ -136,6 +136,9 @@ export class AudiMainUnit extends Base {
   fetchFiles(serverFile: string, remoteFolder: string): Promise<{
     files: string[]
   }>;
+  fetchMIB3SYSFiles(serverPath: string, remoteFolder: string): Promise<{
+    files: string[]
+  }>;
   getCurrentScreenID(): Promise<string>;
   getCurrentVisiblePopupID(): Promise<string>;
   getWidgetInfosOfCurrentScreen(): Promise<any>;
