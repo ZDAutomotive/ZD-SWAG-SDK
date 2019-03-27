@@ -123,7 +123,7 @@ export class Macro extends Base{
   stopRecording(): Promise<{
     res: Array<object>
   }>
-  playMacro(): Promise<{
+  playMacro(macro: object[], timeout: number): Promise<{
     res: boolean
   }>
   getLastMacro(): Promise<{

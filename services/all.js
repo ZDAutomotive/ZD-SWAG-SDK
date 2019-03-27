@@ -13,6 +13,7 @@ import CARSetting from './individual-setting/index'
 import SeatControl from './seat-control/index'
 import CARDiagnose from './car-diagnose/index'
 import OCR from './ocr/ocr'
+import Macro from './macro-record/index'
 
 export default {
   AndroidProberProxy,
@@ -32,5 +33,6 @@ export default {
   CARSetting,
   SeatControl,
   CARDiagnose,
-  OCR
+  OCR,
+  Macro
 };

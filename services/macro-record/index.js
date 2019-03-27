@@ -3,7 +3,7 @@ import axios from 'axios'
 export default class Macro {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6072;
+    this.port = option.port || 7002;
     this.host = option.host || 'localhost'
   }
   connect() {
