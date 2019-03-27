@@ -116,6 +116,21 @@ export class OCR extends Base{
   }>
 }
 
+export class Macro extends Base{
+  startRecording(): Promise<{
+    res: boolean
+  }>
+  stopRecording(): Promise<{
+    res: Array<object>
+  }>
+  playMacro(): Promise<{
+    res: boolean
+  }>
+  getLastMacro(): Promise<{
+    res: Array<object>
+  }>
+}
+
 export class AudiMainUnit extends Base {
   getVIN(): Promise<{
     VIN: string
