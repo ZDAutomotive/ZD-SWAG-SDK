@@ -64,7 +64,7 @@ export default class OCR {
 
   async findIcon(dirname, filename) {
     let imagePath = `${dirname}/${filename}`
-    let ret = await axios.post(`http://${this.host}:${this.port}/ocr/findElement`, {
+    let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {
       imagePath
     })
     // console.log(ret.data)
@@ -73,7 +73,7 @@ export default class OCR {
   }
 
   async findText(text, coord, lang) {
-    let ret = await axios.post(`http://${this.host}:${this.port}/ocr/ocr`, {
+    let ret = await axios.post(`http://${this.host}:${this.port}/ocr`, {
       text,
       coord,
       lang
@@ -83,7 +83,7 @@ export default class OCR {
   }
 
   async findColor(color) {
-    let ret = await axios.post(`http://${this.host}:${this.port}/ocr/compareColor`, {
+    let ret = await axios.post(`http://${this.host}:${this.port}/compareColor`, {
       color
     })
     const isColor = ret.data
@@ -91,7 +91,7 @@ export default class OCR {
   }
 
   async getScreenshot() {
-    let res = await axios.get(`http://${this.host}:${this.port}/ocr/roi`)
+    let res = await axios.get(`http://${this.host}:${this.port}/roi`)
     request(`http://${this.host}:${this.port}/ocr/screenshot`).pipe(fs.createWriteStream('image.png'))
     return res
   }
