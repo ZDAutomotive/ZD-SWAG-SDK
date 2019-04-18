@@ -53,6 +53,10 @@ keeping the list of open issues lean we can respond in a timely manner.
 
 Please see [SERVICES.md](./SERVICES.md) for a list of supported services.
 
+## Extended Services
+
+Please see Wiki for extended services not listed in the supported services
+
 ## License
 
 This SDK is distributed under the
