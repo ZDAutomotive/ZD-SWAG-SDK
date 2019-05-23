@@ -62,6 +62,15 @@ export default class OCR {
     return res
   }
 
+  async subscribe(image) {
+    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image })
+    return res.data
+  }
+
+  async unsubscribeAll() {
+    await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
+  }
+
   async findIcon(dirname, filename) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {

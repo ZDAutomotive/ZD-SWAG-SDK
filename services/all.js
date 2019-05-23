@@ -13,6 +13,7 @@ import CARSetting from './individual-setting/index'
 import SeatControl from './seat-control/index'
 import CARDiagnose from './car-diagnose/index'
 import OCR from './ocr/ocr'
+import Upload from './ocr/upload'
 import Macro from './macro-record/index'
 
 export default {
@@ -34,5 +35,6 @@ export default {
   SeatControl,
   CARDiagnose,
   OCR,
-  Macro
+  Macro,
+  Upload
 };
