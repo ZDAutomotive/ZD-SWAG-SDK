@@ -114,8 +114,18 @@ export class OCR extends Base{
   getScreenshot(): Promise<{
     res: object
   }>
+  subscribe(): Promise<{
+    res: object
+  }>
+  unsubscribeAll(): Promise<{
+    res: object
+  }>
 }
-
+export class Upload extends Base{
+  upload(dirname: string, filename: string, caseFile: string): Promise<{
+    res: AxiosResponse;
+  }>;
+}
 export class Macro extends Base{
   startRecording(): Promise<{
     res: boolean
