@@ -81,6 +81,15 @@ export default class OCR {
     return iconPosition
   }
 
+  async matchIcon(dirname, filename) {
+    let imagePath = `${dirname}/${filename}`
+    let ret = await axios.post(`http://${this.host}:${this.port}/matchElement`, {
+      imagePath
+    })
+    const iconPosition = ret.data
+    return iconPosition
+  }
+
   async findText(text, coord, lang, conf, psm) {
     let ret = await axios.post(`http://${this.host}:${this.port}/ocr`, {
       text,
