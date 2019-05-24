@@ -103,6 +103,10 @@ export class OCR extends Base{
     code: number,
     msg: any
   }>
+  matchIcon(dirname: string, filename: string): Promise<{ 
+    code: number,
+    msg: any
+  }>
   findText(text: string, coord: object, lang: string, conf: number, psm: number): Promise<{
     code: number,
     msg: any
