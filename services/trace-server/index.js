@@ -25,10 +25,12 @@ export default class TraceServer {
       this.socket.on('connect_error', () => {
         // console.log('conn error')
         reject('connect_error')
-        this.socket.removeAllListeners('connect')
-        this.socket.removeAllListeners('connect_error')
-        this.socket.close()
-        delete this.socket
+        if(this.socket) {
+          this.socket.removeAllListeners('connect')
+          this.socket.removeAllListeners('connect_error')
+          this.socket.close()
+          delete this.socket
+        }
       })
       this.socket.on('disconnect', (msg) => {
         console.log(msg)

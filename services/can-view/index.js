@@ -19,10 +19,12 @@ export default class CANView {
       })
       this.socket.on('connect_error', () => {
         reject(1)
-        this.socket.removeAllListeners('connect')
-        this.socket.removeAllListeners('connect_error')
-        this.socket.close()
-        delete this.socket
+        if(this.socket) {
+          this.socket.removeAllListeners('connect')
+          this.socket.removeAllListeners('connect_error')
+          this.socket.close()
+          delete this.socket
+        }
       })
     })
   }
