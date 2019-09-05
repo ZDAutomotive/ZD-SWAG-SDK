@@ -71,10 +71,11 @@ export default class OCR {
     await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
   }
 
-  async findIcon(dirname, filename) {
+  async findIcon(dirname, filename, threshold) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {
-      imagePath
+      imagePath,
+      threshold
     })
     // console.log(ret.data)
     const iconPosition = ret.data
