@@ -36,7 +36,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!keyevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, keyevent, channel)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, {keyevent, channel})
     return res.data;
   }
 
