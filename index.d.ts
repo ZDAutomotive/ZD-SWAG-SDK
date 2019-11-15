@@ -278,6 +278,7 @@ export class RemotePanel extends Base {
 }
 
 export class BAPSim extends Base {
+  connect(): Promise<boolean>;
   start(): Promise<boolean>;
   stop(): Promise<boolean>;
   reset(): Promise<boolean>;
@@ -294,7 +295,7 @@ export class BAPSim extends Base {
   sendReq(lsgID: number, fctID: number, opCode: number, data: number[]): Promise<{ code: number }>;
   switchLSG(lsgID: number, state: boolean): Promise<{ code: number }>;
   loadConfig(fileName: string): Promise<any>;
-  startBAPCopy(): Promise<boolean>;
+  startBAPCopy(isCopyTx: boolean): Promise<boolean>;
   stopBAPCopy(): Promise<boolean>;
 }
 
