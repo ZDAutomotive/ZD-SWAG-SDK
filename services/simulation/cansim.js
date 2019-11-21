@@ -1,7 +1,28 @@
 import axios from 'axios'
 import BaseSimulation from './base'
+import * as ioClient from 'socket.io-client';
 
 export default class CANSim extends BaseSimulation {
+  connect() {
+    return new Promise((resolve, reject) => {
+      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket.on('connect', () => {
+        resolve(1)
+        this.socket.removeAllListeners('connect')
+        this.socket.removeAllListeners('connect_error')
+      })
+      this.socket.on('connect_error', () => {
+        reject(1)
+        if(this.socket) {
+          this.socket.removeAllListeners('connect')
+          this.socket.removeAllListeners('connect_error')
+          this.socket.close()
+          delete this.socket
+        }
+      })
+    })
+  }
+
   async init(fileName) {
     const res = await axios.post(`http://${this.host}:${this.port}/cansim/`, {
       fileName
@@ -59,6 +80,21 @@ export default class CANSim extends BaseSimulation {
     const res = await axios.post(`http://${this.host}:${this.port}/cansim/data/${canID}/${name}`, {
       value
     })
+    return res.data
+  }
+
+  async loadReplayFile(filepath = '/root/upload/tmp/canreplay.asc') {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/loadfile?filepath=${filepath}`)
+    return res.data
+  }
+
+  async startReplay() {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/simplestart`)
+    return res.data
+  }
+
+  async stopReplay() {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/stop`)
     return res.data
   }
 }
