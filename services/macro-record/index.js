@@ -30,8 +30,8 @@ export default class Macro {
     })
   }
   
-  async startRecording() {
-    const res = await axios.post(`http://${this.host}:${this.port}/startRecord`)
+  async startRecording(mode) {
+    const res = await axios.post(`http://${this.host}:${this.port}/startRecord`, { mode })
     if (res.data.code === 2) return true
     return false
   }
