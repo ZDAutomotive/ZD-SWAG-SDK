@@ -62,8 +62,8 @@ export default class OCR {
     return res
   }
 
-  async subscribe(image) {
-    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image })
+  async subscribe(image, coord) {
+    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image, coord })
     return res.data
   }
 
@@ -71,20 +71,23 @@ export default class OCR {
     await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
   }
 
-  async findIcon(dirname, filename) {
+  async findIcon(dirname, filename, coord, threshold) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {
-      imagePath
+      imagePath,
+      threshold,
+      coord
     })
-    // console.log(ret.data)
     const iconPosition = ret.data
     return iconPosition
   }
 
-  async matchIcon(dirname, filename) {
+  async matchIcon(dirname, filename, coord, threshold) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/matchElement`, {
-      imagePath
+      imagePath,
+      threshold,
+      coord
     })
     const iconPosition = ret.data
     return iconPosition

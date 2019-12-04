@@ -9,7 +9,7 @@ export default class RemotePanel extends BaseSimulation {
   // action:'exe'/'ret'(execute remotepanel / return canmsg)
   // keyid:'ZD_SDS'
   // keyboardid: 'MIB1' / 'MIB2'
-  async hardkeyReq(_action, _keyid, _keyboardid) {
+  async hardkeyReq(_action, _keyid, _keyboardid, channel ) {
     let keyevent
     if (_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret') {
       switch(_keyboardid.toLowerCase()) {
@@ -36,7 +36,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!keyevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, keyevent)
+    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, {keyevent, channel})
     return res.data;
   }
 
