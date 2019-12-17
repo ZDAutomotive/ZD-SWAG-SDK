@@ -83,12 +83,32 @@ export default class CANSim extends BaseSimulation {
     return res.data
   }
 
-  async loadReplayFile(filepath = '/root/upload/tmp/canreplay.asc') {
-    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/loadfile?filepath=${filepath}`)
+  async getReplayStatus() {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/status`)
+    return res.data
+  }
+
+  async loadReplayFile(filepath, canbus) {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/loadfile?filepath=${filepath}&canbus=${canbus}`)
+    return res.data
+  }
+
+  async removeReplayFile(filepath, canbus) {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/removefile?filepath=${filepath}&canbus=${canbus}`)
+    return res.data
+  }
+
+  async clearReplayFile(filepath, canbus) {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/clearfile?canbus=${canbus}`)
     return res.data
   }
 
   async startReplay() {
+    const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/start`)
+    return res.data
+  }
+
+  async simpleStartReplay() {
     const res = await axios.get(`http://${this.host}:${this.port}/cansim/replay/simplestart`)
     return res.data
   }
