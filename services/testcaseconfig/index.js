@@ -79,6 +79,6 @@ export default class testcaseConfig {
     let res = await axios.post(`http://${this.host}:${this.port}/config`,{
       content
     })
-    return res.msg
+    return res.data
   }
 }
