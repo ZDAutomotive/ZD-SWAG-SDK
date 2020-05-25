@@ -63,7 +63,7 @@ export default class BAPTrace {
   }
 
   async parseBAP(bapmsg) {
-    const res = await axios.get(`http://${this.host}:${this.port}/bapview/parse`, bapmsg)
+    const res = await axios.post(`http://${this.host}:${this.port}/bapview/parse`, bapmsg)
 
     return res.data
   }
