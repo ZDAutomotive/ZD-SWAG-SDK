@@ -62,8 +62,8 @@ export default class OCR {
     return res
   }
 
-  async subscribe(image, coord) {
-    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image, coord })
+  async subscribe(image, coord, screenType) {
+    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image, coord, screenType })
     return res.data
   }
 
