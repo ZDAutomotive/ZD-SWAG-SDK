@@ -81,4 +81,53 @@ export default class testcaseConfig {
     })
     return res.data
   }
+
+  /**
+   * upload testcase config file
+   */
+  async uploadBenchCfg(caseFile) {
+    const form = new FormData()
+    form.append('file', caseFile)
+    let getHeaders = form => {
+      return new Promise((resolve, reject) => {
+        form.getLength((err, length) => {
+          if (err) reject(err)
+          let headers = Object.assign({
+            'Content-Length': length
+          }, form.getHeaders())
+          resolve(headers)
+        })
+      })
+    }
+    let res = await axios.post(`http://${this.host}:${this.port}/upload/benchconfig`,form,{
+      headers: await getHeaders(form)
+    })
+    return res.data
+  }
+
+  /**
+   * download testcase config file
+   */
+  async downloadBenchCfg() {
+    let res = await axios.get(`http://${this.host}:${this.port}/download/benchconfig`)
+    return res
+  }
+
+  /**
+   * Get content of testcase config file
+   */
+  async getBenchCfg() {
+    let res = await axios.get(`http://${this.host}:${this.port}/benchconfig`)
+    return res.data
+  }
+
+  /**
+   * Modify content of testcase config file
+   */
+  async setBenchCfg(content) {
+    let res = await axios.post(`http://${this.host}:${this.port}/benchconfig`,{
+      content
+    })
+    return res.data
+  }
 }
