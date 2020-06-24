@@ -3,6 +3,20 @@ import axios from 'axios';
 import crypto from 'crypto';
 import canDPI from '../../utils/can/dpi';
 
+function encodeRegExp (reg) {
+  const source = reg.source
+  const flags = reg.flags
+  const sourceArr = []
+  const flagsArr = []
+  for (let i = 0; i < source.length; i++) {
+    sourceArr.push(source.charCodeAt(i).toString(16).padStart(2, 0))
+  }
+  for (let i = 0; i < flags.length; i++) {
+    flagsArr.push(flags.charCodeAt(i).toString(16).padStart(2, 0))
+  }
+  const str = sourceArr.join('') + '00' + flagsArr.join('')
+  return str
+}
 
 export default class TraceServer {
   constructor(option) {
@@ -128,7 +142,7 @@ export default class TraceServer {
    * assert a eso keyword on success or on failed 
    * @param {Object} option
    * @param {string} option.channelID
-   * @param {String} option.keyword
+   * @param {String | RegExp} option.keyword
    * @param {number} option.timeout default 20000, max waiting time for matching can msg
    * @param {boolean} option.onFailed when to trigger callback, true means on failed, false means on success
    */
@@ -155,7 +169,15 @@ export default class TraceServer {
       }, option.timeout || 20000);
 
       // set a hook
-      await this.hook(hookName, 'ESO', `{"esotext"=="${option.keyword}"}`) // && {"esoclid"=="${option.channelID}"}`)
+      const keyword = option.keyword
+      let filterStr
+      if (typeof keyword === 'object' && keyword.source) {
+        const str = encodeRegExp(keyword)
+        filterStr = `{"esoreg"=="${str}"}`
+      } else {
+        filterStr = `{"esotext"=="${keyword}"}`
+      }
+      await this.hook(hookName, 'ESO', filterStr) // && {"esoclid"=="${option.channelID}"}`)
       //console.log('waiting for hook')
       this.socket.on(hookName, (trace) => {
         //data.data.msgData
@@ -191,8 +213,10 @@ export default class TraceServer {
         trace => {
           // (trace.data.msgData.data.channelId === option.channelID) &&
           if (trace.data.msgData.id === 4 && trace.data.msgData.data.msgData && typeof trace.data.msgData.data.msgData.data === 'string') {
-            return trace.data.msgData.data.msgData.data &&
-              (trace.data.msgData.data.msgData.data.indexOf(option.keyword) !== -1)
+            return trace.data.msgData.data.msgData.data && (
+              (typeof keyword === 'string' && trace.data.msgData.data.msgData.data.indexOf(keyword) !== -1) ||
+              (typeof keyword === 'object' && keyword.source && keyword.test(trace.data.msgData.data.msgData.data))
+            )
           }
         })
       if (foundBeforeESO) {

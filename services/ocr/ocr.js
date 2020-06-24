@@ -62,8 +62,8 @@ export default class OCR {
     return res
   }
 
-  async subscribe(image, coord) {
-    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image, coord })
+  async subscribe(image, coord, screenType) {
+    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image, coord, screenType })
     return res.data
   }
 
@@ -71,35 +71,38 @@ export default class OCR {
     await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
   }
 
-  async findIcon(dirname, filename, coord, threshold) {
+  async findIcon(dirname, filename, coord, threshold, screenType) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {
       imagePath,
       threshold,
-      coord
+      coord,
+      screenType
     })
     const iconPosition = ret.data
     return iconPosition
   }
 
-  async matchIcon(dirname, filename, coord, threshold) {
+  async matchIcon(dirname, filename, coord, threshold, screenType) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/matchElement`, {
       imagePath,
       threshold,
-      coord
+      coord,
+      screenType
     })
     const iconPosition = ret.data
     return iconPosition
   }
 
-  async findText(text, coord, lang, conf, psm) {
+  async findText(text, coord, lang, conf, psm, screenType) {
     let ret = await axios.post(`http://${this.host}:${this.port}/ocr`, {
       text,
       coord,
       lang,
       conf,
-      psm
+      psm,
+      screenType
     })
     const textContent = ret.data
     return textContent

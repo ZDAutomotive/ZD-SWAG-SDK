@@ -99,19 +99,19 @@ export class OCR extends Base{
   uploadImage(dirname: string, filename: string, caseFile: string): Promise<{
     res: AxiosResponse;
   }>;
-  findIcon(dirname: string, filename: string): Promise<{ 
+  findIcon(dirname: string, filename: string, coord: any, threshold: number, screenType: string): Promise<{ 
     code: number,
     msg: any
   }>
-  matchIcon(dirname: string, filename: string): Promise<{ 
+  matchIcon(dirname: string, filename: string, coord: any, threshold: number, screenType: string): Promise<{ 
     code: number,
     msg: any
   }>
-  findText(text: string, coord: object, lang: string, conf: number, psm: number): Promise<{
+  findText(text: string, coord: object, lang: string, conf: number, psm: number, screenType: string): Promise<{
     code: number,
     msg: any
   }>
-  findColor(color: string): Promise<{
+  findColor(color: string, screenType: string): Promise<{
     code: number,
     result: any
   }>
