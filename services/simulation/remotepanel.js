@@ -230,4 +230,14 @@ export default class RemotePanel extends BaseSimulation {
     let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touchscreenshot`, ssevent)
     return res.data;
   }
+
+  async muSleep(active) {
+    if (active) {
+      let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/sleep`)
+      return res.data;
+    } else {
+      let res = await axios.delete(`http://${this.host}:${this.port}/remotepanel/sleep`)
+      return res.data;
+    }
+  }
 }
