@@ -275,6 +275,12 @@ export class RemotePanel extends Base {
     };
     time: number;
   }[]>;
+
+  muSleep(activate: boolean): Promise<{
+    code: number;
+  } | {
+    sleepStatus: boolean;
+  }>;
 }
 
 export class BAPSim extends Base {
