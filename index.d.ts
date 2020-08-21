@@ -107,7 +107,7 @@ export class OCR extends Base{
     code: number,
     msg: any
   }>
-  findText(text: string, coord: object, lang: string, conf: number, psm: number, screenType: string): Promise<{
+  findText(text: string, coord: object, lang: string, conf: number, psm: number, screenType: string, whitespace: number): Promise<{
     code: number,
     msg: any
   }>

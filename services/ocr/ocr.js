@@ -95,14 +95,15 @@ export default class OCR {
     return iconPosition
   }
 
-  async findText(text, coord, lang, conf, psm, screenType) {
+  async findText(text, coord, lang, conf, psm, screenType, whitespace) {
     let ret = await axios.post(`http://${this.host}:${this.port}/ocr`, {
       text,
       coord,
       lang,
       conf,
       psm,
-      screenType
+      screenType,
+      whitespace
     })
     const textContent = ret.data
     return textContent
