@@ -15,6 +15,7 @@ import CARDiagnose from './car-diagnose/index'
 import OCR from './ocr/ocr'
 import Upload from './ocr/upload'
 import Macro from './macro-record/index'
+import TestcaseConfig from './testcaseconfig/index'
 
 export default {
   AndroidProberProxy,
@@ -36,5 +37,6 @@ export default {
   CARDiagnose,
   OCR,
   Macro,
-  Upload
+  Upload,
+  TestcaseConfig
 };
