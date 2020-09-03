@@ -3,14 +3,15 @@ import axios from 'axios';
 export default class BAPTrace {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 8081;
+    // this.port = option.port || 8081;
+    this.name = option.name || 'car-diagnose'
     this.host = option.host || 'localhost'
-    this.urlPart = option.urlPart || 'car-diagnose'
+    // this.urlPart = option.urlPart || 'car-diagnose'
   }
 
   async sendRaw(sub, dataArr, canID) {
     const res = await axios.post(
-      `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/sendraw`,
+      `http://${this.host}/api/${this.name}/${sub}/sendraw`,
       {
         data: dataArr,
         canid: canID
@@ -21,7 +22,7 @@ export default class BAPTrace {
 
   async getDTC(sub, id, canID) {
     const res = await axios.get(
-      `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/dtc`,
+      `http://${this.host}/api/${this.name}/${sub}/dtc`,
       {
         params: {
           id,
@@ -34,7 +35,7 @@ export default class BAPTrace {
 
   async getDID(sub, id, canID) {
     const res = await axios.get(
-      `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/byidentifier`,
+      `http://${this.host}/api/${this.name}/${sub}/byidentifier`,
       {
         params: {
           id,
@@ -47,7 +48,7 @@ export default class BAPTrace {
 
   async writeDID(sub, id, dataArr, canID) {
     const res = await axios.post(
-      `http://${this.host}:${this.port}/api/${this.urlPart}/${sub}/byidentifier`,
+      `http://${this.host}/api/${this.name}/${sub}/byidentifier`,
       {
         data: dataArr,
         id,

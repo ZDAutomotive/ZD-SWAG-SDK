@@ -21,14 +21,17 @@ function encodeRegExp (reg) {
 export default class TraceServer {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6001;
+    // this.port = option.port || 6001;
+    this.name = option.name || 'trace-server'
     this.host = option.host || 'localhost'
     this.subscribeMap = {}
   }
 
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socketId = this.socket.id
@@ -54,12 +57,12 @@ export default class TraceServer {
 
   async getDuration() {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.get(`http://${this.host}:${this.port}/duration`)).data
+    return (await axios.get(`http://${this.host}/api/${this.name}/duration`)).data
   }
 
   async pull(start, end, modules) {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.get(`http://${this.host}:${this.port}/trace`, {
+    return (await axios.get(`http://${this.host}/api/${this.name}/trace`, {
       params: {
         duration: [start, end],
         modules
@@ -69,7 +72,7 @@ export default class TraceServer {
 
   async hook(eventName, type, filterString) {
     if (!this.socket) throw new Error('Service not ready')
-    return await axios.post(`http://${this.host}:${this.port}/hook`, {
+    return await axios.post(`http://${this.host}/api/${this.name}/hook`, {
       id: this.socketId,
       eventName,
       filterString,
@@ -79,7 +82,7 @@ export default class TraceServer {
 
   async removeHook(eventName) {
     if (!this.socket) throw new Error('Service not ready')
-    return await axios.delete(`http://${this.host}:${this.port}/hook`, {
+    return await axios.delete(`http://${this.host}/api/${this.name}/hook`, {
       params: {
         id: this.socketId,
         eventName
@@ -563,17 +566,17 @@ export default class TraceServer {
 
   async setFilter(filters) {
     if (!this.socket) throw new Error('Service not ready')
-    return await axios.post(`http://${this.host}:${this.port}/filter`, filters)
+    return await axios.post(`http://${this.host}/api/${this.name}/filter`, filters)
   }
 
   async getFilter() {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.get(`http://${this.host}:${this.port}/filter`)).data
+    return (await axios.get(`http://${this.host}/api/${this.name}/filter`)).data
   }
 
   async getPersistenceFileList(start, end) {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.get(`http://${this.host}:${this.port}/persistence/list`, {
+    return (await axios.get(`http://${this.host}/api/${this.name}/persistence/list`, {
       params: {
         start,
         end
@@ -588,7 +591,7 @@ export default class TraceServer {
    */
   async downloadPersistenceFile(filepath) {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.get(`http://${this.host}:${this.port}/persistence`, {
+    return (await axios.get(`http://${this.host}/api/${this.name}/persistence`, {
       params: {
         filepath,
       },
@@ -598,7 +601,7 @@ export default class TraceServer {
 
   async HeadPersistenceFile(filepath) {
     if (!this.socket) throw new Error('Service not ready')
-    return (await axios.head(`http://${this.host}:${this.port}/persistence`, {
+    return (await axios.head(`http://${this.host}/api/${this.name}/persistence`, {
       params: {
         filepath,
       }

@@ -4,13 +4,16 @@ import axios from 'axios';
 export default class seatControl {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6098;
+    // this.port = option.port || 6098;
+    this.name = option.name || 'seat-adjustment'
     this.host = option.host || 'localhost'
   }
 
   connect(type) {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socket.emit('identity', type)
@@ -36,7 +39,7 @@ export default class seatControl {
    */
   async setPosition(value) {
     if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/setposition`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/setposition`, {
       position: value
     })
     return res.data;
@@ -54,7 +57,7 @@ export default class seatControl {
    */
   async setRange(minimum,maximum) {
     if (!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/setrange`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/setrange`, {
       min: minimum,
       max: maximum
     })
@@ -66,7 +69,7 @@ export default class seatControl {
    */
   async resetPosition() {
     if(!this.socket) throw new Error('Service not ready')
-    let res = await axios.post(`http://${this.host}:${this.port}/resetposition`, {})
+    let res = await axios.post(`http://${this.host}/api/${this.name}/resetposition`, {})
     return res.data
   }
 
@@ -75,7 +78,7 @@ export default class seatControl {
    */
   async getRange() {
     if (!this.socket) throw new Error('Seat Control service not ready')
-    const res = await axios.get(`http://${this.host}:${this.port}/getrange/`)
+    const res = await axios.get(`http://${this.host}/api/${this.name}/getrange/`)
 
     return res.data
   }
@@ -85,7 +88,7 @@ export default class seatControl {
    */
   async getPosition() {
     if (!this.socket) throw new Error('Seat Control service not ready')
-    const res = await axios.get(`http://${this.host}:${this.port}/status/`)
+    const res = await axios.get(`http://${this.host}/api/${this.name}/status/`)
 
     return res.data
   }

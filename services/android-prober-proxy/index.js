@@ -30,19 +30,19 @@ export default class AdroidProberProxy {
   }
 
   connect() {
-    this.socket = ioClient.connect(`http://${this.option.host}:${this.option.port}/socket`);
+    this.socket = ioClient.connect(`http://${this.option.host}/api/android-prober-proxy/socket`);
     addEventHandlers(this.socket, this.emitter);
 
     this.socket.on('connect', async () => {
-      console.log(`Connected to ZD-SWAG-AndroidProberProxy Service on: ${this.option.host}:${this.option.port}`);
+      console.log(`Connected to ZD-SWAG-AndroidProberProxy Service on: ${this.option.host}/api/android-prober-proxy`);
     });
 
     this.socket.on('reconnect', attemptNumber => {
-      console.log(`Connected to ZD-SWAG-AndroidProberProxy Service on: ${this.option.host}:${this.option.port}, after ${attemptNumber} times attemptions`);
+      console.log(`Connected to ZD-SWAG-AndroidProberProxy Service on: ${this.option.host}/api/android-prober-proxy, after ${attemptNumber} times attemptions`);
     });
 
     this.socket.on('disconnect', reason => {
-      console.log(`Disonnected to ZD-SWAG-AndroidProberProxy Service on: ${this.option.host}:${this.option.port}, reason:`, reason);
+      console.log(`Disonnected to ZD-SWAG-AndroidProberProxy Service on: ${this.option.host}/api/android-prober-proxy, reason:`, reason);
     });
 
     this.socket.on('error', (err) => {

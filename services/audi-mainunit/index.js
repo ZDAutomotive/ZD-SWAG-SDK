@@ -4,7 +4,8 @@ import axios from 'axios';
 export default class MainUnit {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6009;
+    // this.port = option.port || 6009;
+    this.name = option.name || 'audi-mu-env'
     this.host = option.host || 'localhost'
     this.subscribeMap = {}
   }
@@ -14,7 +15,9 @@ export default class MainUnit {
    */
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socket.emit('identity', 'remote')
@@ -34,7 +37,7 @@ export default class MainUnit {
    * get VIN of MU
    */
   async getVIN() {
-    let res = await axios.get(`http://${this.host}:${this.port}/envstatus/vin`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/envstatus/vin`)
     return res.data;
   }
 
@@ -48,7 +51,7 @@ export default class MainUnit {
    * }
    */
   async getVersionInfo(){
-    let res  = await axios.get(`http://${this.host}:${this.port}/envstatus/versioninfo`)
+    let res  = await axios.get(`http://${this.host}/api/${this.name}/envstatus/versioninfo`)
     return res.data;
   }
 
@@ -56,7 +59,7 @@ export default class MainUnit {
    * get backend of MU
    */
   async getBackend() {
-    let res = await axios.get(`http://${this.host}:${this.port}/envstatus/backend`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/envstatus/backend`)
     return res.data
   }
 
@@ -64,7 +67,7 @@ export default class MainUnit {
    * trigger MU reset with persistence
    */
   async resetWithPersistence() {
-    let res = await axios.post(`http://${this.host}:${this.port}/envstatus/resetwithpers`, {token:'resetWithPers'})
+    let res = await axios.post(`http://${this.host}/api/${this.name}/envstatus/resetwithpers`, {token:'resetWithPers'})
     return res.data
   }
   
@@ -72,7 +75,7 @@ export default class MainUnit {
    * set backend of MU
    */
   async setBackend(backend) {
-    let res = await axios.post(`http://${this.host}:${this.port}/envstatus/backend`, backend);
+    let res = await axios.post(`http://${this.host}/api/${this.name}/envstatus/backend`, backend);
     return res.data;
   }
 
@@ -80,7 +83,7 @@ export default class MainUnit {
    * fetch files from MU to service folder(remote local)
    */
   async fetchFiles(serverFile, remoteFolder){
-    let res = await axios.post(`http://${this.host}:${this.port}/mu/fetchfiles`, {files: serverFile, toPath: remoteFolder});
+    let res = await axios.post(`http://${this.host}/api/${this.name}/mu/fetchfiles`, {files: serverFile, toPath: remoteFolder});
     return res.data;
   }
 
@@ -88,17 +91,17 @@ export default class MainUnit {
    * fetch files from MU to service folder(remote local)
    */
   async fetchMIB3SYSFiles(serverPath, remoteFolder){
-    let res = await axios.post(`http://${this.host}:${this.port}/mib3sys/fetchfiles`, {files: serverPath, toPath: remoteFolder});
+    let res = await axios.post(`http://${this.host}/api/${this.name}/mib3sys/fetchfiles`, {files: serverPath, toPath: remoteFolder});
     return res.data;
   }
 
   async getCurrentScreenID() {
-    let res = await axios.get(`http://${this.host}:${this.port}/mu/currentscreenid`);
+    let res = await axios.get(`http://${this.host}/api/${this.name}/mu/currentscreenid`);
     return res.data.screenID;
   }
 
   async getCurrentVisiblePopupID() {
-    let res = await axios.get(`http://${this.host}:${this.port}/mu/currentvisiblepopupid`);
+    let res = await axios.get(`http://${this.host}/api/${this.name}/mu/currentvisiblepopupid`);
     return res.data.popupID;
   }
 
@@ -106,29 +109,29 @@ export default class MainUnit {
    * get widget infos of current screen 
    */
   async getWidgetInfosOfCurrentScreen() {
-    let res = await axios.get(`http://${this.host}:${this.port}/mu/WidgetInfosOfCurrentScreen`);
+    let res = await axios.get(`http://${this.host}/api/${this.name}/mu/WidgetInfosOfCurrentScreen`);
     return res.data.widgetInfos;
   }
 
   async getStartupTestMode() {
-    let res = await axios.get(`http://${this.host}:${this.port}/envstatus/startuptestmode`);
+    let res = await axios.get(`http://${this.host}/api/${this.name}/envstatus/startuptestmode`);
     return res.data.state;
   }
 
   async setStartupTestMode(state) {
-    let res = await axios.post(`http://${this.host}:${this.port}/envstatus/startuptestmode`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/envstatus/startuptestmode`, {
       enable: state
     });
     return res.data.state;
   }
 
   async resetEsoToDefault() {
-    let res = await axios.post(`http://${this.host}:${this.port}/envstatus/resetesotrace`, {token:'resetEsoTraceDefault'})
+    let res = await axios.post(`http://${this.host}/api/${this.name}/envstatus/resetesotrace`, {token:'resetEsoTraceDefault'})
     return res.data
   }
 
   async cmdSingleSpeak(text) {
-    let res = await axios.post(`http://${this.host}:${this.port}/mu/cmdSingleSpeak`, {text})
+    let res = await axios.post(`http://${this.host}/api/${this.name}/mu/cmdSingleSpeak`, {text})
     return res.data
   } 
 }

@@ -5,7 +5,8 @@ import FormData from 'form-data'
 export default class testcaseConfig {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 7010;
+    // this.port = option.port || 7010;
+    this.name = option.name || 'testcase-config'
     this.host = option.host || 'localhost'
   }
 
@@ -14,7 +15,9 @@ export default class testcaseConfig {
    */
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socket.emit('identity', 'remote')
@@ -50,7 +53,7 @@ export default class testcaseConfig {
         })
       })
     }
-    let res = await axios.post(`http://${this.host}:${this.port}/upload`,form,{
+    let res = await axios.post(`http://${this.host}/api/${this.name}/upload`,form,{
       headers: await getHeaders(form)
     })
     return res.data
@@ -60,7 +63,7 @@ export default class testcaseConfig {
    * download testcase config file
    */
   async downloadCfg() {
-    let res = await axios.get(`http://${this.host}:${this.port}/download`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/download`)
     return res
   }
 
@@ -68,7 +71,7 @@ export default class testcaseConfig {
    * Get content of testcase config file
    */
   async getCfg(value) {
-    let res = await axios.get(`http://${this.host}:${this.port}/config`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/config`)
     return res.data
   }
 
@@ -76,7 +79,7 @@ export default class testcaseConfig {
    * Modify content of testcase config file
    */
   async setCfg(content) {
-    let res = await axios.post(`http://${this.host}:${this.port}/config`,{
+    let res = await axios.post(`http://${this.host}/api/${this.name}/config`,{
       content
     })
     return res.data
@@ -99,7 +102,7 @@ export default class testcaseConfig {
         })
       })
     }
-    let res = await axios.post(`http://${this.host}:${this.port}/upload/benchconfig`,form,{
+    let res = await axios.post(`http://${this.host}/api/${this.name}/upload/benchconfig`,form,{
       headers: await getHeaders(form)
     })
     return res.data
@@ -109,7 +112,7 @@ export default class testcaseConfig {
    * download testcase config file
    */
   async downloadBenchCfg() {
-    let res = await axios.get(`http://${this.host}:${this.port}/download/benchconfig`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/download/benchconfig`)
     return res
   }
 
@@ -117,7 +120,7 @@ export default class testcaseConfig {
    * Get content of testcase config file
    */
   async getBenchCfg() {
-    let res = await axios.get(`http://${this.host}:${this.port}/benchconfig`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/benchconfig`)
     return res.data
   }
 
@@ -125,7 +128,7 @@ export default class testcaseConfig {
    * Modify content of testcase config file
    */
   async setBenchCfg(content) {
-    let res = await axios.post(`http://${this.host}:${this.port}/benchconfig`,{
+    let res = await axios.post(`http://${this.host}/api/${this.name}/benchconfig`,{
       content
     })
     return res.data

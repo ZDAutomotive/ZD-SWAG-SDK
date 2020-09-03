@@ -2,7 +2,7 @@ import axios from 'axios';
 import fs from 'fs';
 import ioClient from 'socket.io-client';
 import FormData from 'form-data';
-import path from 'path';
+// import path from 'path';
 // sendItem = {
 //   image,
 //   coord: "1397, 102, 65, 87"
@@ -14,13 +14,16 @@ import path from 'path';
 export default class OCR {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6071;
+    // this.port = option.port || 6071;
+    this.name = option.name || 'ocr'
     this.host = option.host || 'localhost'
   }
 
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socketId = this.socket.id
@@ -56,24 +59,24 @@ export default class OCR {
         })
       })
     }
-    let res = await axios.post(`http://${this.host}:${this.port}/api/filemanage/upload?dirname=${dirname}`, form, {
+    let res = await axios.post(`http://${this.host}/api/filemanage/upload?dirname=${dirname}`, form, {
       headers: await getHeaders(form)
     });
     return res
   }
 
   async subscribe(image, coord, screenType) {
-    let res = await axios.post(`http://${this.host}:${this.port}/subscribe`, { image, coord, screenType })
+    let res = await axios.post(`http://${this.host}/api/${this.name}/subscribe`, { image, coord, screenType })
     return res.data
   }
 
   async unsubscribeAll() {
-    await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
+    await axios.post(`http://${this.host}/api/${this.name}/unsubscribeAll`)
   }
 
   async findIcon(dirname, filename, coord, threshold, screenType) {
     let imagePath = `${dirname}/${filename}`
-    let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {
+    let ret = await axios.post(`http://${this.host}/api/${this.name}/findElement`, {
       imagePath,
       threshold,
       coord,
@@ -85,7 +88,7 @@ export default class OCR {
 
   async matchIcon(dirname, filename, coord, threshold, screenType) {
     let imagePath = `${dirname}/${filename}`
-    let ret = await axios.post(`http://${this.host}:${this.port}/matchElement`, {
+    let ret = await axios.post(`http://${this.host}/api/${this.name}/matchElement`, {
       imagePath,
       threshold,
       coord,
@@ -96,7 +99,7 @@ export default class OCR {
   }
 
   async findText(text, coord, lang, conf, psm, screenType, whitespace) {
-    let ret = await axios.post(`http://${this.host}:${this.port}/ocr`, {
+    let ret = await axios.post(`http://${this.host}/api/${this.name}/ocr`, {
       text,
       coord,
       lang,
@@ -110,16 +113,16 @@ export default class OCR {
   }
 
   async findColor(color) {
-    let ret = await axios.post(`http://${this.host}:${this.port}/compareColor`, {
+    let ret = await axios.post(`http://${this.host}/api/${this.name}/compareColor`, {
       color
     })
     const isColor = ret.data
     return isColor
   }
 
-  async getScreenshot() {
-    let res = await axios.get(`http://${this.host}:${this.port}/roi`)
-    request(`http://${this.host}:${this.port}/ocr/screenshot`).pipe(fs.createWriteStream('image.png'))
-    return res
-  }
+  // async getScreenshot() {
+  //   let res = await axios.get(`http://${this.host}/api/${this.name}/roi`)
+  //   request(`http://${this.host}/api/${this.name}/screenshot`).pipe(fs.createWriteStream('image.png'))
+  //   return res
+  // }
 }

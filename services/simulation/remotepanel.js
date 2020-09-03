@@ -2,6 +2,11 @@ import axios from 'axios'
 import BaseSimulation from './base'
 
 export default class RemotePanel extends BaseSimulation {
+  constructor(option) {
+    super(option)
+    this.subname = option.subname || 'remotepanel'
+  }
+
   /**
     * call remotePanel
     */
@@ -36,7 +41,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!keyevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/key`, {keyevent, channel})
+    let res = await axios.post(`http://${this.host}/api/${this.name}/${this.subname}/key`, {keyevent, channel})
     return res.data;
   }
 
@@ -94,7 +99,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!touchevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touch`, touchevent)
+    let res = await axios.post(`http://${this.host}/api/${this.name}/${this.subname}/touch`, touchevent)
     return res.data;
   }
 
@@ -141,7 +146,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!pressevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/press`, pressevent)
+    let res = await axios.post(`http://${this.host}/api/${this.name}/${this.subname}/press`, pressevent)
     return res.data;
   }
 
@@ -209,7 +214,7 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!swipeevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/swipe`, swipeevent)
+    let res = await axios.post(`http://${this.host}/api/${this.name}/${this.subname}/swipe`, swipeevent)
     return res.data;
   }
 
@@ -227,16 +232,16 @@ export default class RemotePanel extends BaseSimulation {
       }
     }
     if (!ssevent) throw new Error('Unexpected parameters')
-    let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/touchscreenshot`, ssevent)
+    let res = await axios.post(`http://${this.host}/api/${this.name}/${this.subname}/touchscreenshot`, ssevent)
     return res.data;
   }
 
   async muSleep(active) {
     if (active) {
-      let res = await axios.post(`http://${this.host}:${this.port}/remotepanel/sleep`)
+      let res = await axios.post(`http://${this.host}/api/${this.name}/${this.subname}/sleep`)
       return res.data;
     } else {
-      let res = await axios.delete(`http://${this.host}:${this.port}/remotepanel/sleep`)
+      let res = await axios.delete(`http://${this.host}/api/${this.name}/${this.subname}/sleep`)
       return res.data;
     }
   }

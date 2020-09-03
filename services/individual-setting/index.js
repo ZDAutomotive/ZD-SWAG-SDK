@@ -4,7 +4,8 @@ import axios from 'axios';
 export default class carSetting {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6099;
+    // this.port = option.port || 6099;
+    this.name = option.name || 'individual-setting'
     this.host = option.host || 'localhost'
   }
 
@@ -13,7 +14,9 @@ export default class carSetting {
    */
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socket.emit('identity', 'remote')
@@ -37,7 +40,7 @@ export default class carSetting {
    * value range 18 - 26
    */
   async setTemperature(value) {
-    let res = await axios.post(`http://${this.host}:${this.port}/carservice/ac/temprature`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/carservice/ac/temprature`, {
       temprature: value
     })
     return res.data;
@@ -48,7 +51,7 @@ export default class carSetting {
    * number 1-9
    */
   async activeInteriorlightProfile(profileNumber) {
-    let res = await axios.post(`http://${this.host}:${this.port}/carservice/interiorlight/profile`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/carservice/interiorlight/profile`, {
       profileNumber
     })
     return res.data

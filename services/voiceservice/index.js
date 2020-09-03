@@ -4,13 +4,16 @@ import axios from 'axios';
 export default class VoiceService {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6015;
+    // this.port = option.port || 6015;
+    this.name = option.name || 'voice-service'
     this.host = option.host || 'localhost'
   }
 
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         this.socket.emit('identity', 'remote')
@@ -33,7 +36,7 @@ export default class VoiceService {
    * play voice on ZDBox
    */
   async play(db, text) {
-    let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/play`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/voiceDB/local/play`, {
       db,
       text
     })
@@ -44,7 +47,7 @@ export default class VoiceService {
    * record voice
    */
   async record(db, text) {
-    let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/record`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/voiceDB/local/record`, {
       db,
       text
     })
@@ -55,7 +58,7 @@ export default class VoiceService {
    * record (Audi TTS engine) voice 
    */
   async recordAudiTTS(db, text) {
-    let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/local/recordauditts`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/voiceDB/local/recordauditts`, {
       db,
       text
     })
@@ -66,7 +69,7 @@ export default class VoiceService {
    * check if voice aviliable
    */
   async checkVoice(db, text) {
-    let res = await axios.post(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/voiceDB/database/checkvoice`, {
       db,
       text
     });
@@ -77,7 +80,7 @@ export default class VoiceService {
    * delete voice in db
    */
   async deleteVoice(db, text) {
-    let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/checkvoice`, {
+    let res = await axios.delete(`http://${this.host}/api/${this.name}/voiceDB/database/checkvoice`, {
       params: {
         db,
         text
@@ -91,7 +94,7 @@ export default class VoiceService {
    * @param {voice db} db 
    */
   async deleteAllVoice(db) {
-    let res = await axios.delete(`http://${this.host}:${this.port}/voiceDB/database/allvoices`, {
+    let res = await axios.delete(`http://${this.host}/api/${this.name}/voiceDB/database/allvoices`, {
       params: {
         db
       }

@@ -14,7 +14,7 @@ import path from 'path';
 export default class Upload {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6071;
+    // this.port = option.port || 6071;
     this.host = option.host || 'localhost'
   }
   async upload(dirname, filename, caseFile) {
@@ -32,7 +32,7 @@ export default class Upload {
         })
       })
     }
-    let res = await axios.post(`http://${this.host}:${this.port}/api/filemanage/upload?dirname=${dirname}`, form, {
+    let res = await axios.post(`http://${this.host}/api/filemanage/upload?dirname=${dirname}`, form, {
       headers: await getHeaders(form)
     });
     return res

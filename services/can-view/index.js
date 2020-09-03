@@ -4,13 +4,16 @@ import axios from 'axios';
 export default class CANView {
   constructor(option) {
     option = option || {}
-    this.port = option.port || 6010;
+    // this.port = option.port || 6010;
+    this.name = option.name || 'can-view'
     this.host = option.host || 'localhost'
   }
 
   connect(type) {
     return new Promise((resolve, reject) => {
-      this.socket = ioClient.connect(`http://${this.host}:${this.port}/`);
+      this.socket = ioClient.connect(`http://${this.host}/`, {
+        path: `/api/${this.name}/socket.io`
+      });
       this.socket.on('connect', () => {
         resolve(1)
         if (type) this.socket.emit('identity', type)
@@ -30,19 +33,19 @@ export default class CANView {
   }
 
   async initCANBC(fileName) {
-    let res = await axios.post(`http://${this.host}:${this.port}/canbc`, {
+    let res = await axios.post(`http://${this.host}/api/${this.name}/canbc`, {
       fileName
     })
     return res.data;
   }
 
   async getCANBC() {
-    let res = await axios.get(`http://${this.host}:${this.port}/canbc`)
+    let res = await axios.get(`http://${this.host}/api/${this.name}/canbc`)
     return res.data;
   }
 
   async deleteCANBC() {
-    let res = await axios.delete(`http://${this.host}:${this.port}/canbc`)
+    let res = await axios.delete(`http://${this.host}/api/${this.name}/canbc`)
     return res.data;
   }
 
@@ -50,7 +53,7 @@ export default class CANView {
    * parse a single canmsg
    */
   async parse(canmsg) {
-    let res = await axios.post(`http://${this.host}:${this.port}/canbc/parse`, canmsg)
+    let res = await axios.post(`http://${this.host}/api/${this.name}/canbc/parse`, canmsg)
     return res.data;
   }
 }
