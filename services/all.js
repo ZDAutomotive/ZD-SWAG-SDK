@@ -16,6 +16,7 @@ import OCR from './ocr/ocr'
 import Upload from './ocr/upload'
 import Macro from './macro-record/index'
 import TestcaseConfig from './testcaseconfig/index'
+import FileManage from './file-manage/index'
 
 export default {
   AndroidProberProxy,
@@ -38,5 +39,6 @@ export default {
   OCR,
   Macro,
   Upload,
-  TestcaseConfig
+  TestcaseConfig,
+  FileManage
 };
