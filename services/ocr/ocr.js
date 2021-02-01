@@ -124,7 +124,7 @@ export default class OCR {
     return textContent
   }
 
-  async findColor(color) {
+  async checkColor(color) {
     let ret = await axios.post(`http://${this.host}:${this.port}/compareColor`, {
       color
     })

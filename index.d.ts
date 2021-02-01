@@ -115,7 +115,7 @@ export class OCR extends Base{
     code: number,
     msg: any
   }>
-  findColor(color: string, screenType: string): Promise<{
+  checkColor(color: string, screenType: string): Promise<{
     code: number,
     result: any
   }>
