@@ -71,13 +71,27 @@ export default class OCR {
     await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
   }
 
-  async findIcon(dirname, filename, coord, threshold, screenType) {
-    let imagePath = `${dirname}/${filename}`
-    let ret = await axios.post(`http://${this.host}:${this.port}/findElement`, {
+  async findColor(dirname, filename, coord, threshold, screenType) {
+    let imagePath = path.join(dirname, filename)
+    let ret = await axios.post(`http://${this.host}:${this.port}/findItem`, {
       imagePath,
       threshold,
       coord,
-      screenType
+      screenType,
+      mode: "findColor"
+    })
+    const iconPosition = ret.data
+    return iconPosition
+  }
+
+  async findIcon(dirname, filename, coord, threshold, screenType) {
+    let imagePath = path.join(dirname, filename)
+    let ret = await axios.post(`http://${this.host}:${this.port}/findItem`, {
+      imagePath,
+      threshold,
+      coord,
+      screenType,
+      mode: 0
     })
     const iconPosition = ret.data
     return iconPosition
@@ -85,11 +99,12 @@ export default class OCR {
 
   async matchIcon(dirname, filename, coord, threshold, screenType) {
     let imagePath = `${dirname}/${filename}`
-    let ret = await axios.post(`http://${this.host}:${this.port}/matchElement`, {
+    let ret = await axios.post(`http://${this.host}:${this.port}/findItem`, {
       imagePath,
       threshold,
       coord,
-      screenType
+      screenType,
+      mode: 1
     })
     const iconPosition = ret.data
     return iconPosition
