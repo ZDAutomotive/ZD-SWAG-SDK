@@ -71,46 +71,49 @@ export default class OCR {
     await axios.post(`http://${this.host}:${this.port}/unsubscribeAll`)
   }
 
-  async findColor(dirname, filename, coord, threshold, screenType) {
+  async findColor(dirname, filename, coord, threshold, screenType, pngAbsolutePath) {
     let imagePath = path.join(dirname, filename)
     let ret = await axios.post(`http://${this.host}:${this.port}/findItem`, {
       imagePath,
       threshold,
       coord,
       screenType,
-      mode: "findColor"
+      mode: "findColor",
+      pngAbsolutePath
     })
     const iconPosition = ret.data
     return iconPosition
   }
 
-  async findIcon(dirname, filename, coord, threshold, screenType) {
+  async findIcon(dirname, filename, coord, threshold, screenType, pngAbsolutePath) {
     let imagePath = path.join(dirname, filename)
     let ret = await axios.post(`http://${this.host}:${this.port}/findItem`, {
       imagePath,
       threshold,
       coord,
       screenType,
-      mode: 0
+      mode: 0,
+      pngAbsolutePath
     })
     const iconPosition = ret.data
     return iconPosition
   }
 
-  async matchIcon(dirname, filename, coord, threshold, screenType) {
+  async matchIcon(dirname, filename, coord, threshold, screenType, pngAbsolutePath) {
     let imagePath = `${dirname}/${filename}`
     let ret = await axios.post(`http://${this.host}:${this.port}/findItem`, {
       imagePath,
       threshold,
       coord,
       screenType,
-      mode: 1
+      mode: 1,
+      pngAbsolutePath
     })
     const iconPosition = ret.data
     return iconPosition
   }
 
-  async findText(text, coord, lang, conf, psm, screenType, whitespace) {
+  async findText(text, coord, lang, conf, psm, screenType, whitespace, pngAbsolutePath) {
     let ret = await axios.post(`http://${this.host}:${this.port}/ocr`, {
       text,
       coord,
@@ -118,15 +121,17 @@ export default class OCR {
       conf,
       psm,
       screenType,
-      whitespace
+      whitespace,
+      pngAbsolutePath
     })
     const textContent = ret.data
     return textContent
   }
 
-  async checkColor(color) {
+  async checkColor(color, pngAbsolutePath) {
     let ret = await axios.post(`http://${this.host}:${this.port}/compareColor`, {
-      color
+      color,
+      pngAbsolutePath
     })
     const isColor = ret.data
     return isColor
