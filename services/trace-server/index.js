@@ -123,6 +123,10 @@ export default class TraceServer {
       const duration = await this.getDuration()
       const now = duration.end
       const checkBeginTime = now - 5000 // check from 5000ms before now
+      if (Date.now() - now > 10000) {
+        // last received trace is 10 seconds ago
+        return false;
+      }
 
       const beforeCANs = await this.pull(checkBeginTime, now, ['can'])
       const foundBeforeCAN = beforeCANs.find(can => canDPI.verify(can.data.canmsg, option.signature))
@@ -206,6 +210,10 @@ export default class TraceServer {
       const duration = await this.getDuration()
       const now = duration.end
       const checkBeginTime = now - 5000 // check from 5000ms before now
+      if (Date.now() - now > 10000) {
+        // last received trace is 10 seconds ago
+        return false;
+      }
 
       const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
       //trace.data.channel === eso trace port
@@ -330,6 +338,10 @@ export default class TraceServer {
       const duration = await this.getDuration()
       const now = duration.end
       const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
+      if (Date.now() - now > 10000) {
+        // last received trace is 10 seconds ago
+        return false;
+      }
       // console.log(duration);
       // console.log('start', checkBeginTime, 'end', now);
       const beforeESOs = await this.pull(checkBeginTime, now, ['ESO'])
@@ -474,6 +486,10 @@ export default class TraceServer {
       });
       const duration = await this.getDuration()
       const now = duration.end
+      if (Date.now() - now > 10000) {
+        // last received trace is 10 seconds ago
+        return false;
+      }
       const checkBeginTime = now - (option.before || 5000) // check from 5000ms before now
       const beforeADBs = await this.pull(checkBeginTime, now, ['ADL'])
       Object.keys(expectedList).forEach(async (hookName) => {
