@@ -156,21 +156,21 @@ export default class TraceServer {
    */
    assertESOTrace(option) {  // debug lambda  TODO
     return new Promise(async (resolve, reject) => {
-   let assert_success = false
-    let timer = setTimeout(() => {
-        if(!assert_success){
-             resolve({res: false, trace: ''})
-             log.debug('assert fails')
-             redisClient.quit();
-             return 
-        }
+      let assert_success = false
+      let timer = setTimeout(() => {
+            if(!assert_success){
+                resolve({res: false, trace: ''})
+              //  log.debug('assert fails')
+                redisClient.quit();
+                return 
+            }
       }, option.timeout || 20000);
 
 
       const redisClient = redis.createClient()
-      redisClient.on('connect', () => log.info('redis connect'))
-      redisClient.on('ready', () => log.info('redis ready'))
-      redisClient.on('reconnecting', () => log.info('redis reconnecting'))
+   //   redisClient.on('connect', () => log.info('redis connect'))
+    //  redisClient.on('ready', () => log.info('redis ready'))
+     // redisClient.on('reconnecting', () => log.info('redis reconnecting'))
       redisClient.on('error', (error) => {
         log.info('redis error')
         log.error(error.toString())
@@ -178,21 +178,17 @@ export default class TraceServer {
       redisClient.subscribe('trace.eth0.eso.21002') 
  
       redisClient.on("message", function(channel, message) {
-      
+        
+          if (option.keyword.test(message)){
+                const obj = JSON.parse(message)
 
-     
-             
-         
-      if (option.keyword.test(message)){
-            const obj = JSON.parse(message)
-
-            resolve({res: true, trace: obj.data.msgData })
-           
-            assert_success = true
-            clearTimeout(timer)
-            redisClient.quit();
-            return 
-       }
+                resolve({res: true, trace: obj.data.msgData })
+              
+                assert_success = true
+                clearTimeout(timer)
+                redisClient.quit();
+                return 
+          }
       });
     })
   }
