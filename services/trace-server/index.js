@@ -2,6 +2,10 @@ import ioClient from 'socket.io-client';
 import axios from 'axios';
 import crypto from 'crypto';
 import canDPI from '../../utils/can/dpi';
+const redis = require('redis');
+const log4js = require('log4js')
+
+const log = log4js.getLogger('trace-service')
 
 function encodeRegExp (reg) {
   const source = reg.source
@@ -150,98 +154,42 @@ export default class TraceServer {
    * @param {number} option.timeout default 20000, max waiting time for matching can msg
    * @param {boolean} option.onFailed when to trigger callback, true means on failed, false means on success
    */
-  assertESOTrace(option) {
+   assertESOTrace(option) {  // debug lambda  TODO
     return new Promise(async (resolve, reject) => {
-      if (!this.socket) {
-        reject('connect_error')
-        return
-      }
-      const hookName = crypto.createHash('md5').update(JSON.stringify(option)).digest('hex');
-      // set time out event
-      const timer = setTimeout(() => {
-        this.socket.removeAllListeners(hookName)
-        this.removeHook(hookName).then(() => {
-          if (!option.onFailed) resolve({
-            res: false,
-            trace: ''
-          })
-          else resolve({
-            res: true,
-            trace: ''
-          })
-        })
+      let assert_success = false
+      let timer = setTimeout(() => {
+            if(!assert_success){
+                resolve({res: false, trace: ''})
+              //  log.debug('assert fails')
+                redisClient.quit();
+                return 
+            }
       }, option.timeout || 20000);
 
-      // set a hook
-      const keyword = option.keyword
-      let filterStr
-      if (typeof keyword === 'object' && keyword.source) {
-        const str = encodeRegExp(keyword)
-        filterStr = `{"esoreg"=="${str}"}`
-      } else {
-        filterStr = `{"esotext"=="${keyword}"}`
-      }
-      await this.hook(hookName, 'ESO', filterStr) // && {"esoclid"=="${option.channelID}"}`)
-      //console.log('waiting for hook')
-      this.socket.on(hookName, (trace) => {
-        //data.data.msgData
-        // { size: 97,
-        //   id: 4,
-        //   data: 
-        //    { timeStamp: 4660142,
-        //      modifiers: 0,
-        //      channelId: 10847,
-        //      threadId: 7939,
-        //      level: 'INFO',
-        //      msgType: 'STRING_UTF8',
-        //      size: 70,
-        //      msgData: ' ~Dispatcher-HMIEvent~[ScreenChangeManager#showScreen] screenID=100137' } }        
-        if (!option.onFailed) resolve({
-          res: true,
-          trace: trace.data.msgData.data.msgData.data
-        })
-        else resolve({
-          res: false
-        })
-        clearTimeout(timer)
-        this.removeHook(hookName)
+
+      const redisClient = redis.createClient()
+   //   redisClient.on('connect', () => log.info('redis connect'))
+    //  redisClient.on('ready', () => log.info('redis ready'))
+     // redisClient.on('reconnecting', () => log.info('redis reconnecting'))
+      redisClient.on('error', (error) => {
+        log.info('redis error')
+        log.error(error.toString())
       })
+      redisClient.subscribe('trace.eth0.eso.21002') 
+ 
+      redisClient.on("message", function(channel, message) {
+        
+          if (option.keyword.test(message)){
+                const obj = JSON.parse(message)
 
-      const duration = await this.getDuration()
-      const now = duration.end
-      const checkBeginTime = now - 5000 // check from 5000ms before now
-      if (Date.now() - now > 10000) {
-        // last received trace is 10 seconds ago
-        return false;
-      }
-
-      const beforeESOs = await this.pull(checkBeginTime, now, ['eso'])
-      //trace.data.channel === eso trace port
-      const foundBeforeESO = beforeESOs.find(
-        trace => {
-          // (trace.data.msgData.data.channelId === option.channelID) &&
-          if (trace.data.msgData.id === 4 && trace.data.msgData.data.msgData && typeof trace.data.msgData.data.msgData.data === 'string') {
-            return trace.data.msgData.data.msgData.data && (
-              (typeof keyword === 'string' && trace.data.msgData.data.msgData.data.indexOf(keyword) !== -1) ||
-              (typeof keyword === 'object' && keyword.source && keyword.test(trace.data.msgData.data.msgData.data))
-            )
+                resolve({res: true, trace: obj.data.msgData })
+              
+                assert_success = true
+                clearTimeout(timer)
+                redisClient.quit();
+                return 
           }
-        })
-      if (foundBeforeESO) {
-        // found a matching ESO msg
-        if (!option.onFailed) resolve({
-          res: true,
-          trace: foundBeforeESO.data.msgData.data.msgData.data
-        });
-        else resolve({
-          res: false,
-          trace: foundBeforeESO.data.msgData.data.msgData.data
-        });
-        this.socket.removeAllListeners(hookName)
-        clearTimeout(timer)
-        this.removeHook(hookName)
-        return
-      }
+      });
     })
   }
 
