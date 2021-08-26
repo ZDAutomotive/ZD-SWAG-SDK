@@ -256,7 +256,7 @@ export class RemotePanel extends Base {
     time: number;
   }[]>;
 
-  swipeReq(_action: string, _screentype: string, _x: number, _y: number, _dx: number, _dy: number): Promise<{
+  swipeReq(_action: string, _screentype: string, _x: number, _y: number, _dx: number, _dy: number, _duration:number): Promise<{
     code: number;
   } | {
     canmsg: {

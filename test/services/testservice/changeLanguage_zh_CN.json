@@ -136,7 +136,8 @@
                         "x": 800,
                         "y": 500,
                         "dx": -400,
-                        "dy": 0
+                        "dy": 0,
+                        "duration": 500
                     }
                 }
             }
@@ -152,7 +153,8 @@
                         "x": 645,
                         "y": 450,
                         "dx": 680,
-                        "dy": 0
+                        "dy": 0,
+                        "duration":1000
                     }
                 }
             }
@@ -168,7 +170,43 @@
                         "x": 822,
                         "y": 205,
                         "dx": 0,
-                        "dy": 300
+                        "dy": 300,
+                        "duration": 2000
+                    }
+                }
+            }
+        },
+        {
+            "id": "SwipeLeftSlow",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "swipe",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 800,
+                        "y": 450,
+                        "dx": -400,
+                        "dy": 0,
+                        "duration":5000
+                    }
+
+                }
+            }
+        },
+        {
+            "id": "SwipeRightSlow",
+            "type": "keypanel",
+            "delay": 2,
+            "action": {
+                "command": "swipe",
+                "args": {
+                    "coordinateCombi": {
+                        "x": 645,
+                        "y": 450,
+                        "dx": 500,
+                        "dy": 0,
+                        "duration": 5000
                     }
 
                 }
@@ -195,7 +233,9 @@
 			"SwipeDown",
 			"Tap_row1",
 			"Tap_confirm",
-			"Tap_Home"
+			"Tap_Home",
+            "SwipeRightSlow",
+            "SwipeLeftSlow"
         ]
     }]
 }

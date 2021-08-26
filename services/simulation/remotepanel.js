@@ -152,7 +152,8 @@ export default class RemotePanel extends BaseSimulation {
   // y: 200
   // dx: 200
   // dy: 0
-  async swipeReq(_action, _screentype, _x, _y, _dx, _dy) {
+  //duration: 1000
+  async swipeReq(_action, _screentype, _x, _y, _dx, _dy,_duration) {
     let swipeevent
     if (_action.toLowerCase() === 'exe' || _action.toLowerCase() === 'ret') {
       switch(_screentype.toLowerCase()) {
@@ -164,7 +165,8 @@ export default class RemotePanel extends BaseSimulation {
               x: _x,
               y: _y,
               dx: _dx,
-              dy: _dy
+              dy: _dy,
+              duration: _duration
             }
           }
           break
@@ -176,7 +178,8 @@ export default class RemotePanel extends BaseSimulation {
               x: _x,
               y: _y,
               dx: _dx,
-              dy: _dy
+              dy: _dy,
+              duration: _duration
             }
           }
           break
@@ -188,7 +191,8 @@ export default class RemotePanel extends BaseSimulation {
               x: _x,
               y: _y,
               dx: _dx,
-              dy: _dy
+              dy: _dy,
+              duration: _duration
             }
           }
           break
@@ -200,7 +204,8 @@ export default class RemotePanel extends BaseSimulation {
               x: _x,
               y: _y,
               dx: _dx,
-              dy: _dy
+              dy: _dy,
+              duration: _duration
             }
           }
           break
