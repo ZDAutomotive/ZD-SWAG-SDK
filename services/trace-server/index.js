@@ -178,8 +178,8 @@ export default class TraceServer {
       redisClient.subscribe('trace.eth0.eso.21002') 
  
       redisClient.on("message", function(channel, message) {
-        
-          if (option.keyword.test(message)){
+         
+          if (new RegExp(option.keyword).test(message)){
                 const obj = JSON.parse(message)
 
                 resolve({res: true, trace: obj.data.msgData })
