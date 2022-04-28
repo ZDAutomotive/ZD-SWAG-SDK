@@ -1,6 +1,6 @@
 {
   "name": "zd-swag-sdk",
-  "version": "0.6.34",
+  "version": "0.6.35",
   "description": "SDK for ZD-SWAG",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
