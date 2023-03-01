@@ -36,7 +36,7 @@
     "babel-preset-env": "^1.6.1",
     "chai": "^4.1.2",
     "cross-env": "^5.1.4",
-    "mocha": "^4.1.0",
+    "mocha": "^10.2.0",
     "rollup": "^0.55.5",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^8.4.1",
